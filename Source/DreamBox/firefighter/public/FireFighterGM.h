@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
-#include "FireFIghterGM.generated.h"
+#include "FireFighterGM.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class DREAMBOX_API AFireFIghterGM : public AGameModeBase
+class DREAMBOX_API AFireFighterGM : public AGameModeBase
 {
 	GENERATED_BODY()
 	

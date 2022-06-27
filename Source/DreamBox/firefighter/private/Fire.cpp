@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Fire.h"
-#include "DreamBox.h"
+#include "../public/Fire.h"
+#include "../../common/public/DreamBox.h"
 #include "TimerManager.h"
 
 // Sets default values

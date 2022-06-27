@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "FireHose.h"
-#include "DreamBox.h"
+#include "../public/FireHose.h"
+#include "../../common/public/DreamBox.h"
 
 // Sets default values
 AFireHose::AFireHose()
