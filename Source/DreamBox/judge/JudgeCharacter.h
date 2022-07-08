@@ -4,6 +4,7 @@
 #include "EngineMinimal.h"
 #include "GameFramework/Character.h"
 #include "Components/WidgetInteractionComponent.h"
+#include "Components/WidgetComponent.h"
 
 #include "JudgeCharacter.generated.h"
 
@@ -28,11 +29,12 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 
-	UPROPERTY(VisibleAnywhere, Category = Camera)
+	UPROPERTY(VisibleAnywhere, Category = "Camera")
 		UCameraComponent* Camera;
 
-	UPROPERTY(VisibleAnywhere, Category = Widget)
+	UPROPERTY(VisibleAnywhere, Category = "WidgetInteraction")
 		UWidgetInteractionComponent* WidgetInteraction;
+
 
 private:
 	void MoveForward(float NewAxisValue);
