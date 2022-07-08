@@ -4,6 +4,7 @@
 #include "EngineMinimal.h"
 #include "GameFramework/Character.h"
 #include "Components/WidgetInteractionComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 #include "JudgeCharacter.generated.h"
 

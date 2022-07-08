@@ -24,6 +24,7 @@ AJudgeCharacter::AJudgeCharacter()
 	WidgetInteraction->InteractionSource = EWidgetInteractionSource::CenterScreen;
 	WidgetInteraction->bShowDebug = false;
 	WidgetInteraction->bEnableHitTesting = false;
+
 }
 
 // Called when the game starts or when spawned
