@@ -30,6 +30,7 @@ AJudgeCharacter::AJudgeCharacter()
 void AJudgeCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	
 }
 /*aaa*/
 // Called every frame

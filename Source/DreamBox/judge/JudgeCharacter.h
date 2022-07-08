@@ -29,6 +29,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 
+public:
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
 		UCameraComponent* Camera;
 
