@@ -24,14 +24,12 @@ AJudgeCharacter::AJudgeCharacter()
 	WidgetInteraction->InteractionSource = EWidgetInteractionSource::CenterScreen;
 	WidgetInteraction->bShowDebug = false;
 	WidgetInteraction->bEnableHitTesting = false;
-
 }
 
 // Called when the game starts or when spawned
 void AJudgeCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame
