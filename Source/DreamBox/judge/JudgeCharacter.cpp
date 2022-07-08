@@ -31,7 +31,7 @@ void AJudgeCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 }
-
+/*aaa*/
 // Called every frame
 void AJudgeCharacter::Tick(float DeltaTime)
 {
