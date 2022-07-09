@@ -3,6 +3,8 @@
 
 #include "./JudgeCharacter.h"
 
+#include "./Chair.h"
+
 // Sets default values
 AJudgeCharacter::AJudgeCharacter()
 {
@@ -23,14 +25,13 @@ AJudgeCharacter::AJudgeCharacter()
 	WidgetInteraction->InteractionDistance = 20000.0f;
 	WidgetInteraction->InteractionSource = EWidgetInteractionSource::CenterScreen;
 	WidgetInteraction->bShowDebug = false;
-	WidgetInteraction->bEnableHitTesting = true;
+	WidgetInteraction->bEnableHitTesting = false;
 }
 
 // Called when the game starts or when spawned
 void AJudgeCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 /*aaa*/
 // Called every frame
