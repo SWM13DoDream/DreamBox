@@ -23,7 +23,7 @@ AJudgeCharacter::AJudgeCharacter()
 	WidgetInteraction->InteractionDistance = 20000.0f;
 	WidgetInteraction->InteractionSource = EWidgetInteractionSource::CenterScreen;
 	WidgetInteraction->bShowDebug = false;
-	WidgetInteraction->bEnableHitTesting = false;
+	WidgetInteraction->bEnableHitTesting = true;
 }
 
 // Called when the game starts or when spawned
