@@ -4,7 +4,7 @@
 
 #include "EngineMinimal.h"
 #include "GameFramework/Character.h"
-
+#include "Components/WidgetComponent.h"
 #include "NpcCharacter.generated.h"
 
 UCLASS()
@@ -27,4 +27,9 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UPROPERTY(VisibleAnywhere, Category = "Widget")
+		UWidgetComponent* ScriptWidget;
+
+	UPROPERTY(VisibleAnywhere, Category = "Chair")
+		UStaticMeshComponent* StaticMesh;
 };
