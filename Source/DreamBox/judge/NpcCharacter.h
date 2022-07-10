@@ -1,20 +1,20 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
+
 #include "EngineMinimal.h"
 #include "GameFramework/Character.h"
-#include "Components/WidgetInteractionComponent.h"
-
-#include "JudgeCharacter.generated.h"
+#include "Components/WidgetComponent.h"
+#include "NpcCharacter.generated.h"
 
 UCLASS()
-class DREAMBOX_API AJudgeCharacter : public ACharacter
+class DREAMBOX_API ANpcCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this character's properties
-	AJudgeCharacter();
+	ANpcCharacter();
 
 protected:
 	// Called when the game starts or when spawned
@@ -27,21 +27,9 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-public:
-	UPROPERTY(VisibleAnywhere, Category = "Camera")
-		UCameraComponent* Camera;
+	UPROPERTY(VisibleAnywhere, Category = "Widget")
+		UWidgetComponent* ScriptWidget;
 
-	UPROPERTY(VisibleAnywhere, Category = "WidgetInteraction")
-		UWidgetInteractionComponent* WidgetInteraction;
-
-
-private:
-	void MoveForward(float NewAxisValue);
-	void MoveRight(float NewAxisValue);
-
-	void Turn(float NewAxisValue);
-	void LookUp(float NewAxisValue);
-
-	void LClickPressed();
-	void LClickReleased();
+	UPROPERTY(VisibleAnywhere, Category = "Chair")
+		UStaticMeshComponent* StaticMesh;
 };
