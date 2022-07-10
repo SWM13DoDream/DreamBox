@@ -2,14 +2,14 @@
 
 
 #include "./Chair.h"
-#include "Components/WidgetComponent.h"
+#include "./JudgeCharacter.h"
 
 // Sets default values
 AChair::AChair()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
-	
+
 	Trigger = CreateDefaultSubobject<UBoxComponent>(TEXT("TRIGGER"));
 	Trigger->SetBoxExtent(FVector(80.0f, 80.0f, 60.0f));
 	Trigger->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
@@ -44,6 +44,7 @@ void AChair::OnCharacterOverlap(UPrimitiveComponent* OverlappedComp, AActor* Oth
 	{
 		JudgePlayer->GetCharacterMovement()->ToggleActive();
 		JudgePlayer->WidgetInteraction->bEnableHitTesting = true;
+		JudgePlayer->SetActorLocation(FVector(0.0f, 0.0f, 0.0f));
 	}
 }
 
