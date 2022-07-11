@@ -45,7 +45,6 @@ void AChair::OnCharacterOverlap(UPrimitiveComponent* OverlappedComp, AActor* Oth
 	{
 		JudgePlayer->GetCharacterMovement()->ToggleActive();
 		JudgePlayer->WidgetInteraction->bEnableHitTesting = true;
-		JudgePlayer->SetActorLocation(FVector(0.0f, 0.0f, 0.0f));
 		
 		AJudgeGameMode* GameMode = Cast<AJudgeGameMode>(GetWorld()->GetAuthGameMode());
 
