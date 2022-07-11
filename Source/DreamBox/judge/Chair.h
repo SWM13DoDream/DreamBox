@@ -6,6 +6,8 @@
 #include "Components/WidgetComponent.h"
 #include "Chair.generated.h"
 
+
+
 UCLASS()
 class DREAMBOX_API AChair : public AActor
 {
@@ -26,6 +28,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere, Category = "Box")
 		UBoxComponent* Trigger;
+
 
 private:
 	UFUNCTION()
