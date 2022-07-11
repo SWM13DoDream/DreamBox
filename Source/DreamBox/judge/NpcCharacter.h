@@ -1,5 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+/*
+- Name			: ANpcCharacter
+- Description	: 검사 / 변호사 / 피고인을 위한 Character
+- Date			: 2022-07-11
+*/
+
 #pragma once
 
 #include "EngineMinimal.h"
@@ -29,7 +35,4 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Widget")
 		UWidgetComponent* ScriptWidget;
-
-	UPROPERTY(VisibleAnywhere, Category = "Chair")
-		UStaticMeshComponent* StaticMesh;
 };

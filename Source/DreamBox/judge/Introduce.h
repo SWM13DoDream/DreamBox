@@ -7,6 +7,12 @@
 #include "Components/WidgetComponent.h"
 #include "Introduce.generated.h"
 
+/*
+- Name			: AIntroduce
+- Description	: 각 종 Floating Widget을 담당하는 Actor
+- Date			: 2022-07-11
+*/
+
 UCLASS()
 class DREAMBOX_API AIntroduce : public AActor
 {

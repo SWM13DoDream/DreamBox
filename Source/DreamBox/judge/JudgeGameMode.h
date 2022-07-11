@@ -1,5 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+/*
+- Name			: AJudgeGameMode
+- Description	: 모든 스크립트 DataTable 과 Delegate를 포함하고 있는 GameMode
+- Date			: 2022-07-11
+*/
+
+
 #pragma once
 
 #include "EngineMinimal.h"
@@ -40,6 +47,7 @@ public:
 	UFUNCTION()
 		virtual void BeginPlay() override;
 
+	// DataTable를 통해 Script와 Delay를 각각 배열에 집어넣는 함수
 	UFUNCTION()
 		void AddArray(UDataTable* Table, TArray<FString>& ScriptArray, TArray<float>& DelayArray);
 

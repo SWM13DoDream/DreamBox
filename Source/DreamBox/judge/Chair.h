@@ -6,7 +6,11 @@
 #include "Components/WidgetComponent.h"
 #include "Chair.generated.h"
 
-
+/*
+- Name			: AChair
+- Description	: JudgePlayer와 Overlap 시 재판 시작 (TrialBegins)를 호출하는 액터
+- Date			: 2022-07-11
+*/
 
 UCLASS()
 class DREAMBOX_API AChair : public AActor
