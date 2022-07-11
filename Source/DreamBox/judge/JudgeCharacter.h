@@ -7,6 +7,8 @@
 
 #include "JudgeCharacter.generated.h"
 
+
+
 UCLASS()
 class DREAMBOX_API AJudgeCharacter : public ACharacter
 {
@@ -33,6 +35,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere, Category = "WidgetInteraction")
 		UWidgetInteractionComponent* WidgetInteraction;
+
 
 
 private:

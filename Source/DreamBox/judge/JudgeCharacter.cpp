@@ -15,13 +15,13 @@ AJudgeCharacter::AJudgeCharacter()
 	bUseControllerRotationYaw = false;
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-	Camera->AttachTo(RootComponent);
+	Camera->SetupAttachment(RootComponent);
 	Camera->SetRelativeLocation(FVector(0, 0, 40));
 	
 	GetCharacterMovement()->MaxWalkSpeed = 400.0f;
 
 	WidgetInteraction = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("WidgetInteraction"));
-	WidgetInteraction->AttachTo(GetCapsuleComponent());
+	WidgetInteraction->SetupAttachment(GetCapsuleComponent());
 	WidgetInteraction->InteractionDistance = 20000.0f;
 	WidgetInteraction->InteractionSource = EWidgetInteractionSource::CenterScreen;
 	WidgetInteraction->bShowDebug = false;

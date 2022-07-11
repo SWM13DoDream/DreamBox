@@ -3,6 +3,7 @@
 
 #include "./Chair.h"
 #include "./JudgeCharacter.h"
+#include "./JudgeGameMode.h"
 
 // Sets default values
 AChair::AChair()
@@ -45,6 +46,11 @@ void AChair::OnCharacterOverlap(UPrimitiveComponent* OverlappedComp, AActor* Oth
 		JudgePlayer->GetCharacterMovement()->ToggleActive();
 		JudgePlayer->WidgetInteraction->bEnableHitTesting = true;
 		JudgePlayer->SetActorLocation(FVector(0.0f, 0.0f, 0.0f));
+		
+		AJudgeGameMode* GameMode = Cast<AJudgeGameMode>(GetWorld()->GetAuthGameMode());
+
+		// 의자에 캐릭터가 앉으면 재판을 시작
+		GameMode->StartOfTrial.Broadcast();
 	}
 }
 
