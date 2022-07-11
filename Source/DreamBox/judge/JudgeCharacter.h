@@ -7,6 +7,11 @@
 
 #include "JudgeCharacter.generated.h"
 
+/*
+- Name			: AJudgeCharacter
+- Description	: 판사 캐릭터 WidgetIntercation을 통해 다른 Widget 들과 Interaction 함
+- Date			: 2022-07-11
+*/
 
 
 UCLASS()
