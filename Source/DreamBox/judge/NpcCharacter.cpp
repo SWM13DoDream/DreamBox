@@ -10,7 +10,7 @@ ANpcCharacter::ANpcCharacter()
 	PrimaryActorTick.bCanEverTick = false;
 	ScriptWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("Widget"));
 
-	ScriptWidget->SetDrawSize(FVector2D(700.0f, 300.0f));
+	ScriptWidget->SetDrawSize(FVector2D(300.0f, 250.0f));
 	ScriptWidget->SetupAttachment(GetCapsuleComponent());
 }
 
