@@ -11,18 +11,6 @@ void AJudgeGameMode::BeginPlay()
 	AddArray(NStartOfCourtBattle, NStartOfCourtBattleScript, NStartOfCourtBattleDelay);
 	AddArray(NFinalJudgement, NFinalJudgementScript, NFinalJudgementDelay);
 	AddArray(NActualJudgement, NActualJudgementScript, NActualJudgementDelay);
-
-	AddArray(LMotive, LMotiveScript, LMotiveDelay);
-	AddArray(LDefendantThoughts, LDefendantThoughtsScript, LDefendantThoughtsDelay);
-	AddArray(LReimbursement, LReimbursementScript, LReimbursementDelay);
-	AddArray(LFinalOpinion, LFinalOpinionScript, LFinalOpinionDelay);
-
-	AddArray(PCriminalBackground, PCriminalBackgroundScript, PCriminalBackgroundDelay);
-	AddArray(PCriminalRecord, PCriminalRecordScript, PCriminalRecordDelay);
-	AddArray(PDegreeOfDamage, PDegreeOfDamageScript, PDegreeOfDamageDelay);
-	AddArray(PFinalOpinion, PFinalOpinionScript, PFinalOpinionDelay);
-
-	AddArray(DFinalOpinion, DFinalOpinionScript, DFinalOpinionDelay);
 }
 
 void AJudgeGameMode::AddArray(UDataTable* Table, TArray<FString>& ScriptArray, TArray<float>& DelayArray)
@@ -36,4 +24,9 @@ void AJudgeGameMode::AddArray(UDataTable* Table, TArray<FString>& ScriptArray, T
 		ScriptArray.Add(*Array[i]->Script);
 		DelayArray.Add(Array[i]->TimeLength);
 	}
+}
+
+void AJudgeGameMode::TryStartOfCourtBattle()
+{
+	if (bOverview && bVideo && bCondition) StartOfCourtBattle.Broadcast();
 }

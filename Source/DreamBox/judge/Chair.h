@@ -4,6 +4,7 @@
 #include "EngineMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Components/WidgetComponent.h"
+#include "Components/ArrowComponent.h"
 #include "Chair.generated.h"
 
 /*
@@ -30,7 +31,10 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(VisibleAnywhere, Category = "Box")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "BODY")
+		UStaticMeshComponent* Body;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Box")
 		UBoxComponent* Trigger;
 
 

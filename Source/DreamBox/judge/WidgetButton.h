@@ -9,6 +9,7 @@
 #pragma once
 
 #include "EngineMinimal.h"
+#include "./JudgeGameMode.h"
 #include "GameFramework/Actor.h"
 #include "Components/WidgetComponent.h"
 #include "WidgetButton.generated.h"
@@ -26,6 +27,9 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
+
+	UPROPERTY(VisibleAnywhere, Category = "Root")
+		USceneComponent* DefaultSceneRoot;
 
 	UPROPERTY(VisibleAnywhere, Category = "Body")
 		UStaticMeshComponent* Body;

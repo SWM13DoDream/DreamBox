@@ -13,6 +13,7 @@ AIntroduce::AIntroduce()
 	Widget->SetDrawSize(FVector2D(1920.f, 1080.f));
 
 	RootComponent = Widget;
+	RootComponent->SetWorldScale3D(FVector(0.15f, 0.15f, 0.15f));
 }
 
 // Called when the game starts or when spawned
