@@ -44,12 +44,17 @@ class DREAMBOX_API AJudgeGameMode : public AGameMode
 	GENERATED_BODY()
 
 public:
+	virtual void PostLogin(APlayerController* NewPlayer) override;
+
 	UFUNCTION()
 		virtual void BeginPlay() override;
 
 	// DataTable를 통해 Script와 Delay를 각각 배열에 집어넣는 함수
 	UFUNCTION()
 		void AddArray(UDataTable* Table, TArray<FString>& ScriptArray, TArray<float>& DelayArray);
+
+	UFUNCTION(BlueprintCallable)
+		void TryStartOfCourtBattle();
 
 
 public:
@@ -70,146 +75,55 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Narration")
 		UDataTable* NEnter;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Narration")
-		UDataTable* NGuide;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Narration")
-		UDataTable* NTrialBegins;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Narration")
-		UDataTable* NStartOfCourtBattle;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Narration")
-		UDataTable* NFinalJudgement;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Narration")
-		UDataTable* NActualJudgement;
-
-public:
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lawyer")
-		UDataTable* LMotive;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lawyer")
-		UDataTable* LDefendantThoughts;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lawyer")
-		UDataTable* LReimbursement;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lawyer")
-		UDataTable* LFinalOpinion;
-
-public:
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Prosecutor")
-		UDataTable* PCriminalBackground;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Prosecutor")
-		UDataTable* PCriminalRecord;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Prosecutor")
-		UDataTable* PDegreeOfDamage;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Prosecutor")
-		UDataTable* PFinalOpinion;
-
-public:
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dependant")
-		UDataTable* DFinalOpinion;
-
-public:
-
 	UPROPERTY(BlueprintReadWrite, Category = "Narration")
 		TArray<FString> NEnterScript;
 	UPROPERTY(BlueprintReadWrite, Category = "Narration")
 		TArray<float> NEnterDelay;
 
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Narration")
+		UDataTable* NGuide;
 	UPROPERTY(BlueprintReadWrite, Category = "Narration")
 		TArray<FString> NGuideScript;
 	UPROPERTY(BlueprintReadWrite, Category = "Narration")
 		TArray<float> NGuideDelay;
 
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Narration")
+		UDataTable* NTrialBegins;
 	UPROPERTY(BlueprintReadWrite, Category = "Narration")
 		TArray<FString> NTrialBeginsScript;
 	UPROPERTY(BlueprintReadWrite, Category = "Narration")
 		TArray<float> NTrialBeginsDelay;
 
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Narration")
+		UDataTable* NStartOfCourtBattle;
 	UPROPERTY(BlueprintReadWrite, Category = "Narration")
 		TArray<FString> NStartOfCourtBattleScript;
 	UPROPERTY(BlueprintReadWrite, Category = "Narration")
 		TArray<float> NStartOfCourtBattleDelay;
 
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Narration")
+		UDataTable* NFinalJudgement;
 	UPROPERTY(BlueprintReadWrite, Category = "Narration")
 		TArray<FString> NFinalJudgementScript;
 	UPROPERTY(BlueprintReadWrite, Category = "Narration")
 		TArray<float> NFinalJudgementDelay;
 
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Narration")
+		UDataTable* NActualJudgement;
 	UPROPERTY(BlueprintReadWrite, Category = "Narration")
 		TArray<FString> NActualJudgementScript;
 	UPROPERTY(BlueprintReadWrite, Category = "Narration")
 		TArray<float> NActualJudgementDelay;
 
 public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "widgetActive")
+		bool bWidgetIsActive;
 
-	UPROPERTY(BlueprintReadWrite, Category = "Lawyer")
-		TArray<FString> LMotiveScript;
-	UPROPERTY(BlueprintReadWrite, Category = "Lawyer")
-		TArray<float> LMotiveDelay;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Introduce")
+		bool bOverview;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Introduce")
+		bool bVideo;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Introduce")
+		bool bCondition;
 
-
-	UPROPERTY(BlueprintReadWrite, Category = "Lawyer")
-		TArray<FString> LDefendantThoughtsScript;
-	UPROPERTY(BlueprintReadWrite, Category = "Lawyer")
-		TArray<float>LDefendantThoughtsDelay;
-
-
-	UPROPERTY(BlueprintReadWrite, Category = "Lawyer")
-		TArray<FString> LReimbursementScript;
-	UPROPERTY(BlueprintReadWrite, Category = "Lawyer")
-		TArray<float> LReimbursementDelay;
-
-
-	UPROPERTY(BlueprintReadWrite, Category = "Lawyer")
-		TArray<FString> LFinalOpinionScript;
-	UPROPERTY(BlueprintReadWrite, Category = "Lawyer")
-		TArray<float> LFinalOpinionDelay;
-
-public:
-
-	UPROPERTY(BlueprintReadWrite, Category = "Prosecutor")
-		TArray<FString> PCriminalBackgroundScript;
-	UPROPERTY(BlueprintReadWrite, Category = "Prosecutor")
-		TArray<float> PCriminalBackgroundDelay;
-
-
-	UPROPERTY(BlueprintReadWrite, Category = "Prosecutor")
-		TArray<FString> PCriminalRecordScript;
-	UPROPERTY(BlueprintReadWrite, Category = "Prosecutor")
-		TArray<float> PCriminalRecordDelay;
-
-
-	UPROPERTY(BlueprintReadWrite, Category = "Prosecutor")
-		TArray<FString> PDegreeOfDamageScript;
-	UPROPERTY(BlueprintReadWrite, Category = "Prosecutor")
-		TArray<float> PDegreeOfDamageDelay;
-
-
-	UPROPERTY(BlueprintReadWrite, Category = "Prosecutor")
-		TArray<FString> PFinalOpinionScript;
-	UPROPERTY(BlueprintReadWrite, Category = "Prosecutor")
-		TArray<float> PFinalOpinionDelay;
-
-public:
-
-	UPROPERTY(BlueprintReadWrite, Category = "Defendant")
-		TArray<FString> DFinalOpinionScript;
-	UPROPERTY(BlueprintReadWrite, Category = "Defendant")
-		TArray<float> DFinalOpinionDelay;
 };

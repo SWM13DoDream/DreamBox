@@ -9,13 +9,18 @@
 AChair::AChair()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false;
 
+	PrimaryActorTick.bCanEverTick = false;
+	Body = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BODY"));
 	Trigger = CreateDefaultSubobject<UBoxComponent>(TEXT("TRIGGER"));
+
+	RootComponent = Body;
+	Trigger->SetupAttachment(RootComponent);
+
+	Trigger->SetRelativeLocation(FVector(0.0f, 0.0f, 70.0f));
 	Trigger->SetBoxExtent(FVector(80.0f, 80.0f, 60.0f));
 	Trigger->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
-	
-	RootComponent = Trigger;
+
 
 }
 
@@ -24,11 +29,13 @@ void AChair::BeginPlay()
 {
 	Super::BeginPlay();
 	
+
 }
 
 void AChair::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
+
 	Trigger->OnComponentBeginOverlap.AddDynamic(this, &AChair::OnCharacterOverlap);
 }
 
@@ -48,8 +55,6 @@ void AChair::OnCharacterOverlap(UPrimitiveComponent* OverlappedComp, AActor* Oth
 		
 		AJudgeGameMode* GameMode = Cast<AJudgeGameMode>(GetWorld()->GetAuthGameMode());
 
-		// 의자에 캐릭터가 앉으면 재판을 시작
-		GameMode->StartOfTrial.Broadcast();
 	}
 }
 

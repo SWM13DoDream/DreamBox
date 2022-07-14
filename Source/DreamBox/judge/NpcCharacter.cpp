@@ -2,6 +2,7 @@
 
 
 #include "./NpcCharacter.h"
+#include "./JudgeGameMode.h"
 
 // Sets default values
 ANpcCharacter::ANpcCharacter()
@@ -19,6 +20,10 @@ void ANpcCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	AddArray(FirstScriptDT, FirstScript, FirstDelay);
+	AddArray(SecondScriptDT, SecondScript, SecondDelay);
+	AddArray(ThirdScriptDT, ThirdScript, ThirdDelay);
+	AddArray(FourthScriptDT, FourthScript, FourthDelay);
 }
 
 // Called every frame
@@ -33,5 +38,20 @@ void ANpcCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+void ANpcCharacter::AddArray(UDataTable* Table, TArray<FString>& ScriptArray, TArray<float>& DelayArray)
+{
+	if (Table != NULL) {
+		TArray<FScriptStructure*> Array;
+		Table->GetAllRows<FScriptStructure>(TEXT("GetAllRows"), Array);
+
+		for (int i = 0; i < Array.Num(); ++i)
+		{
+			if (Array[i]->Script.Equals("")) break;
+			ScriptArray.Add(*Array[i]->Script);
+			DelayArray.Add(Array[i]->TimeLength);
+		}
+	}
 }
 

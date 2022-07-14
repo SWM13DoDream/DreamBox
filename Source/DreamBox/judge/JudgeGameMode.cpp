@@ -3,7 +3,8 @@
 
 #include "./JudgeGameMode.h"
 
-void AJudgeGameMode::BeginPlay()
+
+void AJudgeGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	AddArray(NEnter, NEnterScript, NEnterDelay);
 	AddArray(NGuide, NGuideScript, NGuideDelay);
@@ -11,18 +12,15 @@ void AJudgeGameMode::BeginPlay()
 	AddArray(NStartOfCourtBattle, NStartOfCourtBattleScript, NStartOfCourtBattleDelay);
 	AddArray(NFinalJudgement, NFinalJudgementScript, NFinalJudgementDelay);
 	AddArray(NActualJudgement, NActualJudgementScript, NActualJudgementDelay);
+	Super::PostLogin(NewPlayer);
+}
 
-	AddArray(LMotive, LMotiveScript, LMotiveDelay);
-	AddArray(LDefendantThoughts, LDefendantThoughtsScript, LDefendantThoughtsDelay);
-	AddArray(LReimbursement, LReimbursementScript, LReimbursementDelay);
-	AddArray(LFinalOpinion, LFinalOpinionScript, LFinalOpinionDelay);
+void AJudgeGameMode::BeginPlay()
+{
+	Super::BeginPlay();
 
-	AddArray(PCriminalBackground, PCriminalBackgroundScript, PCriminalBackgroundDelay);
-	AddArray(PCriminalRecord, PCriminalRecordScript, PCriminalRecordDelay);
-	AddArray(PDegreeOfDamage, PDegreeOfDamageScript, PDegreeOfDamageDelay);
-	AddArray(PFinalOpinion, PFinalOpinionScript, PFinalOpinionDelay);
+	UE_LOG(LogTemp, Warning, TEXT("Hello"));
 
-	AddArray(DFinalOpinion, DFinalOpinionScript, DFinalOpinionDelay);
 }
 
 void AJudgeGameMode::AddArray(UDataTable* Table, TArray<FString>& ScriptArray, TArray<float>& DelayArray)
@@ -36,4 +34,9 @@ void AJudgeGameMode::AddArray(UDataTable* Table, TArray<FString>& ScriptArray, T
 		ScriptArray.Add(*Array[i]->Script);
 		DelayArray.Add(Array[i]->TimeLength);
 	}
+}
+
+void AJudgeGameMode::TryStartOfCourtBattle()
+{
+	if (bOverview && bVideo && bCondition) StartOfCourtBattle.Broadcast();
 }
