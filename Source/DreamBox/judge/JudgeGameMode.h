@@ -44,6 +44,8 @@ class DREAMBOX_API AJudgeGameMode : public AGameMode
 	GENERATED_BODY()
 
 public:
+	virtual void PostLogin(APlayerController* NewPlayer) override;
+
 	UFUNCTION()
 		virtual void BeginPlay() override;
 
@@ -51,7 +53,7 @@ public:
 	UFUNCTION()
 		void AddArray(UDataTable* Table, TArray<FString>& ScriptArray, TArray<float>& DelayArray);
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		void TryStartOfCourtBattle();
 
 
@@ -115,7 +117,7 @@ public:
 
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "widgetActive")
-		bool bWidgetActive;
+		bool bWidgetIsActive;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Introduce")
 		bool bOverview;

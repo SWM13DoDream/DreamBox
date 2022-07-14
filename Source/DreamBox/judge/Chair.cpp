@@ -55,8 +55,6 @@ void AChair::OnCharacterOverlap(UPrimitiveComponent* OverlappedComp, AActor* Oth
 		
 		AJudgeGameMode* GameMode = Cast<AJudgeGameMode>(GetWorld()->GetAuthGameMode());
 
-		// 의자에 캐릭터가 앉으면 재판을 시작
-		GameMode->StartOfTrial.Broadcast();
 	}
 }
 

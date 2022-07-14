@@ -3,7 +3,8 @@
 
 #include "./JudgeGameMode.h"
 
-void AJudgeGameMode::BeginPlay()
+
+void AJudgeGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	AddArray(NEnter, NEnterScript, NEnterDelay);
 	AddArray(NGuide, NGuideScript, NGuideDelay);
@@ -11,6 +12,15 @@ void AJudgeGameMode::BeginPlay()
 	AddArray(NStartOfCourtBattle, NStartOfCourtBattleScript, NStartOfCourtBattleDelay);
 	AddArray(NFinalJudgement, NFinalJudgementScript, NFinalJudgementDelay);
 	AddArray(NActualJudgement, NActualJudgementScript, NActualJudgementDelay);
+	Super::PostLogin(NewPlayer);
+}
+
+void AJudgeGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+
+	UE_LOG(LogTemp, Warning, TEXT("Hello"));
+
 }
 
 void AJudgeGameMode::AddArray(UDataTable* Table, TArray<FString>& ScriptArray, TArray<float>& DelayArray)
