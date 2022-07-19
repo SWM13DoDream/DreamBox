@@ -6,24 +6,15 @@
 
 void AJudgeGameMode::PostLogin(APlayerController* NewPlayer)
 {
-	AddArray(NEnter, NEnterScript, NEnterDelay);
-	AddArray(NGuide, NGuideScript, NGuideDelay);
-	AddArray(NTrialBegins, NTrialBeginsScript, NTrialBeginsDelay);
-	AddArray(NStartOfCourtBattle, NStartOfCourtBattleScript, NStartOfCourtBattleDelay);
-	AddArray(NFinalJudgement, NFinalJudgementScript, NFinalJudgementDelay);
-	AddArray(NActualJudgement, NActualJudgementScript, NActualJudgementDelay);
 	Super::PostLogin(NewPlayer);
 }
 
 void AJudgeGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-
-	UE_LOG(LogTemp, Warning, TEXT("Hello"));
-
 }
 
-void AJudgeGameMode::AddArray(UDataTable* Table, TArray<FString>& ScriptArray, TArray<float>& DelayArray)
+void AJudgeGameMode::AddArrayCPP(UDataTable* Table, TArray<FString> ScriptArray, TArray<float> DelayArray)
 {
 	TArray<FScriptStructure*> Array;
 	Table->GetAllRows<FScriptStructure>(TEXT("GetAllRows"), Array);
@@ -39,4 +30,9 @@ void AJudgeGameMode::AddArray(UDataTable* Table, TArray<FString>& ScriptArray, T
 void AJudgeGameMode::TryStartOfCourtBattle()
 {
 	if (bOverview && bVideo && bCondition) StartOfCourtBattle.Broadcast();
+}
+
+void AJudgeGameMode::PetitionFunc()
+{
+	if (bPFinalOpinion && bLFinalOpinion && bDFinalOpinion) StartOfPetition.Broadcast();
 }
