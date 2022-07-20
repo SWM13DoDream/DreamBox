@@ -15,10 +15,10 @@
 #include "JudgeGameMode.generated.h"
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FStartOfTrial);			// 재판 시작 Delegate
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FStartOfCourtBattle);	// 법정공방 시작 Delegate 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FStartOfPetition);		// 탄원서 시작 Delegate
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FStartOfFinalJudgement);	// 선고 시작 Delegate
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FStartOfTrial);				// 재판 시작 Delegate
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FStartOfCourtBattle);		// 법정공방 시작 Delegate 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FStartOfPetition);			// 탄원서 시작 Delegate
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FStartOfFinalJudgement);		// 선고 시작 Delegate
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FStartOfActualJudgement);	// 실제 선고 시작 Delegate
 
 USTRUCT(BlueprintType)
@@ -55,10 +55,13 @@ public:
 		void AddArrayCPP(UDataTable* Table, TArray<FString> ScriptArray, TArray<float> DelayArray);
 
 	UFUNCTION(BlueprintCallable)
-		void TryStartOfCourtBattle();
+		bool TryStartOfCourtBattle();
 
 	UFUNCTION(BlueprintCallable)
-		void PetitionFunc();
+		bool TryStartOfPetition();
+
+	UFUNCTION(BlueprintCallable)
+		bool TryStartOfFinalJudgement();
 
 
 public:
@@ -146,6 +149,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Introduce")
 		bool bCondition;
 
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "FinalOpinion")
 		bool bPFinalOpinion;
 
@@ -154,5 +158,14 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "FinalOpinion")
 		bool bDFinalOpinion;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Introduce")
+		bool DoOnceIntroduce = true;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "FinalOpinion")
+		bool DoOnceFinalOpinion = true;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Petition")
+		bool DoOncePetition = true;
 
 };
