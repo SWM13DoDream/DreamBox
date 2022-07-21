@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+	// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "./JudgeCharacter.h"
@@ -67,17 +67,12 @@ void AJudgeCharacter::MoveRight(float NewAxisValue)
 
 void AJudgeCharacter::Turn(float NewAxisValue)
 {
-	AddActorLocalRotation(FRotator(0, NewAxisValue, 0));
+	AddControllerYawInput(NewAxisValue);
 }
 
 void AJudgeCharacter::LookUp(float NewAxisValue)
 {
-	float temp = Camera->GetRelativeRotation().Pitch + NewAxisValue;
-
-	if (temp < 65 && temp > -65)
-	{
-		Camera->AddLocalRotation(FRotator(NewAxisValue * -1, 0, 0));
-	}
+	AddControllerPitchInput(NewAxisValue);
 }
 
 void AJudgeCharacter::LClickPressed()
