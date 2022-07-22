@@ -14,25 +14,29 @@ void AJudgeGameMode::BeginPlay()
 	Super::BeginPlay();
 }
 
-void AJudgeGameMode::AddArrayCPP(UDataTable* Table, TArray<FString> ScriptArray, TArray<float> DelayArray)
+bool AJudgeGameMode::TryStartOfCourtBattle()
 {
-	TArray<FScriptStructure*> Array;
-	Table->GetAllRows<FScriptStructure>(TEXT("GetAllRows"), Array);
-
-	for (int i = 0; i < Array.Num(); ++i)
-	{
-		if (Array[i]->Script.Equals("")) break;
-		ScriptArray.Add(*Array[i]->Script);
-		DelayArray.Add(Array[i]->TimeLength);
+	if (bDoOnceIntroduce && (bOverview && bVideo && bCondition)) {
+		bDoOnceIntroduce = false;
+		return true; // 법정공방 시작
 	}
+	return false;
 }
 
-void AJudgeGameMode::TryStartOfCourtBattle()
+bool AJudgeGameMode::TryStartOfPetition()
 {
-	if (bOverview && bVideo && bCondition) StartOfCourtBattle.Broadcast();
+	if (bDoOnceFinalOpinion && (bPFinalOpinion && bLFinalOpinion && bDFinalOpinion)) {
+		bDoOnceFinalOpinion = false;
+		return true; // 탄원서 시작
+	}
+	else return false;
 }
 
-void AJudgeGameMode::PetitionFunc()
+bool AJudgeGameMode::TryStartOfFinalJudgement()
 {
-	if (bPFinalOpinion && bLFinalOpinion && bDFinalOpinion) StartOfPetition.Broadcast();
+	if (bDoOncePetition && (bFPetition && bMPetition)) {
+		bDoOncePetition = false;
+		return true;
+	}
+	else return false;
 }

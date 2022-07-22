@@ -15,10 +15,10 @@
 #include "JudgeGameMode.generated.h"
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FStartOfTrial);			// 재판 시작 Delegate
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FStartOfCourtBattle);	// 법정공방 시작 Delegate 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FStartOfPetition);		// 탄원서 시작 Delegate
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FStartOfFinalJudgement);	// 선고 시작 Delegate
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FStartOfTrial);				// 재판 시작 Delegate
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FStartOfCourtBattle);		// 법정공방 시작 Delegate 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FStartOfPetition);			// 탄원서 시작 Delegate
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FStartOfFinalJudgement);		// 선고 시작 Delegate
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FStartOfActualJudgement);	// 실제 선고 시작 Delegate
 
 USTRUCT(BlueprintType)
@@ -50,15 +50,14 @@ public:
 	UFUNCTION()
 		virtual void BeginPlay() override;
 
-	// DataTable를 통해 Script와 Delay를 각각 배열에 집어넣는 함수
 	UFUNCTION(BlueprintCallable)
-		void AddArrayCPP(UDataTable* Table, TArray<FString> ScriptArray, TArray<float> DelayArray);
+		bool TryStartOfCourtBattle();
 
 	UFUNCTION(BlueprintCallable)
-		void TryStartOfCourtBattle();
+		bool TryStartOfPetition();
 
 	UFUNCTION(BlueprintCallable)
-		void PetitionFunc();
+		bool TryStartOfFinalJudgement();
 
 
 public:
@@ -146,6 +145,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Introduce")
 		bool bCondition;
 
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "FinalOpinion")
 		bool bPFinalOpinion;
 
@@ -154,5 +154,21 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "FinalOpinion")
 		bool bDFinalOpinion;
+
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Petition")
+		bool bFPetition;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Petition")
+		bool bMPetition;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Introduce")
+		bool bDoOnceIntroduce = true;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "FinalOpinion")
+		bool bDoOnceFinalOpinion = true;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Petition")
+		bool bDoOncePetition = true;
 
 };
