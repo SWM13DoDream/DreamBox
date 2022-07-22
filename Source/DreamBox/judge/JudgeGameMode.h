@@ -50,10 +50,6 @@ public:
 	UFUNCTION()
 		virtual void BeginPlay() override;
 
-	// DataTable를 통해 Script와 Delay를 각각 배열에 집어넣는 함수
-	UFUNCTION(BlueprintCallable)
-		void AddArrayCPP(UDataTable* Table, TArray<FString> ScriptArray, TArray<float> DelayArray);
-
 	UFUNCTION(BlueprintCallable)
 		bool TryStartOfCourtBattle();
 
@@ -159,13 +155,20 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "FinalOpinion")
 		bool bDFinalOpinion;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Introduce")
-		bool DoOnceIntroduce = true;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "FinalOpinion")
-		bool DoOnceFinalOpinion = true;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Petition")
-		bool DoOncePetition = true;
+		bool bFPetition;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Petition")
+		bool bMPetition;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Introduce")
+		bool bDoOnceIntroduce = true;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "FinalOpinion")
+		bool bDoOnceFinalOpinion = true;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Petition")
+		bool bDoOncePetition = true;
 
 };
