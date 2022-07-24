@@ -148,20 +148,32 @@
 			"requirement": "optional"
 		},
 		{
-			"name": "/actions/main/in/MoveForward axis",
-			"type": "vector1"
+			"name": "/actions/main/in/LeftTrigger",
+			"type": "boolean"
 		},
 		{
-			"name": "/actions/main/in/MoveRight axis",
-			"type": "vector1"
+			"name": "/actions/main/in/RightTrigger",
+			"type": "boolean"
 		},
 		{
 			"name": "/actions/main/in/LookUp axis",
 			"type": "vector1"
 		},
 		{
+			"name": "/actions/main/in/LookUpRate axis",
+			"type": "vector1"
+		},
+		{
 			"name": "/actions/main/in/Turn axis",
 			"type": "vector1"
+		},
+		{
+			"name": "/actions/main/in/TurnRate axis",
+			"type": "vector1"
+		},
+		{
+			"name": "/actions/main/in/MovementAxisLeft_X,MovementAxisLeft_Y X Y_axis2d",
+			"type": "vector2"
 		}
 	],
 	"action_sets": [
@@ -404,10 +416,13 @@
 			"/actions/main/out/vibrateleft": "Haptic (Left)",
 			"/actions/main/out/vibrateright": "Haptic (Right)",
 			"/actions/main/in/open_console": "Open Console",
-			"/actions/main/in/MoveForward axis": "MoveForward",
-			"/actions/main/in/MoveRight axis": "MoveRight",
+			"/actions/main/in/LeftTrigger": "LeftTrigger",
+			"/actions/main/in/RightTrigger": "RightTrigger",
 			"/actions/main/in/LookUp axis": "LookUp",
+			"/actions/main/in/LookUpRate axis": "LookUpRate",
 			"/actions/main/in/Turn axis": "Turn",
+			"/actions/main/in/TurnRate axis": "TurnRate",
+			"/actions/main/in/MovementAxisLeft_X,MovementAxisLeft_Y X Y_axis2d": "MovementAxisLeft",
 			"/actions/main": "Main Game Actions"
 		}
 	]
