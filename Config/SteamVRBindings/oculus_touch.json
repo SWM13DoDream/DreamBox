@@ -8,32 +8,35 @@
 		{
 			"sources": [
 				{
-					"mode": "dpad",
-					"path": "/user/hand/left/input/joystick",
-					"parameters":
-					{
-						"sub_mode": "click"
-					},
+					"mode": "trigger",
+					"path": "/user/hand/left/input/trigger",
 					"inputs":
 					{
-						"north":
+						"click":
 						{
-							"output": "/actions/main/in/MoveForward axis"
+							"output": "/actions/main/in/LeftTrigger"
 						}
 					}
 				},
 				{
-					"mode": "dpad",
-					"path": "/user/hand/left/input/joystick",
-					"parameters":
-					{
-						"sub_mode": "click"
-					},
+					"mode": "trigger",
+					"path": "/user/hand/right/input/trigger",
 					"inputs":
 					{
-						"west":
+						"click":
 						{
-							"output": "/actions/main/in/MoveRight axis"
+							"output": "/actions/main/in/RightTrigger"
+						}
+					}
+				},
+				{
+					"mode": "joystick",
+					"path": "/user/hand/left/input/joystick",
+					"inputs":
+					{
+						"position":
+						{
+							"output": "/actions/main/in/MovementAxisLeft_X,MovementAxisLeft_Y X Y_axis2d"
 						}
 					}
 				}
