@@ -11,12 +11,15 @@ AFirefighterCharacter::AFirefighterCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	this->Tags = { "Player" };
-	
-	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CAMERA_BOOM"));
-	CameraBoom->SetupAttachment(RootComponent);
+
+	VROrigin = CreateDefaultSubobject<USceneComponent>(TEXT("VR_ORIGIN"));
+	VROrigin->SetupAttachment(RootComponent);
+
+	SpectatorRef = CreateDefaultSubobject<USceneComponent>(TEXT("SpectatorRef"));
+	SpectatorRef->SetupAttachment(VROrigin);
 
 	FollowingCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FOLLOWING_CAMERA"));
-	FollowingCamera->SetupAttachment(CameraBoom);
+	FollowingCamera->SetupAttachment(VROrigin);
 	FollowingCamera->SetRelativeLocation({ 30.0f, 0.0f, 60.0f });
 	FollowingCamera->bUsePawnControlRotation = true; 
 
@@ -37,7 +40,7 @@ void AFirefighterCharacter::BeginPlay()
 	Super::BeginPlay();
 	
 	if(GetWorld()) GamemodeRef = Cast<AFirefighterGamemode>(GetWorld()->GetAuthGameMode());
-	//if(IsValid(GamemodeRef)) GamemodeRef->UpdateMissionList() //BP 코드에서 이주 예정
+	//if(IsValid(GamemodeRef)) GamemodeRef->UpdateMissionList() //BP 코드에서 이주 예정@@@
 }
 
 // Called every frame
@@ -117,7 +120,7 @@ void AFirefighterCharacter::CarryInjuredCharacter()
 
 	InjuredCharacterRef->SetIsBeingRescued(true); //타겟 캐릭터가 구조중(업는중)이라고 체크
 	InjuredCharacterRef->SetCharacterCollisionState(false); //콜리전 제거
-	InjuredCharacterRef->GetRootComponent()->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale); //붙임
+	InjuredCharacterRef->GetRootComponent()->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale); //붙임
 	InjuredCharacterRef->GetRootComponent()->SetRelativeLocation({ 20.0f, 30.0f, 30.0f }); //상대 위치와 로테이션 지정
 	InjuredCharacterRef->GetRootComponent()->SetRelativeRotation({ 0.0f, 180.0f, 0.0f });
 	

@@ -78,6 +78,8 @@ void AFire::InitSteamDynamicMaterial()
 	if (SteamMaterialInterface == nullptr) return; //BP에서 Mat Interface를 지정해주지 않았다면 반환
 	SteamDynamicMaterial = UMaterialInstanceDynamic::Create(SteamMaterialInterface, GetWorld());
 	SteamEmitter->SetMaterial(0, SteamDynamicMaterial);	
+	SteamDynamicMaterial->SetScalarParameterValue("Opacity", SteamEmitterInitialOpacity);
+	SteamOpacityValue = SteamEmitterInitialOpacity;
 }
 
 void AFire::UpdateSteamOpacity()
@@ -96,7 +98,7 @@ void AFire::UpdateSteamOpacity()
 void AFire::MulticastUpdateSteamOpacity_Implementation()
 {
 	if (SteamOpacityValue < 0.0f) return; //SteamOpacity가 유효하지 않은 값이라면?
-	SteamOpacityValue = FMath::Max(0.0f, SteamOpacityValue - 0.01f); //새로운 Opacity값으로 대체
+	SteamOpacityValue = FMath::Max(0.0f, SteamOpacityValue - SteamEmitterInitialOpacity / SteamEmitterLifeSpan); //새로운 Opacity값으로 대체
 	SteamDynamicMaterial->SetScalarParameterValue("Opacity", SteamOpacityValue );// FMath::FInterpTo(SteamOpacityValue + 0.1f, SteamOpacityValue, GetWorld()->DeltaTimeSeconds, 0.5f));
 }
 

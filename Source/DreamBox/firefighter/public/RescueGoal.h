@@ -45,7 +45,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mission")
 		int32 MissionID;
 
+	//구출해야할 인원 수
+	UPROPERTY(EditAnywhere, Category = "Mission")
+		int32 TargetRescueCount; 
+
 private:
+	//현재까지 구출한 인원 수
+	UPROPERTY()
+		int32 CurrentRescueCount;
+
 	//게임모드 레퍼런스
 	UPROPERTY()
 		AFirefighterGamemode* GamemodeRef;

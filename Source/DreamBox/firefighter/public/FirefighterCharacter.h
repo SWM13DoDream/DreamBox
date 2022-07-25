@@ -47,7 +47,7 @@ public:
 		void Fire();
 
 	//물 발사 중지
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		void StopFire();
 
 	//Interaction) 다친 캐릭터를 어깨에 짊어짐
@@ -94,9 +94,13 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	//캐릭터의 메인 카메라의 SpringArm
+	//VR Immersive 에셋 사용을 위한 임시 코드
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		USpringArmComponent* CameraBoom;
+		USceneComponent* VROrigin;
+
+	//VR Immersive 에셋 사용을 위한 임시 코드
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		USceneComponent* SpectatorRef;
 
 	//소방호스 액터 : AFireHose 클래스를 지정.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -111,6 +115,7 @@ public:
 		USpotLightComponent* FlashLight;
 
 private:
+
 	//게임모드 레퍼런스
 	UPROPERTY()
 		AFirefighterGamemode* GamemodeRef;

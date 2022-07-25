@@ -76,9 +76,18 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public: 
+public:
+	//미션 ID. 해당 값을 기반으로 미션 업데이트 델리게이트 호출
 	UPROPERTY(EditAnywhere, Category = "Mission")
 		int32 MissionID;
+
+	//수증기의 초기 Opacity 값
+	UPROPERTY(EditAnywhere, Category = "Gameplay")
+		float SteamEmitterInitialOpacity = 1.0f; 
+
+	//수증기가 소멸할때까지 걸리는 시간
+	UPROPERTY(EditAnywhere, Category = "Gameplay")
+		float SteamEmitterLifeSpan = 100.0f;
 
 	UPROPERTY(VisibleDefaultsOnly)
 		USceneComponent* DefaultSceneRoot;
@@ -126,7 +135,7 @@ private:
 
 	//수증기 이미터의 Opacity
 	UPROPERTY(VisibleDefaultsOnly, Category = "Gameplay")
-		float SteamOpacityValue = 1.0f;
+		float SteamOpacityValue;
 
 	//연기의 Life (특정 시간만큼 Opacity 업데이트)
 	UPROPERTY()
