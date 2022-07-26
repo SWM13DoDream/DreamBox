@@ -9,15 +9,23 @@
 			"Type": "Runtime",
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
-				"Engine",
-				"UMG"
+				"Engine"
 			]
 		}
 	],
 	"Plugins": [
 		{
-			"Name": "HairStrands",
+			"Name": "ControlRig",
 			"Enabled": true
+		},
+		{
+			"Name": "SteamVR",
+			"Enabled": false,
+			"SupportedTargetPlatforms": [
+				"Win32",
+				"Win64",
+				"Linux"
+			]
 		},
 		{
 			"Name": "RigLogic",
@@ -31,5 +39,9 @@
 			"Name": "SequencerScripting",
 			"Enabled": true
 		}
+	],
+	"TargetPlatforms": [
+		"Android",
+		"WindowsNoEditor"
 	]
 }
