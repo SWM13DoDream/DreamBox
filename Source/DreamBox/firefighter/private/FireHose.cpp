@@ -19,6 +19,10 @@ AFireHose::AFireHose()
 	WaterEmitter->SetupAttachment(DefaultSceneRoot);
 	WaterEmitter->SetRelativeLocation({ 0.0f, 0.0f, 0.0f});
 	WaterEmitter->Deactivate();
+
+	FirehoseSound = CreateDefaultSubobject<UAudioComponent>(TEXT("FIRE_HOSE_SOUND"));
+	FirehoseSound->SetupAttachment(RootComponent);
+	FirehoseSound->bAutoActivate = false;
 }
 
 // Called when the game starts or when spawned
@@ -39,11 +43,19 @@ void AFireHose::Tick(float DeltaTime)
 void AFireHose::ActivateEmitter()
 {
 	WaterEmitter->Activate(); //물을 켬 : 나이아가라를 활성화
+	FirehoseSound->Activate();
 }
+
+void AFireHose::UpdateSoundVolume(float NewVolume)
+{
+
+}
+
 
 void AFireHose::DeactivateEmitter()
 {
 	WaterEmitter->Deactivate(); //물을 끔 : 나이아가라 비활성화 
+	FirehoseSound->Deactivate();
 }
 
 void AFireHose::MulticastApplyDamageToFire_Implementation(FVector Location)

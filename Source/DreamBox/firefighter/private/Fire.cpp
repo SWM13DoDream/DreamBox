@@ -84,7 +84,7 @@ void AFire::InitSteamDynamicMaterial()
 
 void AFire::UpdateSteamOpacity()
 {
-	if (SteamOpacityValue == 0) TryDestroy(); //연기가 모두 소멸했다면? 소멸 시도
+	if (SteamOpacityValue == 0) TryDestroyFire(); //연기가 모두 소멸했다면? 소멸 시도
 	if (HasAuthority())
 	{
 		MulticastUpdateSteamOpacity(); //서버에서 실행
@@ -131,15 +131,14 @@ void AFire::SetSteamDisappearTimer()
 	GetWorldTimerManager().SetTimer(DestroyTimerHandle, this, &AFire::UpdateSteamOpacity, 1.0f, true); //1초마다 연기가 옅어지도록 반복
 }
 
-inline void AFire::TryDestroy()
+void AFire::TryDestroyFire()
 {
 	if (SteamOpacityValue > 0.0f) return; //수증기까지 다 사라지면 Destroy
-	if (GetWorldTimerManager().GetTimerRemaining(EmitterUpdateTimerHandle) > 0) //타이머가 남아있다면
+	if (GetWorldTimerManager().GetTimerRemaining(EmitterUpdateTimerHandle) > 0.0f) //타이머가 남아있다면
 	{
 		GetWorldTimerManager().ClearTimer(EmitterUpdateTimerHandle); //타이머 초기화
 	}
 	Destroy();
-	return;
 }
 
 void AFire::UpdateMissionDelegate(int32 PlayerIdx, int32 TargetMissionID, int32 NewCondition) //115번째줄) 불 소멸시 델리게이트 호출 

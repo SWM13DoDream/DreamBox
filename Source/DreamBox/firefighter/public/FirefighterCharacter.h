@@ -115,7 +115,6 @@ public:
 		USpotLightComponent* FlashLight;
 
 private:
-
 	//게임모드 레퍼런스
 	UPROPERTY()
 		AFirefighterGamemode* GamemodeRef;

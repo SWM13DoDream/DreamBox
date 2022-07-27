@@ -33,4 +33,18 @@ public:
 	//FadeInOut 애니메이션을 출력
 	UPROPERTY(BlueprintAssignable, VisibleAnywhere, BlueprintCallable)
 		FDeleDynamicNoParam PlayFadeInOutAnimation; 
+
+public:
+	//완료한 미션을 셋에 추가
+	UFUNCTION(BlueprintCallable)
+		void AddToCompleteSet(int32 MissionID);
+
+	//특정 미션이 완료 되었는지 판단 
+	UFUNCTION(BlueprintCallable)
+		bool GetMissionIsComplete(int32 MissionID);
+
+private:
+	//완료한 미션의 ID들을 저장
+	UPROPERTY()
+		TSet<int32> CompleteMissionSet; 
 };

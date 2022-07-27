@@ -8,6 +8,7 @@
 #include "NiagaraComponent.h"
 #include "NiagaraDataInterfaceExport.h"
 #include "Components/ChildActorComponent.h"
+#include "Components/AudioComponent.h"
 #include "FireHose.generated.h"
 
 /*
@@ -34,6 +35,10 @@ public:
 	//물 이미터를 비활성화
 	UFUNCTION()
 		void DeactivateEmitter();
+
+	//소방호스 물 사운드 이펙트 볼륨을 업데이트
+	UFUNCTION()
+		void UpdateSoundVolume(float NewVolume);
 
 public: /*Replication 관련 함수*/
 	//불과 수증기 Emitter의 Scale을 업데이트(화재진압 로직) - (클라이언트에서 실행)
@@ -63,4 +68,12 @@ public: /*Component와 BP 접근 변수*/
 	UPROPERTY(EditAnywhere, Category = "Gameplay")
 		UChildActorComponent* HoseMesh;
 
+	//Firehose의 사운드 이펙트
+	UPROPERTY(EditAnywhere, Category = "Sound")
+		UAudioComponent* FirehoseSound; 
+
+private:
+	//사운드 이펙트 볼륨 배수
+	UPROPERTY()
+		float SoundVolumeMultipiler = 1.0f;
 };

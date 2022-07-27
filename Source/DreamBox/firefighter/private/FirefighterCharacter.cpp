@@ -71,14 +71,14 @@ void AFirefighterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 void AFirefighterCharacter::MoveForward(float Value)
 {
 	//현재 Controller의 X 방향으로 Value 만큼 이동
-	FVector Direction = FRotationMatrix(this->GetActorRotation()).GetScaledAxis(EAxis::X);
+	FVector Direction = FRotationMatrix(FollowingCamera->GetComponentRotation()).GetScaledAxis(EAxis::X);
 	AddMovementInput(Direction, Value);
 }
 
 void AFirefighterCharacter::MoveRight(float Value)
 {
 	//현재 Controller의 Y 방향으로 Value 만큼 이동
-	FVector Direction = FRotationMatrix(Controller->GetControlRotation()).GetScaledAxis(EAxis::Y);
+	FVector Direction = FRotationMatrix(FollowingCamera->GetComponentRotation()).GetScaledAxis(EAxis::Y);
 	AddMovementInput(Direction, Value);
 }
 

@@ -43,11 +43,11 @@ public:
 
 	//바인딩할 미션의 ID
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mission")
-		int32 MissionID;
+		int32 MissionID = 0;
 
 	//구출해야할 인원 수
 	UPROPERTY(EditAnywhere, Category = "Mission")
-		int32 TargetRescueCount; 
+		int32 TargetRescueCount = 0; 
 
 private:
 	//현재까지 구출한 인원 수

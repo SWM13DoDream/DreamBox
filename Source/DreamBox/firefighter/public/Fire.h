@@ -49,7 +49,7 @@ public:
 
 	//Destroy할 준비가 되었다면, Destroy를 시도 (수증기가 모두 사라지면 Destroy)
 	UFUNCTION()
-		void TryDestroy();
+		void TryDestroyFire();
 
 	//불이 꺼지면 바인딩된 미션을 업데이트 한다 
 	UFUNCTION()
