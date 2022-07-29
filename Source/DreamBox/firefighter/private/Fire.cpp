@@ -19,9 +19,14 @@ AFire::AFire()
 	FireEmitter = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("FIRE_EMITTER"));
 	FireEmitter->SetupAttachment(DefaultSceneRoot);
 
-	SteamEmitter = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Steam_EMITTER"));
+	SteamEmitter = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("STEAM_EMITTER"));
 	SteamEmitter->SetupAttachment(DefaultSceneRoot);
-	SteamEmitter->SetWorldScale3D({ 0.0f, 0.0f, 0.0f });
+	SteamEmitter->SetWorldScale3D(FVector(0.0f));
+
+	BlockingVolume = CreateDefaultSubobject<USphereComponent>(TEXT("BLOCKING_VOLUME"));
+	BlockingVolume->SetupAttachment(DefaultSceneRoot);
+	BlockingVolume->SetRelativeLocation(FVector(0.0f));
+	BlockingVolume->SetWorldScale3D(FVector(5.0f));
 }
 
 // Called when the game starts or when spawned
@@ -113,6 +118,7 @@ float AFire::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, ACo
 	if (FireEmitter->GetComponentScale() == FVector(0.0f) && !bIsReadyToDestroy)
 	{
 		SetSteamDisappearTimer(); //불이 모두 꺼졌다면 Destroy
+		BlockingVolume->SetCollisionProfileName(FName("OverlapAll"));
 		bIsFireSuppressed = true;
 		UpdateMissionDelegate(0, MissionID, 1); //임시 코드  : 0번째 플레이어만 업데이트
 		return 0.0f;

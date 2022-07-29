@@ -37,9 +37,17 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
+	//최상위 루트 컴포넌트
+	UPROPERTY()
+		USceneComponent* DefaultSceneRoot;
+
 	//구조 종료 포인트를 나타내는 콜리전 볼륨. 오버랩 시 구조 종료 이벤트 호출
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		USphereComponent* EventTrigger;
+	
+	//구조 종료 포인트를 시각적으로 보여주는 가이드 메시 (밝은 테두리 원)
+	UPROPERTY(EditAnywhere)
+		UStaticMeshComponent* DestinationGuideMesh;
 
 	//바인딩할 미션의 ID
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mission")

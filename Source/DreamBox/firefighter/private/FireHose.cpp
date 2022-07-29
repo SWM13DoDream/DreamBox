@@ -23,6 +23,7 @@ AFireHose::AFireHose()
 	FirehoseSound = CreateDefaultSubobject<UAudioComponent>(TEXT("FIRE_HOSE_SOUND"));
 	FirehoseSound->SetupAttachment(RootComponent);
 	FirehoseSound->bAutoActivate = false;
+	FirehoseSound->SetRelativeLocation(FVector(0.0f));
 }
 
 // Called when the game starts or when spawned

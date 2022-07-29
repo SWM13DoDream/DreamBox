@@ -27,6 +27,9 @@ public:
 	UFUNCTION()
 		void UpdateMissionDelegate();
 
+	UFUNCTION()
+		void UpdateMissionTriggerCollision(int32 PlayerId, int32 RemoveMissionId, bool bIsRemove);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -36,13 +39,21 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Gameplay")
 		int32 MissionID = 0;
 
+	//초기 콜리전 옵션 설정 (Initial 미션일 경우 초반부터 Overlap)
+	UPROPERTY(EditAnywhere, Category = "Gameplay")
+		bool bIsRequirePrevMission = false;
+
+	//이 트리거 볼륨을 활성화(BlockAll -> OverlapAll) 하기 위해 미리 완료 시켜야 할 미션들
+	UPROPERTY(EditAnywhere, Category = "Gameplay")
+		int32 PrevMissionID = -1;
+
 	//자동으로 미션을 활성화 할 것인지 여부
 	UPROPERTY(EditAnywhere, Category = "Gameplay")
 		bool bIsAutoActivate = false;
 
 	//할당된 미션ID를 기반으로 제거 델리게이트를 호출할 것인지?
 	UPROPERTY(EditAnywhere, Category = "Gameplay")
-		bool bIsRemoveTarget = false;
+		bool bIsRemoveVolume = false;
 
 	//루트 컴포넌트
 	UPROPERTY(EditAnywhere)

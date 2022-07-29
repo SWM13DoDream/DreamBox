@@ -10,8 +10,14 @@ ARescueGoal::ARescueGoal()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	DefaultSceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("DEFAULT_SCENE_ROOT"));
+	DefaultSceneRoot->SetupAttachment(RootComponent);
+
 	EventTrigger = CreateDefaultSubobject<USphereComponent>(TEXT("EVENT_TRIGGER"));
-	EventTrigger->SetupAttachment(RootComponent);
+	EventTrigger->SetupAttachment(DefaultSceneRoot);
+	
+	DestinationGuideMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DESTINATION_GUIDE"));
+	DestinationGuideMesh->SetupAttachment(DefaultSceneRoot);
 }
 
 // Called when the game starts or when spawned

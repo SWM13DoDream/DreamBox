@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "FirefighterGamemode.h"
+#include "Components/SphereComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Fire.generated.h"
 
@@ -107,6 +108,9 @@ public:
 	//연기 이미터  Opacity 조절을 위한 다이나믹 머티리얼
 	UPROPERTY()
 		UMaterialInstanceDynamic* SteamDynamicMaterial; 
+
+	UPROPERTY(EditAnywhere)
+		USphereComponent* BlockingVolume;
 
 private:
 	//게임모드 레퍼런스

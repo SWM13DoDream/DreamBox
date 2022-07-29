@@ -5,6 +5,7 @@
 #include "EngineMinimal.h"
 #include "GameFramework/Character.h"
 #include "Components/TextRenderComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "FirefighterGamemode.h"
 #include "InjuredCharacter.generated.h"
 
@@ -15,7 +16,7 @@
 */
 
 UCLASS()
-class DREAMBOX_API AInjuredCharacter : public ACharacter
+class DREAMBOX_API AInjuredCharacter : public APawn
 {
 	GENERATED_BODY()
 
@@ -25,9 +26,6 @@ public:
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	//플레이어가 가까이 왔음을 체크. 가까이 왔다면(볼륨 내에 들어왔다면) Carry 인터렉션이 가능하도록 업데이트
 	UFUNCTION()
@@ -65,6 +63,13 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
+	UPROPERTY()
+		UCapsuleComponent* CapsuleComponent;
+
+	//캐릭터의 몸체를 저장할 스켈레탈 메시 컴포넌트
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		USkeletalMeshComponent * Mesh;
+
 	//인터렉션이 가능한 범위를 나타내고 오버랩 이벤트를 통해 체크
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		USphereComponent* InteractionTrigger;
@@ -72,6 +77,10 @@ public:
 	//인터렉션 가이트 문구
 	UPROPERTY(EditAnywhere)
 		UTextRenderComponent* InteractionTextRender;
+	
+	//가이드 메시 컴포넌트
+	UPROPERTY(EditAnywhere)
+		UStaticMeshComponent* RescueGuideMesh;
 
 	//바인딩할 미션의 ID
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mission")
