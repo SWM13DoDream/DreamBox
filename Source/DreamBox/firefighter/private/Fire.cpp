@@ -111,7 +111,7 @@ void AFire::SetSteamDisappearTimer()
 		GetWorldTimerManager().SetTimer(DestroyTimerHandle, this, &AFire::ServerRPCUpdateSteamOpacity, 0.5f, true, 0.0f); //타이머 설정
 }
 
-inline void AFire::TryDestroy()
+void AFire::TryDestroy()
 {
 	if (SteamOpacityValue > 0) return; //수증기까지 다 사라지면 Destroy
 	Destroy();
