@@ -26,22 +26,6 @@
 				"Win64",
 				"Linux"
 			]
-		},
-		{
-			"Name": "RigLogic",
-			"Enabled": true
-		},
-		{
-			"Name": "LiveLinkControlRig",
-			"Enabled": true
-		},
-		{
-			"Name": "SequencerScripting",
-			"Enabled": true
-		},
-		{
-			"Name": "HairStrands",
-			"Enabled": true
 		}
 	],
 	"TargetPlatforms": [
