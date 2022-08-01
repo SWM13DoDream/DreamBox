@@ -28,7 +28,7 @@ public:
 		void UpdateMissionDelegate();
 
 	UFUNCTION()
-		void UpdateMissionTriggerCollision(int32 PlayerId, int32 RemoveMissionId, bool bIsRemove);
+		void UpdateMissionTriggerCollision(int32 PlayerId, int32 RemoveMissionId, int32 NewCondition);
 
 protected:
 	// Called when the game starts or when spawned
@@ -60,7 +60,7 @@ public:
 		USceneComponent* DefaultSceneRoot;
 
 	//플레이어의 오버랩으로 이벤트를 트리거
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		UBoxComponent* TriggerVolume;
 
 private:

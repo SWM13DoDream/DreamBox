@@ -84,17 +84,23 @@ void AFirefighterCharacter::MoveRight(float Value)
 
 void AFirefighterCharacter::TryInteraction()
 {
-	if (bIsCarrying) return; //상호작용 불가능 : 업고 있거나 집고 있는 상황
+	if (bIsCarrying || !GetIsReadyToInteraction()) return; //상호작용 불가능 : 업고 있거나 집고 있는 상황
 
+	GamemodeRef->PlayFadeInOutAnimation.Broadcast(0); //PlayerID는 임시로 0
 	switch (InteractionType) //상호작용 타입에 따라 구분
 	{
 	case EFirefighterInteractionType::E_CARRY :
-		GamemodeRef->PlayFadeInOutAnimation.Broadcast(0); //PlayerID는 임시로 0
 		GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&](){
 			CarryInjuredCharacter(); //FadeIn 중간에 캐릭터를 업음
 		}), 0.75f, false); 
 		break;
 	case EFirefighterInteractionType::E_PICK :
+		GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
+			InvestigateCauseOfFire(); //FadeIn 중간에 캐릭터를 업음
+		}), 0.75f, false);
+		break;
+	case EFirefighterInteractionType::E_INVESTIGATE :
+
 		break;
 	default:
 		break;
@@ -111,7 +117,13 @@ void AFirefighterCharacter::StopFire()
 {
 	if (!IsValid(FireHose->GetChildActor())) return;
 	Cast<AFireHose>(FireHose->GetChildActor())->DeactivateEmitter();  //소유한 호스의 나이아가라 이미터를 비활성화
-} 
+}
+
+void AFirefighterCharacter::InvestigateCauseOfFire()
+{
+	if (!IsValid(CauseOfFireRef) || !GetIsReadyToInteraction()) return; 
+	CauseOfFireRef->Destroy();
+}
 
 void AFirefighterCharacter::CarryInjuredCharacter()
 {
@@ -133,6 +145,12 @@ void AFirefighterCharacter::PutInjuredCharacter()
 	if (!IsValid(InjuredCharacterRef)) return; // 타겟 유효성 체크
 	InjuredCharacterRef->Destroy(); //타겟 캐릭터 소멸
 	ResetInteractionState(); //인터랙션 설정값들 초기화 
+}
+
+void AFirefighterCharacter::SetCauseOfFireRef(ACauseOfFire* NewCauseOfFire)
+{
+	if (!IsValid(NewCauseOfFire)) return; //타겟 유효성 체크
+	CauseOfFireRef = NewCauseOfFire;
 }
 
 void AFirefighterCharacter::SetInjuredCharacterRef(AInjuredCharacter* NewInjuredCharacter)

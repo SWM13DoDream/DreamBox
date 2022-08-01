@@ -27,6 +27,9 @@ AFire::AFire()
 	BlockingVolume->SetupAttachment(DefaultSceneRoot);
 	BlockingVolume->SetRelativeLocation(FVector(0.0f));
 	BlockingVolume->SetWorldScale3D(FVector(5.0f));
+
+	FireGuideMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("FIRE_GUIDE_MESH"));
+	FireGuideMesh->SetupAttachment(DefaultSceneRoot);
 }
 
 // Called when the game starts or when spawned
@@ -115,14 +118,8 @@ void AFire::ServerRPCUpdateSteamOpacity_Implementation()
 float AFire::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	if (DamageCauser == nullptr && !DamageCauser->ActorHasTag("FireHose")) return 0; //DamageCause이 유효하지 않거나 FireHose가 아니라면 return 
-	if (FireEmitter->GetComponentScale() == FVector(0.0f) && !bIsReadyToDestroy)
-	{
-		SetSteamDisappearTimer(); //불이 모두 꺼졌다면 Destroy
-		BlockingVolume->SetCollisionProfileName(FName("OverlapAll"));
-		bIsFireSuppressed = true;
-		UpdateMissionDelegate(0, MissionID, 1); //임시 코드  : 0번째 플레이어만 업데이트
-		return 0.0f;
-	}
+	if (CheckIsFireSuppressed()) return 0;
+
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser); //Super 클래스의 TakeDamage 호출
 	UpdateEmitterScale(DamageAmount); //데미지 만큼 이미터의 스케일 업데이트
 
@@ -145,6 +142,19 @@ void AFire::TryDestroyFire()
 		GetWorldTimerManager().ClearTimer(EmitterUpdateTimerHandle); //타이머 초기화
 	}
 	Destroy();
+}
+
+bool AFire::CheckIsFireSuppressed()
+{
+	if (FireEmitter->GetComponentScale().Y > 0.2f || bIsReadyToDestroy) return false;
+	
+	SetSteamDisappearTimer(); //불이 모두 꺼졌다면 Destroy
+	BlockingVolume->SetCollisionProfileName(FName("OverlapAll"));
+	bIsFireSuppressed = true;
+	FireGuideMesh->SetVisibility(false);
+	
+	UpdateMissionDelegate(0, MissionID, 1); //임시 코드  : 0번째 플레이어만 업데이트
+	return true;
 }
 
 void AFire::UpdateMissionDelegate(int32 PlayerIdx, int32 TargetMissionID, int32 NewCondition) //115번째줄) 불 소멸시 델리게이트 호출 

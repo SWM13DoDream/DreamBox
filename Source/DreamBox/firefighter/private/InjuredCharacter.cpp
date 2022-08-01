@@ -52,13 +52,7 @@ void AInjuredCharacter::Tick(float DeltaTime)
 void AInjuredCharacter::InteractionTriggerBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor
 		, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (GEngine)
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Overlap"));
-
 	if (!IsValid(OtherActor) || !OtherActor->ActorHasTag("Player") || bIsBeingRescued || bIsRescued) return; //플레이어 유효성 검사와 인터렉션 가능 조건 검사
-
-	if (GEngine)
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Start!"));
 
 	AFirefighterCharacter* playerCharacter = Cast<AFirefighterCharacter>(OtherActor);
 	if (playerCharacter->GetIsCarrying()) //플레이어가 이미 업고 있다면 메시지를 출력하고 반환

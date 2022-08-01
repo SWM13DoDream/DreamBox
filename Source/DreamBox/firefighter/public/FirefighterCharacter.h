@@ -5,6 +5,7 @@
 #include "EngineMinimal.h"
 #include "GameFramework/Character.h"
 #include "InjuredCharacter.h"
+#include "CauseOfFire.h"
 #include "TimerManager.h"
 #include "FirefighterGamemode.h"
 #include "FirefighterInteractionType.h"
@@ -38,6 +39,7 @@ public:
 	UFUNCTION()
 		void MoveRight(float Value);
 
+	/*-------- Interaction -----------------*/
 	//상호작용을 시도 : bIsReadyToInteraction과 InteractionType 기반으로 결정
 	UFUNCTION()
 		void TryInteraction();
@@ -50,6 +52,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void StopFire();
 
+	UFUNCTION(BlueprintCallable)
+		void InvestigateCauseOfFire();
+
 	//Interaction) 다친 캐릭터를 어깨에 짊어짐
 	UFUNCTION(BlueprintCallable)
 		void CarryInjuredCharacter();
@@ -57,6 +62,10 @@ public:
 	//Interaction) 업고 있는 캐릭터를 내려놓음
 	UFUNCTION(BlueprintCallable)
 		void PutInjuredCharacter();
+
+	//인터렉션 할 화재원인액터의 레퍼런스 지정
+	UFUNCTION(BlueprintCallable)
+		void SetCauseOfFireRef(ACauseOfFire* NewCauseOfFire);
 
 	//업을 캐릭터의 레퍼런스를 지정
 	UFUNCTION(BlueprintCallable)
@@ -122,6 +131,10 @@ private:
 	//업을 캐릭터의 레퍼런스 (InValid 할 경우 불가능)
 	UPROPERTY()
 		AInjuredCharacter* InjuredCharacterRef;
+
+	//화재 원인 액터 레퍼런스 
+	UPROPERTY()
+		ACauseOfFire* CauseOfFireRef;
 
 	//C++ 딜레이 사용 위한 타이머 핸들 : 미사용
 	UPROPERTY()

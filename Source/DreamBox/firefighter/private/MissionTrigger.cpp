@@ -40,7 +40,7 @@ void AMissionTrigger::BeginPlay()
 	if (GetWorld()) //게임모드 레퍼런스 따옴
 	{
 		GamemodeRef = Cast<AFirefighterGamemode>(GetWorld()->GetAuthGameMode());
-		GamemodeRef->UpdateMissionList.AddDynamic(this, &AMissionTrigger::UpdateMissionTriggerCollision);
+		GamemodeRef->UpdateMissionListComponent.AddDynamic(this, &AMissionTrigger::UpdateMissionTriggerCollision);
 	}
 }
 
@@ -61,13 +61,20 @@ void AMissionTrigger::OnComponentEndOverlap(class UPrimitiveComponent* Overlappe
 void AMissionTrigger::UpdateMissionDelegate()
 {
 	if (!IsValid(GamemodeRef)) return;
-	GamemodeRef->UpdateMissionList.Broadcast(0, MissionID, bIsRemoveVolume); //게임모드의 미션 업데이트 델리게이트 호출
+	if (!bIsRemoveVolume)
+	{
+		GamemodeRef->UpdateMissionList.Broadcast(0, MissionID, bIsRemoveVolume); //게임모드의 미션 업데이트 델리게이트 호출
+	}
+	else
+	{
+		GamemodeRef->UpdateMissionListComponent.Broadcast(0, MissionID, bIsRemoveVolume);
+	}
 }
 
-void AMissionTrigger::UpdateMissionTriggerCollision(int32 PlayerId, int32 RemoveMissionId, bool bIsRemove)
+void AMissionTrigger::UpdateMissionTriggerCollision(int32 PlayerId, int32 RemoveMissionId, int32 NewCondition)
 {	
 	//특정 미션을 제거하는 볼륨이거나 타겟이 다르다거나,
-	if (!bIsRemove || !bIsRequirePrevMission) return;
+	if (NewCondition <= 0 || !bIsRequirePrevMission) return;
 	if (RemoveMissionId != PrevMissionID) return;
 	TriggerVolume->SetCollisionProfileName(FName("OverlapAll"));
 }

@@ -52,6 +52,10 @@ public:
 	UFUNCTION()
 		void TryDestroyFire();
 
+	//불이 꺼졌는지 확인하고 꺼졌을 시의 로직을 실행 (콜리전, Destroy 처리 등)
+	UFUNCTION()
+		bool CheckIsFireSuppressed();
+
 	//불이 꺼지면 바인딩된 미션을 업데이트 한다 
 	UFUNCTION()
 		void UpdateMissionDelegate(int32 PlayerIdx, int32 TargetMissionID, int32 NewCondition);
@@ -109,8 +113,13 @@ public:
 	UPROPERTY()
 		UMaterialInstanceDynamic* SteamDynamicMaterial; 
 
+	//불에 가까이 가지 못하게 하는 콜리전 볼륨
 	UPROPERTY(EditAnywhere)
 		USphereComponent* BlockingVolume;
+
+	//불 경계를 나타내는 스태틱 메시
+	UPROPERTY(EditAnywhere)
+		UStaticMeshComponent* FireGuideMesh;
 
 private:
 	//게임모드 레퍼런스

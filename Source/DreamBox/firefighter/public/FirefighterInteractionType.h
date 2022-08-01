@@ -18,4 +18,5 @@ enum class EFirefighterInteractionType : uint8
 	E_NONE = 0		UMETA(DisplayName = "None"),
 	E_CARRY			UMETA(DisplayName = "Carry"),
 	E_PICK			UMETA(DisplayName = "Pick"),
+	E_INVESTIGATE	UMETA(DisplayName = "Investigate")
 };
