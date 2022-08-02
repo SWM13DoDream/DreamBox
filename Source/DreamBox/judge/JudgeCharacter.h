@@ -35,9 +35,6 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Camera")
-		UCameraComponent* Camera;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "WidgetInteraction")
 		UWidgetInteractionComponent* WidgetInteraction;
 
