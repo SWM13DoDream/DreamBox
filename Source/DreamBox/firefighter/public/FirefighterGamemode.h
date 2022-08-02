@@ -12,9 +12,11 @@
  - Date        : 2022/07/20 LJH
 */
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FDeleDynamicIntBool, int32, PlayerID, int32, MissionID, bool, bIsRemoveTarget);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FDeleDynamicTwoInt, int32, PlayerID, int32, MissionID, int32, NewCondition);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDeleDynamicNoParam, int32, PlayerID);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FDeleDynamicTwoIntBool, int32, PlayerID, int32, MissionID, bool, bIsRemoveTarget);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FDeleDynamicThreeInt, int32, PlayerID, int32, MissionID, int32, NewCondition);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FDeleDynamicTwoInt, int32, PlayerID, int32, ScriptID);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FDeleDynamicIntString, int32, PlayerID, FString, Script);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDeleDynamicOneParam, int32, PlayerID);
 
 
 UCLASS()
@@ -24,15 +26,21 @@ class DREAMBOX_API AFirefighterGamemode : public AGameModeBase
 public:
 	//미션을 업데이트 한다. (새로운 미션 추가 및 제거)
 	UPROPERTY(BlueprintAssignable, VisibleAnywhere, BlueprintCallable)
-		FDeleDynamicIntBool UpdateMissionList;
+		FDeleDynamicTwoIntBool UpdateMissionList;
 	
 	//특정한 미션의 내부 데이터를 업데이트
 	UPROPERTY(BlueprintAssignable, VisibleAnywhere, BlueprintCallable)
-		FDeleDynamicTwoInt UpdateMissionListComponent;
+		FDeleDynamicThreeInt UpdateMissionListComponent;
+
+	UPROPERTY(BlueprintAssignable, VisibleAnywhere, BlueprintCallable)
+		FDeleDynamicTwoInt ShowScriptWithID;
+
+	UPROPERTY(BlueprintAssignable, VisibleAnywhere, BlueprintCallable)
+		FDeleDynamicIntString ShowScriptWithString;
 
 	//FadeInOut 애니메이션을 출력
 	UPROPERTY(BlueprintAssignable, VisibleAnywhere, BlueprintCallable)
-		FDeleDynamicNoParam PlayFadeInOutAnimation; 
+		FDeleDynamicOneParam PlayFadeInOutAnimation; 
 
 public:
 	//완료한 미션을 셋에 추가
