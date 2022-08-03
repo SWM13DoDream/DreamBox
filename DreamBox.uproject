@@ -23,13 +23,21 @@
 			"Enabled": true
 		},
 		{
-			"Name": "SteamVR",
+			"Name": "Omniverse",
+			"Enabled": false
+		},
+		{
+			"Name": "MegascansPlugin",
 			"Enabled": false,
 			"SupportedTargetPlatforms": [
-				"Win32",
 				"Win64",
+				"Mac",
 				"Linux"
 			]
+		},
+		{
+			"Name": "MDL",
+			"Enabled": false
 		}
 	],
 	"TargetPlatforms": [

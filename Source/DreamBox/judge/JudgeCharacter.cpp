@@ -9,23 +9,19 @@
 AJudgeCharacter::AJudgeCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 	bUseControllerRotationYaw = false;
-
-	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-	Camera->SetupAttachment(RootComponent);
-	Camera->SetRelativeLocation(FVector(0, 0, 40));
 	
 	GetCharacterMovement()->MaxWalkSpeed = 400.0f;
 
-	WidgetInteraction = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("WidgetInteraction"));
-	WidgetInteraction->SetupAttachment(GetCapsuleComponent());
-	WidgetInteraction->InteractionDistance = 20000.0f;
-	WidgetInteraction->InteractionSource = EWidgetInteractionSource::CenterScreen;
-	WidgetInteraction->bShowDebug = false;
-	WidgetInteraction->bEnableHitTesting = false;
+	//WidgetInteraction = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("WidgetInteraction"));
+	//WidgetInteraction->SetupAttachment(GetCapsuleComponent());
+	//WidgetInteraction->InteractionDistance = 20000.0f;
+	//WidgetInteraction->InteractionSource = EWidgetInteractionSource::CenterScreen;
+	//WidgetInteraction->bShowDebug = false;
+	//WidgetInteraction->bEnableHitTesting = false;
 }
 
 // Called when the game starts or when spawned
@@ -49,10 +45,7 @@ void AJudgeCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &AJudgeCharacter::MoveRight);
 
 	PlayerInputComponent->BindAxis(TEXT("Turn"), this, &AJudgeCharacter::Turn);
-	PlayerInputComponent->BindAxis(TEXT("LookUp"), this, &AJudgeCharacter::LookUp);
-
-	PlayerInputComponent->BindAction(TEXT("LClick"), EInputEvent::IE_Pressed, this, &AJudgeCharacter::LClickPressed);
-	PlayerInputComponent->BindAction(TEXT("LClick"), EInputEvent::IE_Released, this, &AJudgeCharacter::LClickReleased);
+	PlayerInputComponent->BindAxis(TEXT("LookUp"), this, &AJudgeCharacter::LookUp);	
 }
 
 void AJudgeCharacter::MoveForward(float NewAxisValue)
@@ -75,12 +68,12 @@ void AJudgeCharacter::LookUp(float NewAxisValue)
 	AddControllerPitchInput(NewAxisValue);
 }
 
-void AJudgeCharacter::LClickPressed()
-{
-	WidgetInteraction->PressPointerKey(FKey(TEXT("LeftMouseButton")));
-}
-
-void AJudgeCharacter::LClickReleased()
-{
-	WidgetInteraction->ReleasePointerKey(FKey(TEXT("LeftMouseButton")));
-}
+//void AJudgeCharacter::LClickPressed()
+//{
+//	WidgetInteraction->PressPointerKey(FKey(TEXT("LeftMouseButton")));
+//}
+//
+//void AJudgeCharacter::LClickReleased()
+//{
+//	WidgetInteraction->ReleasePointerKey(FKey(TEXT("LeftMouseButton")));
+//}

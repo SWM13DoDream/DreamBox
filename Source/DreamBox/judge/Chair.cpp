@@ -47,13 +47,10 @@ void AChair::Tick(float DeltaTime)
 }
 
 void AChair::OnCharacterOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
+{	
 	if (AJudgeCharacter* JudgePlayer = Cast<AJudgeCharacter>(OtherActor))
 	{
 		JudgePlayer->GetCharacterMovement()->ToggleActive();
-		JudgePlayer->WidgetInteraction->bEnableHitTesting = true;
-		
-		AJudgeGameMode* GameMode = Cast<AJudgeGameMode>(GetWorld()->GetAuthGameMode());
 
 	}
 }
