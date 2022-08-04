@@ -41,39 +41,4 @@ void AJudgeCharacter::Tick(float DeltaTime)
 void AJudgeCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &AJudgeCharacter::MoveForward);
-	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &AJudgeCharacter::MoveRight);
-
-	PlayerInputComponent->BindAxis(TEXT("Turn"), this, &AJudgeCharacter::Turn);
-	PlayerInputComponent->BindAxis(TEXT("LookUp"), this, &AJudgeCharacter::LookUp);	
 }
-
-void AJudgeCharacter::MoveForward(float NewAxisValue)
-{
-	AddMovementInput(GetActorForwardVector(), NewAxisValue);
-}
-
-void AJudgeCharacter::MoveRight(float NewAxisValue)
-{
-	AddMovementInput(GetActorRightVector(), NewAxisValue);
-}
-
-void AJudgeCharacter::Turn(float NewAxisValue)
-{
-	AddControllerYawInput(NewAxisValue);
-}
-
-void AJudgeCharacter::LookUp(float NewAxisValue)
-{
-	AddControllerPitchInput(NewAxisValue);
-}
-
-//void AJudgeCharacter::LClickPressed()
-//{
-//	WidgetInteraction->PressPointerKey(FKey(TEXT("LeftMouseButton")));
-//}
-//
-//void AJudgeCharacter::LClickReleased()
-//{
-//	WidgetInteraction->ReleasePointerKey(FKey(TEXT("LeftMouseButton")));
-//}
