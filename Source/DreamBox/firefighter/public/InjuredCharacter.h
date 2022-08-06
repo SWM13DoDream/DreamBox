@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "Components/TextRenderComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/WidgetComponent.h"
 #include "FirefighterGamemode.h"
 #include "InjuredCharacter.generated.h"
 
@@ -16,7 +17,7 @@
 */
 
 UCLASS()
-class DREAMBOX_API AInjuredCharacter : public APawn
+class DREAMBOX_API AInjuredCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
@@ -45,8 +46,11 @@ public:
 	UFUNCTION()
 		void SetIsBeingRescued(bool NewState);
 
+	UFUNCTION()
+		void UpdateMissionToActivate(int TargetPlayerId, int NewMissionId, bool bIsRemove);
+
 	/* --- Get/Set 함수 ----- */
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintPure)
 		bool GetIsBeingRescued() { return bIsBeingRescued; }
 	
 	UFUNCTION(BlueprintCallable)
@@ -56,31 +60,23 @@ public:
 		bool GetIsRescued() { return bIsRescued; }
 
 	UFUNCTION()
-		int32 GetMissionID() { return MissionID;  }
+		int32 GetMissionID() { return MissionID; }
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:
-	UPROPERTY()
-		UCapsuleComponent* CapsuleComponent;
-
-	//캐릭터의 몸체를 저장할 스켈레탈 메시 컴포넌트
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		USkeletalMeshComponent * Mesh;
-
 	//인터렉션이 가능한 범위를 나타내고 오버랩 이벤트를 통해 체크
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		USphereComponent* InteractionTrigger;
 
-	//인터렉션 가이트 문구
-	UPROPERTY(EditAnywhere)
-		UTextRenderComponent* InteractionTextRender;
-	
 	//가이드 메시 컴포넌트
 	UPROPERTY(EditAnywhere)
 		UStaticMeshComponent* RescueGuideMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		UWidgetComponent* InfoWidget;
 
 	//바인딩할 미션의 ID
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mission")
@@ -94,7 +90,10 @@ private:
 	//현재 구조되고 있는지?
 	UPROPERTY()
 		bool bIsBeingRescued;
-
+	
 	UPROPERTY()
 		bool bIsRescued;
+
+	UPROPERTY()
+		bool bIsActivated = false;
 };

@@ -21,7 +21,7 @@ AFirefighterCharacter::AFirefighterCharacter()
 	FollowingCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FOLLOWING_CAMERA"));
 	FollowingCamera->SetupAttachment(VROrigin);
 	FollowingCamera->SetRelativeLocation({ 30.0f, 0.0f, 60.0f });
-	FollowingCamera->bUsePawnControlRotation = true; 
+	FollowingCamera->bUsePawnControlRotation = false;
 
 	FireHose = CreateDefaultSubobject<UChildActorComponent>(TEXT("FIRE_HOSE"));
 	FireHose->SetupAttachment(FollowingCamera);
@@ -32,6 +32,12 @@ AFirefighterCharacter::AFirefighterCharacter()
 	FlashLight->AttenuationRadius = 4000.0f;
 	FlashLight->InnerConeAngle = 20.0f;
 	FlashLight->OuterConeAngle = 28.0f;
+
+	RescueSocket = CreateDefaultSubobject<USpringArmComponent>(TEXT("RESCUE_SOCKET"));
+	RescueSocket->SetupAttachment(FollowingCamera);
+	RescueSocket->SetRelativeRotation(FQuat(0.0f, 0.0f, -90.0f, 0.0f));
+	RescueSocket->TargetArmLength = 50.0f;
+	RescueSocket->bEnableCameraLag = true;
 }
 
 // Called when the game starts or when spawned
@@ -95,9 +101,13 @@ void AFirefighterCharacter::TryInteraction()
 		}), 0.75f, false); 
 		break;
 	case EFirefighterInteractionType::E_PICK :
+		
 		break;
 	case EFirefighterInteractionType::E_INVESTIGATE :
-		InvestigateCauseOfFire();
+		GamemodeRef->PlayFadeInOutAnimation.Broadcast(0); //PlayerID는 임시로 0
+		GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
+			InvestigateCauseOfFire(); //FadeIn 중간에 캐릭터를 업음
+			}), 0.75f, false);
 		break;
 	default:
 		break;
@@ -118,9 +128,7 @@ void AFirefighterCharacter::StopFire()
 
 void AFirefighterCharacter::InvestigateCauseOfFire()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, "TEST");
 	if (!IsValid(CauseOfFireRef) || !GetIsReadyToInteraction()) return; 
-	GamemodeRef->ShowScriptWithString.Broadcast(0, CauseOfFireRef->Script);
 	CauseOfFireRef->Destroy();
 }
 
@@ -131,9 +139,9 @@ void AFirefighterCharacter::CarryInjuredCharacter()
 
 	InjuredCharacterRef->SetIsBeingRescued(true); //타겟 캐릭터가 구조중(업는중)이라고 체크
 	InjuredCharacterRef->SetCharacterCollisionState(false); //콜리전 제거
-	InjuredCharacterRef->GetRootComponent()->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale); //붙임
-	InjuredCharacterRef->GetRootComponent()->SetRelativeLocation({ 20.0f, 30.0f, 30.0f }); //상대 위치와 로테이션 지정
-	InjuredCharacterRef->GetRootComponent()->SetRelativeRotation({ 0.0f, 180.0f, 0.0f });
+	InjuredCharacterRef->GetRootComponent()->AttachToComponent(RescueSocket, FAttachmentTransformRules::SnapToTargetNotIncludingScale); //붙임
+	InjuredCharacterRef->GetRootComponent()->SetRelativeLocation({ 20.0f, 40.0f, 30.0f }); //상대 위치와 로테이션 지정
+	InjuredCharacterRef->GetRootComponent()->SetRelativeRotation({ 0.0f, 0.0f, 0.0f });
 	
 	SetIsCarrying(true); //업고있다고 체크
 	SetIsReadyToInteraction(false); //상호작용 불가능

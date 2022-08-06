@@ -88,7 +88,7 @@ public:
 		void ResetInteractionState(); 
 
 	//Interaction이 가능한지 여부 반환
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		bool GetIsReadyToInteraction() const { return bIsReadyToInteraction; }
 
 	//캐릭터가 어떤 것을 메고 있는지 반환
@@ -118,6 +118,10 @@ public:
 	//캐릭터의 메인 카메라 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UCameraComponent* FollowingCamera;
+
+	//구조되고있는 캐릭터가 부착될 컴포넌트
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		USpringArmComponent* RescueSocket;
 
 	//캐릭터의 손전등 불빛 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

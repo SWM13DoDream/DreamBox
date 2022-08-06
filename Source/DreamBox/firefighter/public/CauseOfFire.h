@@ -35,6 +35,9 @@ public:
 	UFUNCTION()
 		void TryActivateActor(int32 PlayerId, int32 NewMissionId, bool bIsRemove);
 
+	UFUNCTION(BlueprintPure)
+		bool GetIsActivated() { return bIsActivated; }
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -61,9 +64,6 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Gameplay")
 		bool bIsActivated; 
-
-	UPROPERTY(EditAnywhere, Category = "Gameplay")
-		FString Script; 
 
 private: 	
 	UPROPERTY()

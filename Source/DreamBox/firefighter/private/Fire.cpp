@@ -118,7 +118,7 @@ void AFire::ServerRPCUpdateSteamOpacity_Implementation()
 float AFire::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	if (DamageCauser == nullptr && !DamageCauser->ActorHasTag("FireHose")) return 0; //DamageCause이 유효하지 않거나 FireHose가 아니라면 return 
-	if (CheckIsFireSuppressed()) return 0;
+	if (CheckAndUpdateSuppressedState()) return 0;
 
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser); //Super 클래스의 TakeDamage 호출
 	UpdateEmitterScale(DamageAmount); //데미지 만큼 이미터의 스케일 업데이트
@@ -144,11 +144,12 @@ void AFire::TryDestroyFire()
 	Destroy();
 }
 
-bool AFire::CheckIsFireSuppressed()
+bool AFire::CheckAndUpdateSuppressedState()
 {
-	if (FireEmitter->GetComponentScale().Y > 0.2f || bIsReadyToDestroy) return false;
+	if (FireEmitter->GetComponentScale().Y > 0.05f || bIsReadyToDestroy) return false;
 	
 	SetSteamDisappearTimer(); //불이 모두 꺼졌다면 Destroy
+	FireEmitter->SetWorldScale3D(FVector(0.0f));
 	BlockingVolume->SetCollisionProfileName(FName("OverlapAll"));
 	bIsFireSuppressed = true;
 	FireGuideMesh->SetVisibility(false);

@@ -54,7 +54,10 @@ public:
 
 	//불이 꺼졌는지 확인하고 꺼졌을 시의 로직을 실행 (콜리전, Destroy 처리 등)
 	UFUNCTION()
-		bool CheckIsFireSuppressed();
+		bool CheckAndUpdateSuppressedState();
+
+	UFUNCTION(BlueprintPure)
+		bool GetIsFireSuppressed() { return bIsFireSuppressed; }
 
 	//불이 꺼지면 바인딩된 미션을 업데이트 한다 
 	UFUNCTION()
