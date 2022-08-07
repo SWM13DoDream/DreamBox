@@ -45,10 +45,7 @@ void AJudgeCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &AJudgeCharacter::MoveRight);
 
 	PlayerInputComponent->BindAxis(TEXT("Turn"), this, &AJudgeCharacter::Turn);
-	PlayerInputComponent->BindAxis(TEXT("LookUp"), this, &AJudgeCharacter::LookUp);
-
-	//PlayerInputComponent->BindAction(TEXT("LClick"), EInputEvent::IE_Pressed, this, &AJudgeCharacter::LClickPressed);
-	//PlayerInputComponent->BindAction(TEXT("LClick"), EInputEvent::IE_Released, this, &AJudgeCharacter::LClickReleased);
+	PlayerInputComponent->BindAxis(TEXT("LookUp"), this, &AJudgeCharacter::LookUp);	
 }
 
 void AJudgeCharacter::MoveForward(float NewAxisValue)
