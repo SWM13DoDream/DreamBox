@@ -41,9 +41,7 @@ void AJudgeCharacter::Tick(float DeltaTime)
 void AJudgeCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
+
 	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &AJudgeCharacter::MoveForward);
 	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &AJudgeCharacter::MoveRight);
 
@@ -80,12 +78,3 @@ void AJudgeCharacter::LookUp(float NewAxisValue)
 //{
 //	WidgetInteraction->ReleasePointerKey(FKey(TEXT("LeftMouseButton")));
 //}
-=======
-}
->>>>>>> 3f33ec6c9923eae5a687803c2b635bece785be65
-=======
-}
->>>>>>> 3f33ec6c9923eae5a687803c2b635bece785be65
-=======
-}
->>>>>>> 3f33ec6c9923eae5a687803c2b635bece785be65
