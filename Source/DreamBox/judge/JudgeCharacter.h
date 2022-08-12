@@ -4,7 +4,7 @@
 #include "EngineMinimal.h"
 #include "GameFramework/Character.h"
 #include "Components/WidgetInteractionComponent.h"
-
+#include "Components/WidgetComponent.h"
 #include "JudgeCharacter.generated.h"
 
 /*
@@ -38,15 +38,10 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "WidgetInteraction")
 		UWidgetInteractionComponent* WidgetInteraction;
 
-
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ScriptWidget")
+		UWidgetComponent* ScriptWidget;
 
 private:
 	void MoveForward(float NewAxisValue);
 	void MoveRight(float NewAxisValue);
-
-	void Turn(float NewAxisValue);
-	void LookUp(float NewAxisValue);
-
-	void LClickPressed();
-	void LClickReleased();
 };

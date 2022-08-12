@@ -3,8 +3,6 @@
 
 #include "./JudgeCharacter.h"
 
-#include "./Chair.h"
-
 // Sets default values
 AJudgeCharacter::AJudgeCharacter()
 {
@@ -12,16 +10,15 @@ AJudgeCharacter::AJudgeCharacter()
 	PrimaryActorTick.bCanEverTick = false;
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
-	bUseControllerRotationYaw = false;
 	
 	GetCharacterMovement()->MaxWalkSpeed = 400.0f;
-
-	//WidgetInteraction = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("WidgetInteraction"));
-	//WidgetInteraction->SetupAttachment(GetCapsuleComponent());
-	//WidgetInteraction->InteractionDistance = 20000.0f;
-	//WidgetInteraction->InteractionSource = EWidgetInteractionSource::CenterScreen;
-	//WidgetInteraction->bShowDebug = false;
-	//WidgetInteraction->bEnableHitTesting = false;
+	
+	ScriptWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("ScriptWidget"));
+	ScriptWidget->SetupAttachment(RootComponent);
+	ScriptWidget->SetDrawSize(FVector2D(1920.f, 400.f));
+	ScriptWidget->SetWorldRotation(FRotator(15.f, 180.f, 0.f));
+	ScriptWidget->SetRelativeLocation(FVector(130.0f, 13.0f, -50.0f));
+	ScriptWidget->SetWorldScale3D(FVector(1.0f, 0.07f, 0.07f));
 }
 
 // Called when the game starts or when spawned
@@ -45,8 +42,8 @@ void AJudgeCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &AJudgeCharacter::MoveForward);
 	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &AJudgeCharacter::MoveRight);
 
-	PlayerInputComponent->BindAxis(TEXT("Turn"), this, &AJudgeCharacter::Turn);
-	PlayerInputComponent->BindAxis(TEXT("LookUp"), this, &AJudgeCharacter::LookUp);	
+	PlayerInputComponent->BindAxis(TEXT("Turn"), this, &AJudgeCharacter::AddControllerYawInput);
+	PlayerInputComponent->BindAxis(TEXT("LookUp"), this, &AJudgeCharacter::AddControllerPitchInput);
 }
 
 void AJudgeCharacter::MoveForward(float NewAxisValue)
@@ -58,23 +55,3 @@ void AJudgeCharacter::MoveRight(float NewAxisValue)
 {
 	AddMovementInput(GetActorRightVector(), NewAxisValue);
 }
-
-void AJudgeCharacter::Turn(float NewAxisValue)
-{
-	AddControllerYawInput(NewAxisValue);
-}
-
-void AJudgeCharacter::LookUp(float NewAxisValue)
-{
-	AddControllerPitchInput(NewAxisValue);
-}
-
-//void AJudgeCharacter::LClickPressed()
-//{
-//	WidgetInteraction->PressPointerKey(FKey(TEXT("LeftMouseButton")));
-//}
-//
-//void AJudgeCharacter::LClickReleased()
-//{
-//	WidgetInteraction->ReleasePointerKey(FKey(TEXT("LeftMouseButton")));
-//}
