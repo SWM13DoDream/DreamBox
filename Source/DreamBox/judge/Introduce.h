@@ -8,9 +8,10 @@
 #include "Introduce.generated.h"
 
 /*
-- Name			: AIntroduce
+- Name			: AIntroduce [ 이름변경 요망 ]
 - Description	: 각 종 Floating Widget을 담당하는 Actor
-- Date			: 2022-07-11
+- Date			: 2022-08-12
+- Version		: 1.0.1 ver
 */
 
 UCLASS()
@@ -30,6 +31,9 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+public:
+
+	// Float Widget을 의미하는 WidgetComponent
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Widget")
 		UWidgetComponent* Widget;
 };

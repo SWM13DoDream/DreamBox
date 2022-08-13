@@ -9,8 +9,9 @@
 
 /*
 - Name			: AChair
-- Description	: JudgePlayer와 Overlap 시 재판 시작 (TrialBegins)를 호출하는 액터
-- Date			: 2022-07-11
+- Description	: JudgePlayer와 Overlap 시 재판 시작 (TrialBegins)를 호출하는 Actor
+- Date			: 2022-08-12
+- Version		: 1.0.1 ver
 */
 
 UCLASS()
@@ -31,16 +32,21 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+public:
+	// 의자의 Mesh를 장착하기 위한 MeshComponent
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "BODY")
 		UStaticMeshComponent* Body;
 
+	// Player와 BeginOverlap을 판단하기 위한 BoxComponent
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Box")
 		UBoxComponent* Trigger;
 
 
 private:
+
+	// Player와 Overlap을 확인하기 위한 함수
 	UFUNCTION()
-		void OnCharacterOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp,
-			int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	void OnCharacterOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 };

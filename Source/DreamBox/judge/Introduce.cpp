@@ -7,13 +7,13 @@
 AIntroduce::AIntroduce()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	Widget = CreateDefaultSubobject<UWidgetComponent>(TEXT("WIDGET"));
 	Widget->SetDrawSize(FVector2D(1920.f, 1080.f));
-
+	Widget->SetWorldScale3D(FVector(0.15f, 0.15f, 0.15f));
 	RootComponent = Widget;
-	RootComponent->SetWorldScale3D(FVector(0.15f, 0.15f, 0.15f));
+	
 }
 
 // Called when the game starts or when spawned

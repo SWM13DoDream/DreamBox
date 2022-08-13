@@ -9,16 +9,18 @@ AJudgeCharacter::AJudgeCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
+	// 캐릭터가 시작될 때 Player0으로 시작되게 만듬
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 	
+	// 캐릭터의 이동 속도를 400으로 변경
 	GetCharacterMovement()->MaxWalkSpeed = 400.0f;
 	
-	ScriptWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("ScriptWidget"));
-	ScriptWidget->SetupAttachment(RootComponent);
-	ScriptWidget->SetDrawSize(FVector2D(1920.f, 400.f));
-	ScriptWidget->SetWorldRotation(FRotator(15.f, 180.f, 0.f));
-	ScriptWidget->SetRelativeLocation(FVector(130.0f, 13.0f, -50.0f));
-	ScriptWidget->SetWorldScale3D(FVector(1.0f, 0.07f, 0.07f));
+	//ScriptWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("ScriptWidget"));
+	//ScriptWidget->SetDrawSize(FVector2D(1920.f, 400.f));
+	//ScriptWidget->SetWorldRotation(FRotator(15.f, 180.f, 0.f));
+	//ScriptWidget->SetRelativeLocation(FVector(130.0f, 13.0f, -50.0f));
+	//ScriptWidget->SetWorldScale3D(FVector(1.0f, 0.07f, 0.07f));
+	//ScriptWidget->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
@@ -39,9 +41,10 @@ void AJudgeCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	// 상하좌우 이동을 바인딩 [ 오큘러스 & 키보드 ]
 	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &AJudgeCharacter::MoveForward);
 	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &AJudgeCharacter::MoveRight);
-
+	// 마우스의 이동을 바인딩 [ 마우스 ]
 	PlayerInputComponent->BindAxis(TEXT("Turn"), this, &AJudgeCharacter::AddControllerYawInput);
 	PlayerInputComponent->BindAxis(TEXT("LookUp"), this, &AJudgeCharacter::AddControllerPitchInput);
 }
