@@ -4,6 +4,7 @@
 
 #include "EngineMinimal.h"
 #include "GameFramework/Character.h"
+#include "../../common/public/VRCharacter.h"
 #include "InjuredCharacter.h"
 #include "TimerManager.h"
 #include "CauseOfFire.h"
@@ -14,11 +15,11 @@
 /*
  - Name        : AFirefighterCharacter
  - Descirption : Firefighter 직업의 메인 Playable 캐릭터
- - Date        : 2022/07/20 LJH
+ - Date        : 2022/08/16 LJH
 */
 
 UCLASS()
-class DREAMBOX_API AFirefighterCharacter : public ACharacter
+class DREAMBOX_API AFirefighterCharacter : public AVRCharacter
 {
 	GENERATED_BODY()
 public:
@@ -30,14 +31,6 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	//기본 이동 함수 : 앞뒤 이동
-	UFUNCTION()
-		void MoveForward(float Value);
-
-	//기본 이동 함수 : 양옆 이동
-	UFUNCTION()
-		void MoveRight(float Value);
 
 	/*-------- Interaction -----------------*/
 	//상호작용을 시도 : bIsReadyToInteraction과 InteractionType 기반으로 결정
@@ -95,6 +88,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 		bool GetIsCarrying() const { return bIsCarrying;  }
 
+	//업고있는 InjuredCharacter의 레퍼런스를 반환
 	UFUNCTION(BlueprintCallable)
 		AInjuredCharacter* GetInjuredCharacterRef() const { return InjuredCharacterRef;  }
 
@@ -103,21 +97,9 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	//VR Immersive 에셋 사용을 위한 임시 코드
+	//캐릭터가 소유한 소방 호스 관창
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		USceneComponent* VROrigin;
-
-	//VR Immersive 에셋 사용을 위한 임시 코드
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		USceneComponent* SpectatorRef;
-
-	//소방호스 액터 : AFireHose 클래스를 지정.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		UChildActorComponent* FireHose;
-
-	//캐릭터의 메인 카메라 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		UCameraComponent* FollowingCamera;
+		UChildActorComponent* FireHose; 
 
 	//구조되고있는 캐릭터가 부착될 컴포넌트
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

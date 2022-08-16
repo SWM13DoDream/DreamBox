@@ -8,20 +8,7 @@
 // Sets default values
 AFirefighterCharacter::AFirefighterCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	this->Tags = { "Player" };
-
-	VROrigin = CreateDefaultSubobject<USceneComponent>(TEXT("VR_ORIGIN"));
-	VROrigin->SetupAttachment(RootComponent);
-
-	SpectatorRef = CreateDefaultSubobject<USceneComponent>(TEXT("SpectatorRef"));
-	SpectatorRef->SetupAttachment(VROrigin);
-
-	FollowingCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FOLLOWING_CAMERA"));
-	FollowingCamera->SetupAttachment(VROrigin);
-	FollowingCamera->SetRelativeLocation({ 30.0f, 0.0f, 60.0f });
-	FollowingCamera->bUsePawnControlRotation = false;
 
 	FireHose = CreateDefaultSubobject<UChildActorComponent>(TEXT("FIRE_HOSE"));
 	FireHose->SetupAttachment(FollowingCamera);
@@ -45,7 +32,8 @@ void AFirefighterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	if(GetWorld()) GamemodeRef = Cast<AFirefighterGamemode>(GetWorld()->GetAuthGameMode());
+
+	if (GetWorld()) GamemodeRef = Cast<AFirefighterGamemode>(GetWorld()->GetAuthGameMode());
 	//if(IsValid(GamemodeRef)) GamemodeRef->UpdateMissionList() //BP 코드에서 이주 예정@@@
 }
 
@@ -62,30 +50,21 @@ void AFirefighterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	//입력을 함수와 바인딩
-	PlayerInputComponent->BindAxis("MoveForward", this, &AFirefighterCharacter::MoveForward);
-	PlayerInputComponent->BindAxis("MoveRight", this, &AFirefighterCharacter::MoveRight);
+	PlayerInputComponent->BindAxis("MoveForward", this, &AVRCharacter::MoveForward);
+	PlayerInputComponent->BindAxis("MoveRight", this, &AVRCharacter::MoveRight);
 
-	PlayerInputComponent->BindAxis("Turn", this, &AFirefighterCharacter::AddControllerYawInput);
-	PlayerInputComponent->BindAxis("LookUp", this, &AFirefighterCharacter::AddControllerPitchInput);
+	PlayerInputComponent->BindAxis("Turn", this, &AVRCharacter::AddControllerYawInput);
+	PlayerInputComponent->BindAxis("LookUp", this, &AVRCharacter::AddControllerPitchInput);
 
+	PlayerInputComponent->BindAction("ThumbstickRight_L", IE_Pressed, this, &AVRCharacter::SnapTurnLeft);
+	PlayerInputComponent->BindAction("ThumbstickRight_R", IE_Pressed, this, &AVRCharacter::SnapTurnRight);
+	PlayerInputComponent->BindAction("ThumbstickRight_L", IE_Released, this, &AVRCharacter::ResetSnapTurn);
+	PlayerInputComponent->BindAction("ThumbstickRight_R", IE_Released, this, &AVRCharacter::ResetSnapTurn);
+	
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AFirefighterCharacter::Fire);
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &AFirefighterCharacter::StopFire);
 
 	PlayerInputComponent->BindAction("Interaction", IE_Pressed, this, &AFirefighterCharacter::TryInteraction);
-}
-
-void AFirefighterCharacter::MoveForward(float Value)
-{
-	//현재 Controller의 X 방향으로 Value 만큼 이동
-	FVector Direction = FRotationMatrix(FollowingCamera->GetComponentRotation()).GetScaledAxis(EAxis::X);
-	AddMovementInput(Direction, Value);
-}
-
-void AFirefighterCharacter::MoveRight(float Value)
-{
-	//현재 Controller의 Y 방향으로 Value 만큼 이동
-	FVector Direction = FRotationMatrix(FollowingCamera->GetComponentRotation()).GetScaledAxis(EAxis::Y);
-	AddMovementInput(Direction, Value);
 }
 
 void AFirefighterCharacter::TryInteraction()
