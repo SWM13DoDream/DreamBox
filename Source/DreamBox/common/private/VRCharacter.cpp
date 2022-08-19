@@ -13,13 +13,22 @@ AVRCharacter::AVRCharacter()
 	VROrigin = CreateDefaultSubobject<USceneComponent>(TEXT("VR_ORIGIN"));
 	VROrigin->SetupAttachment(RootComponent);
 
-	SpectatorRef = CreateDefaultSubobject<USceneComponent>(TEXT("SpectatorRef"));
-	SpectatorRef->SetupAttachment(VROrigin);
-
 	FollowingCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FOLLOWING_CAMERA"));
 	FollowingCamera->SetupAttachment(VROrigin);
 	FollowingCamera->SetRelativeLocation({ 30.0f, 0.0f, 60.0f });
 	FollowingCamera->bUsePawnControlRotation = false;
+
+	SpectatorRef = CreateDefaultSubobject<USceneComponent>(TEXT("SPECTATOR_REF"));
+	SpectatorRef->SetupAttachment(FollowingCamera);
+
+	GenericHMD = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("GENERIC_HMD"));
+	GenericHMD->SetupAttachment(FollowingCamera);
+
+	HeadCollision = CreateDefaultSubobject<USphereComponent>(TEXT("HEAD_COLLISION"));
+	HeadCollision->SetupAttachment(GenericHMD);
+
+	WidgetInteraction = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("WIDGET_INTERACTION"));
+	WidgetInteraction->SetupAttachment(FollowingCamera);
 }
 
 // Called when the game starts or when spawned
@@ -53,18 +62,18 @@ void AVRCharacter::MoveRight(float Value)
 void AVRCharacter::SnapTurnLeft()
 {
 	if (bSnapTurnIsFinished) return; //꾹 눌렀을 때, 연속 호출이 되지 않도록 방지
-	FRotator NewRotation = VROrigin->GetComponentRotation();
+	FRotator NewRotation = GetCapsuleComponent()->GetComponentRotation();
 	NewRotation.Add(0.0f, -45.0f, 0.0f);
-	VROrigin->SetWorldRotation(NewRotation);
+	GetCapsuleComponent()->SetWorldRotation(NewRotation);
 	bSnapTurnIsFinished = true; //단일 호출 이후 체크
 }
 
 void AVRCharacter::SnapTurnRight()
 {
 	if (bSnapTurnIsFinished) return; //위와 동일 로직
-	FRotator NewRotation = VROrigin->GetComponentRotation();
+	FRotator NewRotation = GetCapsuleComponent()->GetComponentRotation();
 	NewRotation.Add(0.0f, 45.0f, 0.0f);
-	VROrigin->SetWorldRotation(NewRotation);
+	GetCapsuleComponent()->SetWorldRotation(NewRotation);
 	bSnapTurnIsFinished = true;
 }
 

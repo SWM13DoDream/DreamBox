@@ -56,9 +56,9 @@ void AFirefighterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 	PlayerInputComponent->BindAxis("Turn", this, &AVRCharacter::AddControllerYawInput);
 	PlayerInputComponent->BindAxis("LookUp", this, &AVRCharacter::AddControllerPitchInput);
 
-	PlayerInputComponent->BindAction("ThumbstickRight_L", IE_Pressed, this, &AVRCharacter::SnapTurnLeft);
+	PlayerInputComponent->BindAction("ThumbstickLeft_R", IE_Pressed, this, &AVRCharacter::SnapTurnLeft);
 	PlayerInputComponent->BindAction("ThumbstickRight_R", IE_Pressed, this, &AVRCharacter::SnapTurnRight);
-	PlayerInputComponent->BindAction("ThumbstickRight_L", IE_Released, this, &AVRCharacter::ResetSnapTurn);
+	PlayerInputComponent->BindAction("ThumbstickLeft_R", IE_Released, this, &AVRCharacter::ResetSnapTurn);
 	PlayerInputComponent->BindAction("ThumbstickRight_R", IE_Released, this, &AVRCharacter::ResetSnapTurn);
 	
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AFirefighterCharacter::Fire);

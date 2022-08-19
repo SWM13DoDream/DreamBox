@@ -46,7 +46,7 @@ public:
 		USphereComponent* EventTrigger;
 	
 	//구조 종료 포인트를 시각적으로 보여주는 가이드 메시 (밝은 테두리 원)
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UStaticMeshComponent* DestinationGuideMesh;
 
 	//바인딩할 미션의 ID

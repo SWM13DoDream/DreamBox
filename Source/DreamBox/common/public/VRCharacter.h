@@ -4,6 +4,7 @@
 
 #include "EngineMinimal.h"
 #include "GameFramework/Character.h"
+#include "Components/WidgetInteractionComponent.h"
 #include "VRCharacter.generated.h"
 
 /*
@@ -53,14 +54,26 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		USceneComponent* VROrigin;
 
-	//VR Immersive 에셋 사용을 위한 컴포넌트
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		USceneComponent* SpectatorRef;
-
 	//캐릭터의 메인 카메라 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UCameraComponent* FollowingCamera;
 
+	//VR Immersive 에셋 사용을 위한 컴포넌트
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		USceneComponent* SpectatorRef;
+
+	//VR Immersive 에셋 사용을 위한 컴포넌트
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		UStaticMeshComponent* GenericHMD;
+
+	//VR Immersive 에셋 사용을 위한 컴포넌트
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		USphereComponent* HeadCollision; 
+
+	//VR Immersive 에셋 사용을 위한 컴포넌트
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		UWidgetInteractionComponent* WidgetInteraction;
+	
 private:
 	//SnapTurn 실행이 끝났는지? (연속 입력 방지)
 	UPROPERTY()
