@@ -15,8 +15,9 @@ AVRCharacter::AVRCharacter()
 
 	FollowingCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FOLLOWING_CAMERA"));
 	FollowingCamera->SetupAttachment(VROrigin);
-	FollowingCamera->SetRelativeLocation({ 30.0f, 0.0f, 60.0f });
+	FollowingCamera->SetRelativeLocation(FVector(0.0f));
 	FollowingCamera->bUsePawnControlRotation = false;
+	FollowingCamera->FieldOfView = 58.0f;
 
 	SpectatorRef = CreateDefaultSubobject<USceneComponent>(TEXT("SPECTATOR_REF"));
 	SpectatorRef->SetupAttachment(FollowingCamera);
@@ -29,6 +30,8 @@ AVRCharacter::AVRCharacter()
 
 	WidgetInteraction = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("WIDGET_INTERACTION"));
 	WidgetInteraction->SetupAttachment(FollowingCamera);
+	
+	bUseControllerRotationYaw = false; //SnapRotate를 위해 컨트롤 Yaw 로테이션 사용을 끔 (오버라이드 방지)
 }
 
 // Called when the game starts or when spawned
@@ -62,22 +65,19 @@ void AVRCharacter::MoveRight(float Value)
 void AVRCharacter::SnapTurnLeft()
 {
 	if (bSnapTurnIsFinished) return; //꾹 눌렀을 때, 연속 호출이 되지 않도록 방지
-	FRotator NewRotation = GetCapsuleComponent()->GetComponentRotation();
-	NewRotation.Add(0.0f, -45.0f, 0.0f);
-	GetCapsuleComponent()->SetWorldRotation(NewRotation);
+	AddActorWorldRotation({ 0.0f, -45.0f, 0.0f }, false, nullptr, ETeleportType::TeleportPhysics);
 	bSnapTurnIsFinished = true; //단일 호출 이후 체크
 }
 
 void AVRCharacter::SnapTurnRight()
 {
 	if (bSnapTurnIsFinished) return; //위와 동일 로직
-	FRotator NewRotation = GetCapsuleComponent()->GetComponentRotation();
-	NewRotation.Add(0.0f, 45.0f, 0.0f);
-	GetCapsuleComponent()->SetWorldRotation(NewRotation);
+	AddActorWorldRotation({ 0.0f, 45.0f, 0.0f }, false, nullptr, ETeleportType::TeleportPhysics);
 	bSnapTurnIsFinished = true;
 }
 
 void AVRCharacter::ResetSnapTurn()
 {
 	bSnapTurnIsFinished = false;
+
 }

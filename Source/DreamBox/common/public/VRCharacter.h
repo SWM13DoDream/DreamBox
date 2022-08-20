@@ -10,7 +10,7 @@
 /*
  - Name        : AVRCharacter
  - Descirption : 메인 Playable VR 캐릭터 Base
- - Date        : 2022/08/16 LJH
+ - Date        : 2022/08/20 LJH
 */
 
 UCLASS()
