@@ -48,18 +48,6 @@ void AFirefighterCharacter::Tick(float DeltaTime)
 void AFirefighterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-	//입력을 함수와 바인딩
-	PlayerInputComponent->BindAxis("MoveForward", this, &AVRCharacter::MoveForward);
-	PlayerInputComponent->BindAxis("MoveRight", this, &AVRCharacter::MoveRight);
-
-	PlayerInputComponent->BindAxis("Turn", this, &AVRCharacter::AddControllerYawInput);
-	PlayerInputComponent->BindAxis("LookUp", this, &AVRCharacter::AddControllerPitchInput);
-
-	PlayerInputComponent->BindAction("ThumbstickLeft_R", IE_Pressed, this, &AVRCharacter::SnapTurnLeft);
-	PlayerInputComponent->BindAction("ThumbstickRight_R", IE_Pressed, this, &AVRCharacter::SnapTurnRight);
-	PlayerInputComponent->BindAction("ThumbstickLeft_R", IE_Released, this, &AVRCharacter::ResetSnapTurn);
-	PlayerInputComponent->BindAction("ThumbstickRight_R", IE_Released, this, &AVRCharacter::ResetSnapTurn);
 	
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AFirefighterCharacter::Fire);
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &AFirefighterCharacter::StopFire);

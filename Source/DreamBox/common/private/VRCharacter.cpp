@@ -48,6 +48,17 @@ void AVRCharacter::Tick(float DeltaTime)
 
 }
 
+// Called to bind functionality to input
+void AVRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	//입력을 함수와 바인딩
+	PlayerInputComponent->BindAxis("SnapTurn", this, &AVRCharacter::SnapTurn);
+	PlayerInputComponent->BindAxis("MoveForward", this, &AVRCharacter::MoveForward);
+	PlayerInputComponent->BindAxis("MoveRight", this, &AVRCharacter::MoveRight);
+}
+
 void AVRCharacter::MoveForward(float Value)
 {
 	//현재 Controller의 X 방향으로 Value 만큼 이동
@@ -58,26 +69,25 @@ void AVRCharacter::MoveForward(float Value)
 void AVRCharacter::MoveRight(float Value)
 {
 	//현재 Controller의 Y 방향으로 Value 만큼 이동
+	GEngine->AddOnScreenDebugMessage(1, 2.0f, FColor::Yellow, "MoveRight");
 	FVector Direction = FRotationMatrix(FollowingCamera->GetComponentRotation()).GetScaledAxis(EAxis::Y);
 	AddMovementInput(Direction, Value);
 }
 
-void AVRCharacter::SnapTurnLeft()
+void AVRCharacter::SnapTurn(float Value)
 {
-	if (bSnapTurnIsFinished) return; //꾹 눌렀을 때, 연속 호출이 되지 않도록 방지
-	AddActorWorldRotation({ 0.0f, -45.0f, 0.0f }, false, nullptr, ETeleportType::TeleportPhysics);
-	bSnapTurnIsFinished = true; //단일 호출 이후 체크
-}
+	//연속적인 Turn을 방지 (1회만 실시 && 확실하지 않은 입력 시) 
+	if (bSnapTurnIsFinished || FMath::Abs(Value) <= 0.5f) return;
+	float Direction = (Value < 0.0f ? -1.0f : 1.0f); //좌 &우측 구분
+	AddActorWorldRotation({ 0.0f, 45.0f * Direction, 0.0f }, true, nullptr);
+	GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
+		ResetSnapTurn();
+	}), 0.25f, false); //각 입력의 0.25초 뒤에 새로운 입력이 가능 (연속 입력 방지)
 
-void AVRCharacter::SnapTurnRight()
-{
-	if (bSnapTurnIsFinished) return; //위와 동일 로직
-	AddActorWorldRotation({ 0.0f, 45.0f, 0.0f }, false, nullptr, ETeleportType::TeleportPhysics);
 	bSnapTurnIsFinished = true;
 }
 
 void AVRCharacter::ResetSnapTurn()
 {
 	bSnapTurnIsFinished = false;
-
 }

@@ -4,6 +4,7 @@
 
 #include "EngineMinimal.h"
 #include "GameFramework/Character.h"
+#include "TimerManager.h"
 #include "Components/WidgetInteractionComponent.h"
 #include "VRCharacter.generated.h"
 
@@ -25,6 +26,8 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
+
 	//기본 이동 함수 : 앞뒤 이동
 	UFUNCTION()
 		void MoveForward(float Value);
@@ -33,13 +36,9 @@ public:
 	UFUNCTION()
 		void MoveRight(float Value);
 
-	//기본 회전 함수 : 오른쪽으로 45도 만큼 카메라 전환
+	//기본 회전 함수 : 45도 만큼 카메라 전환
 	UFUNCTION()
-		void SnapTurnLeft();
-
-	//기본 회전 함수 : 오른쪽으로 45도 만큼 카메라 전환
-	UFUNCTION()
-		void SnapTurnRight();
+		void SnapTurn(float Value);
 
 	//SnapTurn이 연속으로 입력되는 것을 방지하는 함수
 	UFUNCTION()
@@ -74,6 +73,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UWidgetInteractionComponent* WidgetInteraction;
 	
+	//C++ 딜레이 사용 위한 타이머 핸들 
+	UPROPERTY()
+		FTimerHandle WaitHandle;
+
 private:
 	//SnapTurn 실행이 끝났는지? (연속 입력 방지)
 	UPROPERTY()

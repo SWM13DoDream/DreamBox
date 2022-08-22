@@ -6,7 +6,6 @@
 #include "GameFramework/Character.h"
 #include "../../common/public/VRCharacter.h"
 #include "InjuredCharacter.h"
-#include "TimerManager.h"
 #include "CauseOfFire.h"
 #include "FirefighterGamemode.h"
 #include "FirefighterInteractionType.h"
@@ -30,7 +29,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent);
 
 	/*-------- Interaction -----------------*/
 	//상호작용을 시도 : bIsReadyToInteraction과 InteractionType 기반으로 결정
@@ -121,10 +120,6 @@ private:
 	//화재 원인 액터 레퍼런스 
 	UPROPERTY()
 		ACauseOfFire* CauseOfFireRef;
-
-	//C++ 딜레이 사용 위한 타이머 핸들 : 미사용
-	UPROPERTY()
-		FTimerHandle WaitHandle;
 
 	//현재 가능한 InteractionType
 	UPROPERTY()
