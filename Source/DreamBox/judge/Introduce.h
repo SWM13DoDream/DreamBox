@@ -2,7 +2,8 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include "EngineMinimal.h"
+#include "Engine/DataTable.h"
 #include "GameFramework/Actor.h"
 #include "Components/WidgetComponent.h"
 #include "Introduce.generated.h"
@@ -13,6 +14,22 @@
 - Date			: 2022-08-12
 - Version		: 1.0.1 ver
 */
+
+// 데이터를 담기위한 구조체 생성
+USTRUCT(BlueprintType)
+struct FWidgetStructure : public FTableRowBase
+{
+	GENERATED_BODY()
+
+public:
+	FWidgetStructure() : Title(""), Description("") {}
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
+		FString Title;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
+		FString Description;
+};
 
 UCLASS()
 class DREAMBOX_API AIntroduce : public AActor
@@ -32,17 +49,20 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DATA")
+		UDataTable* NData;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ROOT")
 		USceneComponent* SceneComponent;
 
 	// Float Widget을 의미하는 WidgetComponent
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Widget")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "WIDGET")
 		UWidgetComponent* Widget;
 
 	// Float Widget을 의미하는 WidgetComponent
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widget")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WIDGET")
 		UWidgetComponent* NextPage;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Petition")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WIDGET")
 		bool isNextPage;
 };
