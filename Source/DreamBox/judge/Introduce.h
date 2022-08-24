@@ -18,8 +18,8 @@ UCLASS()
 class DREAMBOX_API AIntroduce : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	AIntroduce();
 
@@ -27,13 +27,22 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ROOT")
+		USceneComponent* SceneComponent;
 
 	// Float Widget을 의미하는 WidgetComponent
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Widget")
 		UWidgetComponent* Widget;
+
+	// Float Widget을 의미하는 WidgetComponent
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widget")
+		UWidgetComponent* NextPage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Petition")
+		bool isNextPage;
 };
