@@ -3,6 +3,7 @@
 
 #include "./Chair.h"
 #include "./JudgeCharacter.h"
+#include "./JudgeGameMode.h"
 
 // Sets default values
 AChair::AChair()
@@ -14,10 +15,15 @@ AChair::AChair()
 	RootComponent = Body;
 
 	Trigger = CreateDefaultSubobject<UBoxComponent>(TEXT("TRIGGER"));
-	Trigger->SetRelativeLocation(FVector(0.0f, 0.0f, 70.0f));
-	Trigger->SetBoxExtent(FVector(80.0f, 80.0f, 60.0f));
+	Trigger->SetRelativeLocation(FVector(0.0f, 30.0f, 70.0f));
+	Trigger->SetBoxExtent(FVector(80.0f, 60.0f, 60.0f));
 	Trigger->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
 	Trigger->SetupAttachment(RootComponent);
+
+	Arrow = CreateDefaultSubobject<UArrowComponent>(TEXT("ARROW"));
+	Arrow->SetRelativeLocation(FVector(0.0f, 10.0f, 30.0f));
+	Arrow->SetRelativeRotation(FRotator(0.0f, 90.0f, 0.0f));
+	Arrow->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned

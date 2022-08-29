@@ -38,8 +38,11 @@ public:
 		UStaticMeshComponent* Body;
 
 	// Player와 BeginOverlap을 판단하기 위한 BoxComponent
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Box")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "BOX")
 		UBoxComponent* Trigger;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ARROW")
+		UArrowComponent* Arrow;
 
 
 private:
