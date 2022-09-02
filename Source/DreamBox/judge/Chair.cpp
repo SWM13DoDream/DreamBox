@@ -21,7 +21,7 @@ AChair::AChair()
 	Trigger->SetupAttachment(RootComponent);
 
 	Arrow = CreateDefaultSubobject<UArrowComponent>(TEXT("ARROW"));
-	Arrow->SetRelativeLocation(FVector(0.0f, 10.0f, 30.0f));
+	Arrow->SetRelativeLocation(FVector(0.0f, 30.0f, 30.0f));
 	Arrow->SetRelativeRotation(FRotator(0.0f, 90.0f, 0.0f));
 	Arrow->SetupAttachment(RootComponent);
 }
