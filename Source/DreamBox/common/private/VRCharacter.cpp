@@ -5,6 +5,13 @@
 #include "TimerManager.h"
 #include "Components/WidgetInteractionComponent.h"
 
+/*
+ - Name        : AVRCharacter
+ - Description : VRImmersiveHands 에셋 기반의 Base 캐릭터 클래스
+				 직업별 캐릭터를 본 클래스를 상속
+ - Date        : 2022/09/02 LJH
+*/
+
 // Sets default values
 AVRCharacter::AVRCharacter()
 {

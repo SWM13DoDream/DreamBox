@@ -5,6 +5,12 @@
 #include "../../common/public/DreamBox.h"
 #include "CauseOfFire.generated.h"
 
+/*
+ - Name        : ACauseOfFire
+ - Description : 화재 원인 조사 미션을 위한 액터. 플레이어는 "Investigation" 타입의 상호작용을 함
+ - Date        : 2022/09/02 LJH
+*/
+
 UCLASS()
 class DREAMBOX_API ACauseOfFire : public AActor
 {
