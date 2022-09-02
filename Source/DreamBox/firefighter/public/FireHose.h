@@ -30,14 +30,8 @@ public:
 	UFUNCTION()
 		void DeactivateEmitter();
 
-public: /*Replication 관련 함수*/
-	//불과 수증기 Emitter의 Scale을 업데이트(화재진압 로직) - (클라이언트에서 실행)
-	UFUNCTION(BlueprintCallable, NetMulticast, reliable)//NetMulticast, Reliable)
-		void MulticastApplyDamageToFire(FVector Location);
-
-	//불과 수증기 Emitter의 Scale을 업데이트(화재진압 로직) - (서버에서 실행)
-	UFUNCTION(BlueprintCallable, Server, reliable)
-		void ServerRPCApplyDamageToFire(FVector Location);
+	UFUNCTION(BlueprintCallable)
+		void ApplyDamageToFire(FVector Location);
 
 protected:
 	// Called when the game starts or when spawned

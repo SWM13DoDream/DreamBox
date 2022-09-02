@@ -57,13 +57,8 @@ void AFireHose::DeactivateEmitter()
 	FirehoseSound->Deactivate();
 }
 
-void AFireHose::MulticastApplyDamageToFire_Implementation(FVector Location)
-{
+void AFireHose::ApplyDamageToFire(FVector Location)
+{	
 	//해당 지점에 FireHoseDamage 만큼의 범위 데미지를 가함
-	UGameplayStatics::ApplyRadialDamage(GetWorld(), FireHoseDamage, Location, 5.0f, UDamageType::StaticClass(), {}, this, nullptr); 
-}
-
-void AFireHose::ServerRPCApplyDamageToFire_Implementation(FVector Location)
-{
-	MulticastApplyDamageToFire(Location);
+	UGameplayStatics::ApplyRadialDamage(GetWorld(), FireHoseDamage, Location, 5.0f, UDamageType::StaticClass(), {}, this, nullptr);
 }

@@ -12,7 +12,6 @@ AFire::AFire()
 	PrimaryActorTick.bCanEverTick = true;
 
 	this->Tags = { "Fire" };
-	bReplicates = true;
 
 	DefaultSceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("DEFAULT_SCENE_ROOT"));
 	DefaultSceneRoot->SetupAttachment(RootComponent);
@@ -51,36 +50,17 @@ void AFire::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void AFire::UpdateEmitterScale(const float Variance)
-{
-	if (HasAuthority()) //서버에서 실행되는 경우?
-	{
-		MulticastUpdateEmitterScale(FireEmitter, Variance); //Multicast 호출
-		MulticastUpdateEmitterScale(SteamEmitter, (-5.0f) * Variance);
-	}
-	else //클라이언트에서 실행되는 경우?
-	{
-		ServerRPCUpdateEmitterScale(FireEmitter, Variance); //Server RPC 호출
-		ServerRPCUpdateEmitterScale(SteamEmitter, (-5.0f) * Variance);
-	}
-}
-
-void AFire::MulticastUpdateEmitterScale_Implementation(UParticleSystemComponent* Target, const float Variance)
+void AFire::UpdateEmitterScale(UParticleSystemComponent* Target, const float Variance)
 {
 	FVector newScale = Target->GetComponentScale() - Variance;
-	if (newScale.Y <= 0.0f ||  newScale.Y >= SmokeMaxScale) 
+	if (newScale.Y <= 0.0f || newScale.Y >= SmokeMaxScale)
 	{
 		Target->SetWorldScale3D(newScale.Y <= 0.0f ? FVector(0.0f) : FVector(SmokeMaxScale)); //이미터의 스케일이 한계를 넘지 않도록 방지하며 업데이트
 	}
-	else 
+	else
 	{
 		Target->SetWorldScale3D(FMath::VInterpTo(Target->GetComponentScale(), newScale, GetWorld()->DeltaTimeSeconds, 3.0f)); //보간을 통해 자연스럽게 업데이트
 	}
-}
-
-void AFire::ServerRPCUpdateEmitterScale_Implementation(UParticleSystemComponent* Target, const float Variance)
-{
-	MulticastUpdateEmitterScale(Target, Variance); //서버와 연결된 클라이언트들에게 모두 실행
 }
 
 void AFire::InitSteamDynamicMaterial()
@@ -96,21 +76,10 @@ void AFire::InitSteamDynamicMaterial()
 
 void AFire::UpdateSteamOpacity()
 {
-	if (SteamOpacityValue == 0) TryDestroyFire(); //연기가 모두 소멸했다면? 소멸 시도
-	if (HasAuthority()) MulticastUpdateSteamOpacity(); //서버에서 실행
-	else ServerRPCUpdateSteamOpacity(); //클라이언트에서 실행
-}
-
-void AFire::MulticastUpdateSteamOpacity_Implementation()
-{
-	if (SteamOpacityValue < 0.0f) return; //SteamOpacity가 유효하지 않은 값이라면?
+	if (SteamOpacityValue <= 0.0f) TryDestroyFire(); //연기가 모두 소멸했다면? 소멸 시도
+	
 	SteamOpacityValue = FMath::Max(0.0f, SteamOpacityValue - SteamEmitterInitialOpacity / SteamEmitterLifeSpan); //새로운 Opacity값으로 대체
-	SteamDynamicMaterial->SetScalarParameterValue("Opacity", SteamOpacityValue );
-}
-
-void AFire::ServerRPCUpdateSteamOpacity_Implementation()
-{
-	MulticastUpdateSteamOpacity(); 
+	SteamDynamicMaterial->SetScalarParameterValue("Opacity", SteamOpacityValue);
 }
 
 float AFire::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -119,7 +88,8 @@ float AFire::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, ACo
 	if (CheckAndUpdateSuppressedState()) return 0;
 
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser); //Super 클래스의 TakeDamage 호출
-	UpdateEmitterScale(DamageAmount); //데미지 만큼 이미터의 스케일 업데이트
+	UpdateEmitterScale(FireEmitter, DamageAmount); //Multicast 호출
+	UpdateEmitterScale(SteamEmitter, (-5.0f) * DamageAmount);
 
 	return DamageAmount;
 }

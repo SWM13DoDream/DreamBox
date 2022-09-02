@@ -29,7 +29,7 @@ public:
 
 	//Emmiter의 크기를 업데이트한다
 	UFUNCTION()
-		void UpdateEmitterScale(const float Variance);
+		void UpdateEmitterScale(class UParticleSystemComponent* Target, const float Variance);
 
 	//Steam의 투명도를 업데이트 한다
 	UFUNCTION()
@@ -57,23 +57,6 @@ public:
 	//불이 꺼지면 바인딩된 미션을 업데이트 한다 
 	UFUNCTION()
 		void UpdateMissionDelegate(int32 PlayerIdx, int32 TargetMissionID, int32 NewCondition);
-
-public: //Replication 관련 함수
-	//불과 수증기 Emitter의 Scale을 Value만큼 업데이트 (멀티캐스트)
-	UFUNCTION(NetMulticast, reliable)//NetMulticast, Reliable)
-		void MulticastUpdateEmitterScale(class UParticleSystemComponent* Target, const float Variance);
-
-	//불과 수증기 Emitter의 Scale을 Value만큼 업데이트 (서버에서 실행)
-	UFUNCTION(Server, reliable)
-		void ServerRPCUpdateEmitterScale(class UParticleSystemComponent* Target, const float Variance);
-
-	//불이 꺼지고 수증기가 소멸하는 효과를 위해 Opacity값을 Update (멀티캐스트)
-	UFUNCTION(NetMulticast, reliable)
-		void MulticastUpdateSteamOpacity();
-
-	//불이 꺼지고 수증기가 소멸하는 효과를 위해 Opacity값을 Update (서버에서 실행
-	UFUNCTION(Server, reliable)
-		void ServerRPCUpdateSteamOpacity();
 
 protected:
 	// Called when the game starts or when spawned
