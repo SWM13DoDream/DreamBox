@@ -19,14 +19,14 @@ UCLASS()
 class DREAMBOX_API AWidgetButton : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	AWidgetButton();
 
 protected:
 	virtual void BeginPlay() override;
 
-public:	
+public:
 
 	UPROPERTY(VisibleAnywhere, Category = "Root")
 		USceneComponent* DefaultSceneRoot;
@@ -34,6 +34,12 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Body")
 		UStaticMeshComponent* Body;
 
-	UPROPERTY(VisibleAnywhere, Category = "Button")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Name")
+		FText Name;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Button")
 		UWidgetComponent* ButtonWidget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Name")
+		UWidgetComponent* NameWidget;
 };

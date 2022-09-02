@@ -4,13 +4,14 @@
 #include "EngineMinimal.h"
 #include "GameFramework/Character.h"
 #include "Components/WidgetInteractionComponent.h"
-
+#include "Components/WidgetComponent.h"
 #include "JudgeCharacter.generated.h"
 
 /*
 - Name			: AJudgeCharacter
-- Description	: 판사 캐릭터 WidgetIntercation을 통해 다른 Widget 들과 Interaction 함
-- Date			: 2022-07-11
+- Description	: 판사 캐릭터 WidgetIntercation을 통해 다른 Widget 들과 Interaction
+- Date			: 2022-08-12
+- Version		: 1.0.1 Ver
 */
 
 
@@ -35,18 +36,11 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "WidgetInteraction")
-		UWidgetInteractionComponent* WidgetInteraction;
-
-
+	// 캐릭터의 Script를 보여주기 위한 위한 ScriptWidget
+	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ScriptWidget")
+	//	UWidgetComponent* ScriptWidget;
 
 private:
 	void MoveForward(float NewAxisValue);
 	void MoveRight(float NewAxisValue);
-
-	void Turn(float NewAxisValue);
-	void LookUp(float NewAxisValue);
-
-	void LClickPressed();
-	void LClickReleased();
 };

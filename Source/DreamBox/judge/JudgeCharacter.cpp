@@ -3,25 +3,24 @@
 
 #include "./JudgeCharacter.h"
 
-#include "./Chair.h"
-
 // Sets default values
 AJudgeCharacter::AJudgeCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
+	// 캐릭터가 시작될 때 Player0으로 시작되게 만듬
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
-	bUseControllerRotationYaw = false;
 	
+	// 캐릭터의 이동 속도를 400으로 변경
 	GetCharacterMovement()->MaxWalkSpeed = 400.0f;
-
-	//WidgetInteraction = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("WidgetInteraction"));
-	//WidgetInteraction->SetupAttachment(GetCapsuleComponent());
-	//WidgetInteraction->InteractionDistance = 20000.0f;
-	//WidgetInteraction->InteractionSource = EWidgetInteractionSource::CenterScreen;
-	//WidgetInteraction->bShowDebug = false;
-	//WidgetInteraction->bEnableHitTesting = false;
+	
+	//ScriptWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("ScriptWidget"));
+	//ScriptWidget->SetDrawSize(FVector2D(1920.f, 400.f));
+	//ScriptWidget->SetWorldRotation(FRotator(15.f, 180.f, 0.f));
+	//ScriptWidget->SetRelativeLocation(FVector(130.0f, 13.0f, -50.0f));
+	//ScriptWidget->SetWorldScale3D(FVector(1.0f, 0.07f, 0.07f));
+	//ScriptWidget->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
@@ -41,11 +40,13 @@ void AJudgeCharacter::Tick(float DeltaTime)
 void AJudgeCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	// 상하좌우 이동을 바인딩 [ 오큘러스 & 키보드 ]
 	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &AJudgeCharacter::MoveForward);
 	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &AJudgeCharacter::MoveRight);
-
-	PlayerInputComponent->BindAxis(TEXT("Turn"), this, &AJudgeCharacter::Turn);
-	PlayerInputComponent->BindAxis(TEXT("LookUp"), this, &AJudgeCharacter::LookUp);	
+	// 마우스의 이동을 바인딩 [ 마우스 ]
+	PlayerInputComponent->BindAxis(TEXT("Turn"), this, &AJudgeCharacter::AddControllerYawInput);
+	PlayerInputComponent->BindAxis(TEXT("LookUp"), this, &AJudgeCharacter::AddControllerPitchInput);
 }
 
 void AJudgeCharacter::MoveForward(float NewAxisValue)
@@ -57,23 +58,3 @@ void AJudgeCharacter::MoveRight(float NewAxisValue)
 {
 	AddMovementInput(GetActorRightVector(), NewAxisValue);
 }
-
-void AJudgeCharacter::Turn(float NewAxisValue)
-{
-	AddControllerYawInput(NewAxisValue);
-}
-
-void AJudgeCharacter::LookUp(float NewAxisValue)
-{
-	AddControllerPitchInput(NewAxisValue);
-}
-
-//void AJudgeCharacter::LClickPressed()
-//{
-//	WidgetInteraction->PressPointerKey(FKey(TEXT("LeftMouseButton")));
-//}
-//
-//void AJudgeCharacter::LClickReleased()
-//{
-//	WidgetInteraction->ReleasePointerKey(FKey(TEXT("LeftMouseButton")));
-//}

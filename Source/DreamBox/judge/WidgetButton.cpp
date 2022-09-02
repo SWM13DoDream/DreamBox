@@ -8,19 +8,26 @@ AWidgetButton::AWidgetButton()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	DefaultSceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("ROOT"));
-	Body = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BODY"));
-	ButtonWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("BUTTON"));
 
 	RootComponent = DefaultSceneRoot;
-	
-	Body->SetCollisionProfileName(TEXT("NoCollision"));
 
-	// Button 의 DrawSize 를 부착되는 Body의 크기에 맞게 작성
-	ButtonWidget->SetDrawSize(FVector2D(29.0f, 37.0f));
-	ButtonWidget->SetRelativeRotation(FRotator(90.0f,0.0f,0.0f));
-	
+	Body = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BODY"));
+	Body->SetCollisionProfileName(TEXT("NoCollision"));
 	Body->SetupAttachment(RootComponent);
+
+	ButtonWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("BUTTON"));
+	ButtonWidget->SetDrawSize(FVector2D(30.0f, 40.0f));
+	ButtonWidget->SetRelativeRotation(FRotator(90.0f, 90.0f, 0.0f));
+	ButtonWidget->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
 	ButtonWidget->SetupAttachment(RootComponent);
+
+	NameWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("NameWidget"));
+	NameWidget->SetDrawSize(FVector2D(300.f, 300.f));
+	NameWidget->SetRelativeRotation(FRotator(0.0f, 90.0f, 0.0f));
+	NameWidget->SetRelativeLocation(FVector(0.0f, -20.0f, 20.0f));
+	NameWidget->SetRelativeScale3D(FVector(0.4f, 0.4f, 0.4f));
+	NameWidget->SetCollisionProfileName(FName("NoCollision"));
+	NameWidget->SetupAttachment(RootComponent);
 }
 
 void AWidgetButton::BeginPlay()
