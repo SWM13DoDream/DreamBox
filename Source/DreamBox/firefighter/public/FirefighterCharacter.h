@@ -2,19 +2,15 @@
 
 #pragma once
 
-#include "EngineMinimal.h"
-#include "GameFramework/Character.h"
+#include "../../common/public/DreamBox.h"
 #include "../../common/public/VRCharacter.h"
-#include "InjuredCharacter.h"
-#include "CauseOfFire.h"
-#include "FirefighterGamemode.h"
 #include "FirefighterInteractionType.h"
 #include "FirefighterCharacter.generated.h"
 
 /*
  - Name        : AFirefighterCharacter
  - Descirption : Firefighter 직업의 메인 Playable 캐릭터
- - Date        : 2022/08/16 LJH
+ - Date        : 2022/09/02 LJH
 */
 
 UCLASS()
@@ -36,26 +32,27 @@ public:
 	UFUNCTION()
 		void TryInteraction();
 
-	//물을 발사
+	//상호작용 : 물을 발사
 	UFUNCTION()
 		void Fire();
 
-	//물 발사 중지
+	//상호작용 : 물 발사 중지
 	UFUNCTION(BlueprintCallable)
 		void StopFire();
 
+	//상호작용 : 화재 원인 조사
 	UFUNCTION(BlueprintCallable)
 		void InvestigateCauseOfFire();
 
-	//Interaction) 다친 캐릭터를 어깨에 짊어짐
+	//상호작용 : 다친 캐릭터를 어깨에 짊어짐
 	UFUNCTION(BlueprintCallable)
 		void CarryInjuredCharacter();
 
-	//Interaction) 업고 있는 캐릭터를 내려놓음
+	//상호작용 : 업고 있는 캐릭터를 내려놓음
 	UFUNCTION(BlueprintCallable)
 		void PutInjuredCharacter();
 
-	//인터렉션 할 화재원인액터의 레퍼런스 지정
+	//상호작용 할 화재원인액터의 레퍼런스 지정
 	UFUNCTION(BlueprintCallable)
 		void SetCauseOfFireRef(ACauseOfFire* NewCauseOfFire);
 
@@ -111,15 +108,15 @@ public:
 private:
 	//게임모드 레퍼런스
 	UPROPERTY()
-		AFirefighterGamemode* GamemodeRef;
+		class AFirefighterGamemode* GamemodeRef;
 
 	//업을 캐릭터의 레퍼런스 (InValid 할 경우 불가능)
 	UPROPERTY()
-		AInjuredCharacter* InjuredCharacterRef;
+		class AInjuredCharacter* InjuredCharacterRef;
 
 	//화재 원인 액터 레퍼런스 
 	UPROPERTY()
-		ACauseOfFire* CauseOfFireRef;
+		class ACauseOfFire* CauseOfFireRef;
 
 	//현재 가능한 InteractionType
 	UPROPERTY()

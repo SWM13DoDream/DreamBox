@@ -2,6 +2,8 @@
 
 #include "../public/InjuredCharacter.h"
 #include "../public/FirefighterCharacter.h"
+#include "../public/FirefighterGamemode.h"
+#include "Components/WidgetComponent.h"
 
 // Sets default values
 AInjuredCharacter::AInjuredCharacter()
@@ -32,10 +34,10 @@ void AInjuredCharacter::BeginPlay()
 	InteractionTrigger->OnComponentEndOverlap.AddDynamic(this, &AInjuredCharacter::InteractionTriggerEndOverlap);
 	GetMovementComponent()->Deactivate();
 
-	if (GetWorld()) //Gamemode 레퍼런스를 초기화
+	if (GetWorld()) //Gamemode 레퍼런스를 초기화하고 미션 업데이트를 위한 이벤트를 바인딩
 	{
 		GamemodeRef = Cast<AFirefighterGamemode>(GetWorld()->GetAuthGameMode());
-		GamemodeRef->UpdateMissionList.AddDynamic(this, &AInjuredCharacter::UpdateMissionToActivate);
+		GamemodeRef->UpdateMissionList.AddDynamic(this, &AInjuredCharacter::TryActivateMissionActor);
 	}
 }
 
@@ -54,7 +56,7 @@ void AInjuredCharacter::InteractionTriggerBeginOverlap(UPrimitiveComponent* HitC
 	AFirefighterCharacter* playerCharacter = Cast<AFirefighterCharacter>(OtherActor);
 	if (playerCharacter->GetIsCarrying()) //플레이어가 이미 업고 있다면 메시지를 출력하고 반환
 	{
-		//** Message Delegate : 두 명 이상 업을 수 없습니다!
+		GamemodeRef->ShowScriptWithString.Broadcast(0, FString("두 명 이상 업을 수 없습니다."));
 		return; 
 	}
 	playerCharacter->SetInteractionType(EFirefighterInteractionType::E_CARRY); //캐릭터의 가능한 상호작용 타입 지정
@@ -87,9 +89,9 @@ void AInjuredCharacter::SetIsBeingRescued(bool NewState)
 	bIsBeingRescued = NewState; 
 }
 
-void AInjuredCharacter::UpdateMissionToActivate(int TargetPlayerId, int NewMissionId, bool bIsRemove)
+void AInjuredCharacter::TryActivateMissionActor(int TargetPlayerId, int NewMissionId, bool bIsRemove)
 {
 	if (MissionID != NewMissionId || bIsRemove) return;  //제거되는 미션이거나 현재 이 NPC와 미션이 다르다면 반환
-	bIsActivated = true; 
-	RescueGuideMesh->SetVisibility(true);
+	bIsActivated = true; //할당된 ID에 맞는 미션이 추가되었다면? 구조 Interaction이 가능하도록 Activate
+	RescueGuideMesh->SetVisibility(true); //가이드 메시도 Visible하게 처리
 }

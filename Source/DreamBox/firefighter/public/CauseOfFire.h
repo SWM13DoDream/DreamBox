@@ -2,12 +2,7 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
-#include "Components/StaticMeshComponent.h"
-#include "Particles/ParticleSystemComponent.h"
-#include "Components/SphereComponent.h"
-#include "FirefighterGamemode.h"
+#include "../../common/public/DreamBox.h"
 #include "CauseOfFire.generated.h"
 
 UCLASS()
@@ -33,7 +28,7 @@ public:
 			, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	UFUNCTION()
-		void TryActivateActor(int32 PlayerId, int32 NewMissionId, bool bIsRemove);
+		void TryActivateMissionActor(int32 PlayerId, int32 NewMissionId, bool bIsRemove);
 
 	UFUNCTION(BlueprintPure)
 		bool GetIsActivated() { return bIsActivated; }
@@ -56,7 +51,7 @@ public:
 		UStaticMeshComponent* GuideMesh; 
 
 	UPROPERTY(EditAnywhere)
-		UParticleSystemComponent* EffectParticle;
+		class UParticleSystemComponent* EffectParticle;
 
 public: 
 	UPROPERTY(EditAnywhere, Category = "Gameplay")
@@ -67,5 +62,5 @@ public:
 
 private: 	
 	UPROPERTY()
-		AFirefighterGamemode* GamemodeRef; 
+		class AFirefighterGamemode* GamemodeRef; 
 };

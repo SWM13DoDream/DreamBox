@@ -3,6 +3,8 @@
 
 #include "../public/CauseOfFire.h"
 #include "../public/FirefighterCharacter.h"
+#include "../public/FirefighterGamemode.h"
+#include "Particles/ParticleSystemComponent.h"
 
 // Sets default values
 ACauseOfFire::ACauseOfFire()
@@ -24,7 +26,7 @@ ACauseOfFire::ACauseOfFire()
 	GuideMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("GUIDE_MESH"));
 	GuideMesh->SetupAttachment(DefaultSceneRoot);
 	GuideMesh->SetWorldScale3D(FVector(0.3f));
-	
+
 	EffectParticle = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("EFFECT_PARTICLE"));
 	EffectParticle->SetupAttachment(DefaultSceneRoot);
 }
@@ -40,10 +42,10 @@ void ACauseOfFire::BeginPlay()
 	InteractionTrigger->OnComponentBeginOverlap.AddDynamic(this, &ACauseOfFire::InteractionTriggerBeginOverlap);
 	InteractionTrigger->OnComponentEndOverlap.AddDynamic(this, &ACauseOfFire::InteractionTriggerEndOverlap);
 
-	if (GetWorld()) //Gamemode 레퍼런스를 초기화
+	if (GetWorld()) //Gamemode 레퍼런스를 초기화하고, 미션 업데이트를 위해 이벤트를 바인딩
 	{
 		GamemodeRef = Cast<AFirefighterGamemode>(GetWorld()->GetAuthGameMode());
-		GamemodeRef->UpdateMissionList.AddDynamic(this, &ACauseOfFire::TryActivateActor);
+		GamemodeRef->UpdateMissionList.AddDynamic(this, &ACauseOfFire::TryActivateMissionActor);
 	}
 }
 
@@ -57,6 +59,7 @@ void ACauseOfFire::Tick(float DeltaTime)
 void ACauseOfFire::EndPlay(EEndPlayReason::Type Reason)
 {
 	Super::EndPlay(Reason);
+	//할당된 미션을 업데이트 (미션 완료 조건 카운트를 1증가)
 	GamemodeRef->UpdateMissionListComponent.Broadcast(0, MissionID, 1);
 }
 
@@ -64,8 +67,9 @@ void ACauseOfFire::InteractionTriggerBeginOverlap(UPrimitiveComponent* HitComp, 
 {
 	if (!IsValid(OtherActor) || !OtherActor->ActorHasTag("Player") || !bIsActivated) return; //플레이어 유효성 검사와 인터렉션 가능 조건 검사
 	
+	//플레이어가 오버랩 되면, 상호작용이 가능하도록 함
 	AFirefighterCharacter * PlayerCharacterRef = Cast<AFirefighterCharacter>(OtherActor);
-	PlayerCharacterRef->SetCauseOfFireRef(this);
+	PlayerCharacterRef->SetCauseOfFireRef(this); //이 액터의 주소를 전달
 	PlayerCharacterRef->SetInteractionType(EFirefighterInteractionType::E_INVESTIGATE);
 	PlayerCharacterRef->SetIsReadyToInteraction(true);
 }
@@ -74,14 +78,16 @@ void ACauseOfFire::InteractionTriggerEndOverlap(UPrimitiveComponent* OverlappedC
 {
 	if (!IsValid(OtherActor) || !OtherActor->ActorHasTag("Player")) return;
 
+	//플레이어가 오버랩 상태에서 벗어난다면, 상호작용을 할 수 없도록 롤백
 	AFirefighterCharacter* PlayerCharacterRef = Cast<AFirefighterCharacter>(OtherActor);
-	PlayerCharacterRef->SetCauseOfFireRef(nullptr);
+	PlayerCharacterRef->SetCauseOfFireRef(nullptr); //플레이어가 참조하던 포인터를 초기화
 	PlayerCharacterRef->SetInteractionType(EFirefighterInteractionType::E_NONE);
 	PlayerCharacterRef->SetIsReadyToInteraction(false);
 }
 
-void ACauseOfFire::TryActivateActor(int32 PlayerId, int32 NewMissionId, bool bIsRemove)
+void ACauseOfFire::TryActivateMissionActor(int32 PlayerId, int32 NewMissionId, bool bIsRemove)
 {
+	//추가되는 미션이 아니거나 지정한 미션 ID와 다르다면 반환
 	if (bIsRemove || NewMissionId != MissionID) return; 
 	
 	bIsActivated = true; 

@@ -1,7 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "../public/Fire.h"
-#include "../../common/public/DreamBox.h"
+#include "../public/FirefighterGamemode.h"
+#include "Particles/ParticleSystemComponent.h"
 #include "TimerManager.h"
 
 // Sets default values
@@ -40,6 +41,7 @@ void AFire::BeginPlay()
 	//Steam Emitter의 Dynamic Material Instance 초기화
 	InitSteamDynamicMaterial();
 
+	//Gamemode의 레퍼런스를 초기화
 	if (GetWorld()) GamemodeRef = Cast<AFirefighterGamemode>(GetWorld()->GetAuthGameMode());
 }
 
@@ -84,6 +86,8 @@ void AFire::ServerRPCUpdateEmitterScale_Implementation(UParticleSystemComponent*
 void AFire::InitSteamDynamicMaterial()
 {
 	if (SteamMaterialInterface == nullptr) return; //BP에서 Mat Interface를 지정해주지 않았다면 반환
+	
+	//지정한 Steam Emitter에 대한 Material Instance를 생성하고, 초기 값을 지정
 	SteamDynamicMaterial = UMaterialInstanceDynamic::Create(SteamMaterialInterface, GetWorld());
 	SteamEmitter->SetMaterial(0, SteamDynamicMaterial);	
 	SteamDynamicMaterial->SetScalarParameterValue("Opacity", SteamEmitterInitialOpacity);
@@ -93,21 +97,15 @@ void AFire::InitSteamDynamicMaterial()
 void AFire::UpdateSteamOpacity()
 {
 	if (SteamOpacityValue == 0) TryDestroyFire(); //연기가 모두 소멸했다면? 소멸 시도
-	if (HasAuthority())
-	{
-		MulticastUpdateSteamOpacity(); //서버에서 실행
-	}
-	else
-	{
-		ServerRPCUpdateSteamOpacity(); //클라이언트에서 실행
-	}
+	if (HasAuthority()) MulticastUpdateSteamOpacity(); //서버에서 실행
+	else ServerRPCUpdateSteamOpacity(); //클라이언트에서 실행
 }
 
 void AFire::MulticastUpdateSteamOpacity_Implementation()
 {
 	if (SteamOpacityValue < 0.0f) return; //SteamOpacity가 유효하지 않은 값이라면?
 	SteamOpacityValue = FMath::Max(0.0f, SteamOpacityValue - SteamEmitterInitialOpacity / SteamEmitterLifeSpan); //새로운 Opacity값으로 대체
-	SteamDynamicMaterial->SetScalarParameterValue("Opacity", SteamOpacityValue );// FMath::FInterpTo(SteamOpacityValue + 0.1f, SteamOpacityValue, GetWorld()->DeltaTimeSeconds, 0.5f));
+	SteamDynamicMaterial->SetScalarParameterValue("Opacity", SteamOpacityValue );
 }
 
 void AFire::ServerRPCUpdateSteamOpacity_Implementation()
@@ -117,7 +115,7 @@ void AFire::ServerRPCUpdateSteamOpacity_Implementation()
 
 float AFire::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	if (DamageCauser == nullptr && !DamageCauser->ActorHasTag("FireHose")) return 0; //DamageCause이 유효하지 않거나 FireHose가 아니라면 return 
+	if (!IsValid(DamageCauser) && !DamageCauser->ActorHasTag("FireHose")) return 0; //DamageCause이 유효하지 않거나 FireHose가 아니라면 return 
 	if (CheckAndUpdateSuppressedState()) return 0;
 
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser); //Super 클래스의 TakeDamage 호출
@@ -137,10 +135,9 @@ void AFire::SetSteamDisappearTimer()
 void AFire::TryDestroyFire()
 {
 	if (SteamOpacityValue > 0.0f) return; //수증기까지 다 사라지면 Destroy
-	if (GetWorldTimerManager().GetTimerRemaining(EmitterUpdateTimerHandle) > 0.0f) //타이머가 남아있다면
-	{
-		GetWorldTimerManager().ClearTimer(EmitterUpdateTimerHandle); //타이머 초기화
-	}
+	if (GetWorldTimerManager().GetTimerRemaining(EmitterUpdateTimerHandle) <= 0.0f) return; //타이머가 남아있다면
+	
+	GetWorldTimerManager().ClearTimer(EmitterUpdateTimerHandle); //타이머 초기화
 	Destroy();
 }
 
@@ -149,16 +146,16 @@ bool AFire::CheckAndUpdateSuppressedState()
 	if (FireEmitter->GetComponentScale().Y > 0.05f || bIsReadyToDestroy) return false;
 	
 	SetSteamDisappearTimer(); //불이 모두 꺼졌다면 Destroy
-	FireEmitter->SetWorldScale3D(FVector(0.0f));
-	BlockingVolume->SetCollisionProfileName(FName("OverlapAll"));
-	bIsFireSuppressed = true;
-	FireGuideMesh->SetVisibility(false);
+	FireEmitter->SetWorldScale3D(FVector(0.0f)); //근사치에 가까운 값을 0으로 지정
+	BlockingVolume->SetCollisionProfileName(FName("OverlapAll")); //블로킹 볼륨의 콜리전을 해제
+	bIsFireSuppressed = true; //불 진압 여부를 나타내는 변수를 업데이트
+	FireGuideMesh->SetVisibility(false); //FireGuideMesh를 Hidden으로 지정
 	
-	UpdateMissionDelegate(0, MissionID, 1); //임시 코드  : 0번째 플레이어만 업데이트
+	UpdateMissionDelegate(0, MissionID, 1); //0번째 플레이어만 업데이트
 	return true;
 }
 
-void AFire::UpdateMissionDelegate(int32 PlayerIdx, int32 TargetMissionID, int32 NewCondition) //115번째줄) 불 소멸시 델리게이트 호출 
+void AFire::UpdateMissionDelegate(int32 PlayerIdx, int32 TargetMissionID, int32 NewCondition) // 불 소멸시 델리게이트 호출 
 {
 	GamemodeRef->UpdateMissionListComponent.Broadcast(PlayerIdx, TargetMissionID, NewCondition);
 }

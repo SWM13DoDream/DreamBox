@@ -2,16 +2,14 @@
 
 #pragma once
 
-#include "EngineMinimal.h"
+#include "DreamBox.h"
 #include "GameFramework/Character.h"
-#include "TimerManager.h"
-#include "Components/WidgetInteractionComponent.h"
 #include "VRCharacter.generated.h"
 
 /*
  - Name        : AVRCharacter
  - Descirption : 메인 Playable VR 캐릭터 Base
- - Date        : 2022/08/20 LJH
+ - Date        : 2022/09/01 LJH
 */
 
 UCLASS()
@@ -67,15 +65,15 @@ public:
 
 	//VR Immersive 에셋 사용을 위한 컴포넌트
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		USphereComponent* HeadCollision; 
+		USphereComponent* HeadCollision;
 
 	//VR Immersive 에셋 사용을 위한 컴포넌트
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		UWidgetInteractionComponent* WidgetInteraction;
+		class UWidgetInteractionComponent* WidgetInteraction;
 	
 	//C++ 딜레이 사용 위한 타이머 핸들 
 	UPROPERTY()
-		FTimerHandle WaitHandle;
+		struct FTimerHandle WaitHandle;
 
 private:
 	//SnapTurn 실행이 끝났는지? (연속 입력 방지)

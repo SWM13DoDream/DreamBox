@@ -2,19 +2,13 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
-#include "NiagaraFunctionLibrary.h"
-#include "NiagaraComponent.h"
-#include "NiagaraDataInterfaceExport.h"
-#include "Components/ChildActorComponent.h"
-#include "Components/AudioComponent.h"
+#include "../../common/public/DreamBox.h"
 #include "FireHose.generated.h"
 
 /*
  - Name        : AFireHose
  - Description : 물을 뿜는 소방호스 액터
- - Date        : 2022/07/22 LJH
+ - Date        : 2022/09/02 LJH
 */
 
 UCLASS(Category="Firefighter")
@@ -35,10 +29,6 @@ public:
 	//물 이미터를 비활성화
 	UFUNCTION()
 		void DeactivateEmitter();
-
-	//소방호스 물 사운드 이펙트 볼륨을 업데이트
-	UFUNCTION()
-		void UpdateSoundVolume(float NewVolume);
 
 public: /*Replication 관련 함수*/
 	//불과 수증기 Emitter의 Scale을 업데이트(화재진압 로직) - (클라이언트에서 실행)
@@ -62,7 +52,7 @@ public: /*Component와 BP 접근 변수*/
 
 	//소방호스의 물 이미터
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gameplay")
-		UNiagaraComponent* WaterEmitter;
+		class UNiagaraComponent* WaterEmitter;
 
 	//Hose의 메인 StaticMesh
 	UPROPERTY(EditAnywhere, Category = "Gameplay")
@@ -70,7 +60,7 @@ public: /*Component와 BP 접근 변수*/
 
 	//Firehose의 사운드 이펙트
 	UPROPERTY(EditAnywhere, Category = "Sound")
-		UAudioComponent* FirehoseSound; 
+		class UAudioComponent* FirehoseSound; 
 
 private:
 	//사운드 이펙트 볼륨 배수

@@ -1,8 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "../public/FireHose.h"
+#include "Components/ChildActorComponent.h"
+#include "Components/AudioComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "../../common/public/DreamBox.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
+#include "NiagaraDataInterfaceExport.h"
 
 // Sets default values
 AFireHose::AFireHose()
@@ -46,12 +50,6 @@ void AFireHose::ActivateEmitter()
 	WaterEmitter->Activate(); //물을 켬 : 나이아가라를 활성화
 	FirehoseSound->Activate();
 }
-
-void AFireHose::UpdateSoundVolume(float NewVolume)
-{
-
-}
-
 
 void AFireHose::DeactivateEmitter()
 {

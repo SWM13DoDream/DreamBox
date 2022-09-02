@@ -2,14 +2,14 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+
+#include "../../common/public/DreamBox.h"
 #include "FirefighterInteractionType.generated.h"
 
 /*
  - Name        : EFirefighterInteractionType
  - Descirption : Firefighter 직업군의 인터렉션 종류
- - Date        : 2022/07/20 LJH
+ - Date        : 2022/09/02 LJH
 */
 
 UENUM(BlueprintType)

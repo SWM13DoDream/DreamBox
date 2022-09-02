@@ -2,11 +2,15 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
-#include "FirefighterGamemode.h"
-#include "Components/BoxComponent.h"
+#include "../../common/public/DreamBox.h"
 #include "MissionTrigger.generated.h"
+
+/*
+ - Name        : AMissionTrigger
+ - Description : 특정 미션을 추가 & 업데이트 & 제거
+                 미션 Flow의 조정을 위해 특정 구간을 Block
+ - Date        : 2022/09/01 LJH
+*/
 
 UCLASS()
 class DREAMBOX_API AMissionTrigger : public AActor
@@ -20,13 +24,15 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	//플레이어가 오버랩 된다면, ID에 따라 미션을 업데이트
 	UFUNCTION()
 		void OnComponentEndOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor
 							, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-
+	//미션 델리게이트를 호출 (제거/추가 구분하여)
 	UFUNCTION()
 		void UpdateMissionDelegate();
 
+	//특정 미션이 추가 되었을 경우, 조건에 따라 이 볼륨의 콜리전 채널을 overlapAll으로 업데이트
 	UFUNCTION()
 		void UpdateMissionTriggerCollision(int32 PlayerId, int32 RemoveMissionId, int32 NewCondition);
 
@@ -64,6 +70,7 @@ public:
 		UBoxComponent* TriggerVolume;
 
 private:
+	//게임모드 레퍼런스
 	UPROPERTY()
-		AFirefighterGamemode* GamemodeRef;
+		class AFirefighterGamemode* GamemodeRef;
 };

@@ -2,17 +2,14 @@
 
 #pragma once
 
-#include "EngineMinimal.h"
-#include "TimerManager.h"
-#include "FirefighterGamemode.h."
-#include "FirefighterCharacter.h"
+#include "../../common/public/DreamBox.h"
 #include "GameFramework/Actor.h"
 #include "RescueGoal.generated.h"
 
 /*
  - Name        : ARescueGoal
  - Description : 구조되고 있는 캐릭터를 내려놓을 포인트를 나타내고, 구조 종료 이벤트를 호출하는 액터
- - Date        : 2022/07/20 LJH
+ - Date   : 2022/09/01 LJH
 */
 
 UCLASS()
@@ -55,22 +52,22 @@ public:
 
 	//구출해야할 인원 수
 	UPROPERTY(EditAnywhere, Category = "Mission")
-		int32 TargetRescueCount = 0; 
+		int32 TargetRescueCount = 3; 
 
 private:
 	//현재까지 구출한 인원 수
 	UPROPERTY()
-		int32 CurrentRescueCount;
+		int32 CurrentRescueCount = 0;
 
 	//게임모드 레퍼런스
 	UPROPERTY()
-		AFirefighterGamemode* GamemodeRef;
+		class AFirefighterGamemode* GamemodeRef;
 
 	//플레이어 캐릭터 레퍼런스
 	UPROPERTY()
-		AFirefighterCharacter* FirefighterCharacterRef;
+		class AFirefighterCharacter* FirefighterCharacterRef;
 
 	//C++ 딜레이 사용 위한 타이머 핸들 : 미사용
 	UPROPERTY()
-		FTimerHandle WaitHandle;
+		struct FTimerHandle WaitHandle;
 };

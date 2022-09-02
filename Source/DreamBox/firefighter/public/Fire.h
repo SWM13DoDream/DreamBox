@@ -2,18 +2,13 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
-#include "FirefighterGamemode.h"
-#include "Components/SphereComponent.h"
-#include "Particles/ParticleSystemComponent.h"
+#include "../../common/public/DreamBox.h"
 #include "Fire.generated.h"
-
 
 /*
  - Name        : AFire
  - Descirption : FireHose의 물에 닿으면 꺼지는 불 액터
- - Date        : 2022/07/20 LJH
+ - Date        : 2022/09/02 LJH
 */
 
 UCLASS(Category = "Firefighter")
@@ -66,11 +61,11 @@ public:
 public: //Replication 관련 함수
 	//불과 수증기 Emitter의 Scale을 Value만큼 업데이트 (멀티캐스트)
 	UFUNCTION(NetMulticast, reliable)//NetMulticast, Reliable)
-		void MulticastUpdateEmitterScale(UParticleSystemComponent* Target, const float Variance);
+		void MulticastUpdateEmitterScale(class UParticleSystemComponent* Target, const float Variance);
 
 	//불과 수증기 Emitter의 Scale을 Value만큼 업데이트 (서버에서 실행)
 	UFUNCTION(Server, reliable)
-		void ServerRPCUpdateEmitterScale(UParticleSystemComponent* Target, const float Variance);
+		void ServerRPCUpdateEmitterScale(class UParticleSystemComponent* Target, const float Variance);
 
 	//불이 꺼지고 수증기가 소멸하는 효과를 위해 Opacity값을 Update (멀티캐스트)
 	UFUNCTION(NetMulticast, reliable)
@@ -102,19 +97,19 @@ public:
 
 	//불 이미터
 	UPROPERTY(EditAnywhere, Category = "VFX")
-		UParticleSystemComponent* FireEmitter;
+		class UParticleSystemComponent* FireEmitter;
 
 	//연기 효과 이미터 (화재 진압 로직 시)
 	UPROPERTY(EditAnywhere, Category = "VFX")
-		UParticleSystemComponent* SteamEmitter;
+		class UParticleSystemComponent* SteamEmitter;
 
 	//연기 이미터 원본 머티리얼 
 	UPROPERTY(EditAnywhere, Category = "VFX")
-		UMaterialInterface* SteamMaterialInterface; 
+		class UMaterialInterface* SteamMaterialInterface; 
 
 	//연기 이미터  Opacity 조절을 위한 다이나믹 머티리얼
 	UPROPERTY()
-		UMaterialInstanceDynamic* SteamDynamicMaterial; 
+		class UMaterialInstanceDynamic* SteamDynamicMaterial; 
 
 	//불에 가까이 가지 못하게 하는 콜리전 볼륨
 	UPROPERTY(EditAnywhere)
@@ -127,7 +122,7 @@ public:
 private:
 	//게임모드 레퍼런스
 	UPROPERTY()
-		AFirefighterGamemode* GamemodeRef;
+		class AFirefighterGamemode* GamemodeRef;
 
 	//이미터 업데이트 타이머 핸들
 	UPROPERTY()

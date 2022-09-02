@@ -1,9 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "../public/FirefighterCharacter.h"
-#include "Kismet/KismetMathLibrary.h"
 #include "../public/FirefighterGamemode.h"
 #include "../public/FireHose.h"
+#include "../public/InjuredCharacter.h"
+#include "../public/CauseOfFire.h"
+#include "../public/FirefighterGamemode.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 AFirefighterCharacter::AFirefighterCharacter()
@@ -34,7 +37,6 @@ void AFirefighterCharacter::BeginPlay()
 	
 
 	if (GetWorld()) GamemodeRef = Cast<AFirefighterGamemode>(GetWorld()->GetAuthGameMode());
-	//if(IsValid(GamemodeRef)) GamemodeRef->UpdateMissionList() //BP 코드에서 이주 예정@@@
 }
 
 // Called every frame
@@ -61,21 +63,28 @@ void AFirefighterCharacter::TryInteraction()
 
 	switch (InteractionType) //상호작용 타입에 따라 구분
 	{
+	//구조 대상자를 업는 상호작용
 	case EFirefighterInteractionType::E_CARRY :
-		GamemodeRef->PlayFadeInOutAnimation.Broadcast(0); //PlayerID는 임시로 0
+		GamemodeRef->PlayCrossFadeAnimation.Broadcast(0); //PlayerID는 임시로 0
 		GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&](){
 			CarryInjuredCharacter(); //FadeIn 중간에 캐릭터를 업음
 		}), 0.75f, false); 
 		break;
+	
+	//물건을 집는 상호작용
 	case EFirefighterInteractionType::E_PICK :
 		
 		break;
+
+	//화재 원인 액터를 조사하는 상호작용
 	case EFirefighterInteractionType::E_INVESTIGATE :
-		GamemodeRef->PlayFadeInOutAnimation.Broadcast(0); //PlayerID는 임시로 0
+		GamemodeRef->PlayCrossFadeAnimation.Broadcast(0); //PlayerID는 임시로 0
 		GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
 			InvestigateCauseOfFire(); //FadeIn 중간에 캐릭터를 업음
 			}), 0.75f, false);
 		break;
+
+	//그 외
 	default:
 		break;
 	}
@@ -83,24 +92,26 @@ void AFirefighterCharacter::TryInteraction()
 
 void AFirefighterCharacter::Fire()
 {
-	if (!IsValid(FireHose->GetChildActor())) return;
+	if (!IsValid(FireHose->GetChildActor())) return; //FireHose 유효성 검사 
 	Cast<AFireHose>(FireHose->GetChildActor())->ActivateEmitter(); //소유한 호스의 나이아가라 이미터를 활성화
 }
 
 void AFirefighterCharacter::StopFire()
 {
-	if (!IsValid(FireHose->GetChildActor())) return;
+	if (!IsValid(FireHose->GetChildActor())) return; //FireHose 유효성 검사 
 	Cast<AFireHose>(FireHose->GetChildActor())->DeactivateEmitter();  //소유한 호스의 나이아가라 이미터를 비활성화
 }
 
 void AFirefighterCharacter::InvestigateCauseOfFire()
 {
+	//화재 원인 액터 유효성 검사와 상호작용 가능 여부 체크
 	if (!IsValid(CauseOfFireRef) || !GetIsReadyToInteraction()) return; 
 	CauseOfFireRef->Destroy();
 }
 
 void AFirefighterCharacter::CarryInjuredCharacter()
 {
+	//구조 대상자 액터 유효성 검사와 상호작용 가능 여부 체크 
 	if (!IsValid(InjuredCharacterRef) && !InjuredCharacterRef->GetIsBeingRescued()) return; //타겟이 유효하지 않거나 이미 구조되고 있는 캐릭터라면
 	if (bIsCarrying || !bIsReadyToInteraction) return; //이미 업고 있거나 상호작용 할 준비가 되지 않았다면
 
@@ -123,7 +134,7 @@ void AFirefighterCharacter::PutInjuredCharacter()
 
 void AFirefighterCharacter::SetCauseOfFireRef(ACauseOfFire* NewCauseOfFire)
 {
-	CauseOfFireRef = NewCauseOfFire;
+	CauseOfFireRef = NewCauseOfFire; 
 }
 
 void AFirefighterCharacter::SetInjuredCharacterRef(AInjuredCharacter* NewInjuredCharacter)

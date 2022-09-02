@@ -2,14 +2,13 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "GameFramework/GameModeBase.h"
+#include "../../common/public/DreamBox.h"
 #include "FireFighterGamemode.generated.h"
 
 /*
  - Name        : AFirefighterGamemode
  - Descirption : Firefighter 직업군의 메인 게임모드 (미션 업데이트 및 트랜지션 위젯 이벤트 포함)
- - Date        : 2022/07/20 LJH
+ - Date        : 2022/09/02 LJH
 */
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FDeleDynamicTwoIntBool, int32, PlayerID, int32, MissionID, bool, bIsRemoveTarget);
@@ -32,15 +31,17 @@ public:
 	UPROPERTY(BlueprintAssignable, VisibleAnywhere, BlueprintCallable)
 		FDeleDynamicThreeInt UpdateMissionListComponent;
 
+	//데이터 시트의 ID를 기반으로 Script를 띄움
 	UPROPERTY(BlueprintAssignable, VisibleAnywhere, BlueprintCallable)
 		FDeleDynamicTwoInt ShowScriptWithID;
-
+	
+	//문자열을 기반으로 Script를 띄움 (시간은 고정)
 	UPROPERTY(BlueprintAssignable, VisibleAnywhere, BlueprintCallable)
 		FDeleDynamicIntString ShowScriptWithString;
 
-	//FadeInOut 애니메이션을 출력
+	//CrossFade 애니메이션을 출력
 	UPROPERTY(BlueprintAssignable, VisibleAnywhere, BlueprintCallable)
-		FDeleDynamicOneParam PlayFadeInOutAnimation; 
+		FDeleDynamicOneParam PlayCrossFadeAnimation; 
 
 public:
 	//완료한 미션을 셋에 추가

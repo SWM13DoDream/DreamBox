@@ -2,7 +2,9 @@
 
 #include "../public/RescueGoal.h"
 #include "../public/FirefighterCharacter.h"
+#include "../public/FirefighterGamemode.h"
 #include "../public/InjuredCharacter.h"
+#include "TimerManager.h"
 
 // Sets default values
 ARescueGoal::ARescueGoal() 
@@ -26,11 +28,7 @@ void ARescueGoal::BeginPlay()
 	Super::BeginPlay();
 	
 	EventTrigger->OnComponentBeginOverlap.AddDynamic(this, &ARescueGoal::TriggerBeginOverlap); //오버랩 이벤트
-
-	if (GetWorld()) //게임모드 레퍼런스 따옴
-	{
-		GamemodeRef = Cast<AFirefighterGamemode>(GetWorld()->GetAuthGameMode());
-	}
+	if (GetWorld()) GamemodeRef = Cast<AFirefighterGamemode>(GetWorld()->GetAuthGameMode()); //게임모드 레퍼런스 초기화
 }
 
 // Called every frame
@@ -52,11 +50,11 @@ void ARescueGoal::TriggerBeginOverlap(UPrimitiveComponent* HitComp, AActor* Othe
 	if (!IsValid(injuredCharacter)) return; //구조대상 캐릭터가 유효하지 않거나 미션ID가 다르다면 반환
 	if (MissionID != 0 && MissionID != injuredCharacter->GetMissionID()) return; //ID가 0? : 범용
 
-	GamemodeRef->PlayFadeInOutAnimation.Broadcast(0);  //FadeIn 애니메이션 
+	GamemodeRef->PlayCrossFadeAnimation.Broadcast(0);  //CrossFade 호출
 	GamemodeRef->UpdateMissionListComponent.Broadcast(0, injuredCharacter->GetMissionID(), 1); //미션 업데이트 
-	GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&](){ //FadeIn 중간에 캐릭터를 내려둠
-		FirefighterCharacterRef->PutInjuredCharacter();
-		CurrentRescueCount += 1;
-		if(TargetRescueCount == CurrentRescueCount) Destroy();
+	GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&](){ 
+		FirefighterCharacterRef->PutInjuredCharacter(); //CrossFade 도중에 캐릭터를 내려둠
+		CurrentRescueCount += 1; //구조한 인원 수를 카운팅
+		if(TargetRescueCount == CurrentRescueCount) Destroy(); //목표로 하고 있는 인원 수가 되었다면 Destroy
 	}), 0.75f, false);
 }

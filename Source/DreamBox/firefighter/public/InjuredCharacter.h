@@ -2,18 +2,13 @@
 
 #pragma once
 
-#include "EngineMinimal.h"
-#include "GameFramework/Character.h"
-#include "Components/TextRenderComponent.h"
-#include "Components/CapsuleComponent.h"
-#include "Components/WidgetComponent.h"
-#include "FirefighterGamemode.h"
+#include "../../common/public/DreamBox.h"
 #include "InjuredCharacter.generated.h"
 
 /*
  - Name        : AInjuredCharacter
  - Description : 캐릭터가 구조할 요구조자 캐릭터
- - Date        : 2022/07/20 LJH
+ - Date        : 2022/09/02 LJH
 */
 
 UCLASS()
@@ -46,8 +41,9 @@ public:
 	UFUNCTION()
 		void SetIsBeingRescued(bool NewState);
 
+	//미션 추가 이벤트에 바인딩 되어서, 할당된 ID에 맞는 미션이 추가되면 이 액터를 Activate
 	UFUNCTION()
-		void UpdateMissionToActivate(int TargetPlayerId, int NewMissionId, bool bIsRemove);
+		void TryActivateMissionActor(int TargetPlayerId, int NewMissionId, bool bIsRemove);
 
 	/* --- Get/Set 함수 ----- */
 	UFUNCTION(BlueprintPure)
@@ -75,8 +71,9 @@ public:
 	UPROPERTY(EditAnywhere)
 		UStaticMeshComponent* RescueGuideMesh;
 
+	//미션을 진행하기 위한 정보를 담은 위젯 컴포넌트
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		UWidgetComponent* InfoWidget;
+		class UWidgetComponent* InfoWidget;
 
 	//바인딩할 미션의 ID
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mission")
@@ -85,15 +82,17 @@ public:
 private:
 	//소방관 게임모드 레퍼런스
 	UPROPERTY()
-		AFirefighterGamemode* GamemodeRef; 
+		class AFirefighterGamemode* GamemodeRef; 
 
 	//현재 구조되고 있는지?
 	UPROPERTY()
-		bool bIsBeingRescued;
+		bool bIsBeingRescued = false ;
 	
+	//이미 구조 되었는지?
 	UPROPERTY()
-		bool bIsRescued;
+		bool bIsRescued =  false;
 
+	//Activate 되었는지? (=상호작용이 가능한지?)
 	UPROPERTY()
 		bool bIsActivated = false;
 };
