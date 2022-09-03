@@ -3,6 +3,7 @@
 #pragma once
 
 #include "../../common/public/DreamBox.h"
+#include "NiagaraDataInterfaceExport.h"
 #include "FireHose.generated.h"
 
 /*
@@ -12,7 +13,7 @@
 */
 
 UCLASS(Category="Firefighter")
-class DREAMBOX_API AFireHose : public AActor
+class DREAMBOX_API AFireHose : public AActor, public INiagaraParticleCallbackHandler
 {
 	GENERATED_BODY()
 	
@@ -32,6 +33,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		void ApplyDamageToFire(FVector Location);
+
+	UFUNCTION()
+		virtual void ReceiveParticleData_Implementation(const TArray<FBasicParticleData>& Data, UNiagaraSystem* NiagaraSystem) override;
 
 protected:
 	// Called when the game starts or when spawned

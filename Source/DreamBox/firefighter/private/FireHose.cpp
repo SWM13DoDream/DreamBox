@@ -6,7 +6,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
-#include "NiagaraDataInterfaceExport.h"
 
 // Sets default values
 AFireHose::AFireHose()
@@ -21,6 +20,7 @@ AFireHose::AFireHose()
 
 	WaterEmitter = CreateDefaultSubobject<UNiagaraComponent>(TEXT("FIRE_EMITTER"));
 	WaterEmitter->SetupAttachment(DefaultSceneRoot);
+	WaterEmitter->SetNiagaraVariableObject("User.BP_Callback", this);
 	WaterEmitter->SetRelativeLocation({ 0.0f, 0.0f, 0.0f});
 	WaterEmitter->Deactivate();
 
@@ -61,4 +61,12 @@ void AFireHose::ApplyDamageToFire(FVector Location)
 {	
 	//해당 지점에 FireHoseDamage 만큼의 범위 데미지를 가함
 	UGameplayStatics::ApplyRadialDamage(GetWorld(), FireHoseDamage, Location, 5.0f, UDamageType::StaticClass(), {}, this, nullptr);
+}
+
+void AFireHose::ReceiveParticleData_Implementation(const TArray<FBasicParticleData>& Data, UNiagaraSystem* NiagaraSystem)
+{
+	for (const FBasicParticleData& ParticleData : Data)
+	{
+		ApplyDamageToFire(ParticleData.Position);
+	}
 }
