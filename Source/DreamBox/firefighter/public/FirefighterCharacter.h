@@ -52,25 +52,27 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void PutInjuredCharacter();
 
+public: //멤버변수 Read Write
+
 	//상호작용 할 화재원인액터의 레퍼런스 지정
 	UFUNCTION(BlueprintCallable)
-		void SetCauseOfFireRef(ACauseOfFire* NewCauseOfFire);
+		void SetCauseOfFireRef(ACauseOfFire* NewCauseOfFire) { CauseOfFireRef = NewCauseOfFire; }
 
 	//업을 캐릭터의 레퍼런스를 지정
 	UFUNCTION(BlueprintCallable)
-		void SetInjuredCharacterRef(AInjuredCharacter* NewInjuredCharacter);
+		void SetInjuredCharacterRef(AInjuredCharacter* NewInjuredCharacter) { InjuredCharacterRef = NewInjuredCharacter; }
 
 	//인터렉션 타입을 지정
 	UFUNCTION(BlueprintCallable)
-		void SetInteractionType(EFirefighterInteractionType NewType);
+		void SetInteractionType(EFirefighterInteractionType NewType) { InteractionType = NewType; }
 
 	//Interaction이 가능한지 여부를 업데이트
 	UFUNCTION(BlueprintCallable)
-		void SetIsReadyToInteraction(bool NewState);
+		void SetIsReadyToInteraction(bool NewState) { bIsReadyToInteraction = NewState; }
 
 	//플레이어가 InjurecCharacter 객체를 업고있는지 업데이트
 	UFUNCTION()
-		void SetIsCarrying(bool NewState);
+		void SetIsCarrying(bool NewState) { bIsCarrying = NewState; }
 
 	//Interaction 관련 멤버 초기화
 	UFUNCTION()
@@ -87,6 +89,19 @@ public:
 	//업고있는 InjuredCharacter의 레퍼런스를 반환
 	UFUNCTION(BlueprintCallable)
 		AInjuredCharacter* GetInjuredCharacterRef() const { return InjuredCharacterRef;  }
+
+public: //Delegate 관련, 플레이어를 거치는 이유? - 멀티플레이 및 관전 기능 감안
+	UFUNCTION()
+		void UpdateMissionList(int32 PlayerID, int32 MissionID, int32 Variable);
+
+	UFUNCTION()
+		void CrossFade(int32 PlayerID);
+
+	UFUNCTION()
+		void ShowScriptWithID(int32 PlayerID, int32 ScriptID);
+
+	UFUNCTION()
+		void ShowScriptWithString(int32 PlayerID, FString Script);
 
 protected:
 	// Called when the game starts or when spawned
@@ -105,6 +120,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		USpotLightComponent* FlashLight;
 
+	UPROPERTY(EditAnywhere)
+		UChildActorComponent* ScriptManager;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		UChildActorComponent* MissionManager;
+
 private:
 	//게임모드 레퍼런스
 	UPROPERTY()
@@ -117,6 +138,14 @@ private:
 	//화재 원인 액터 레퍼런스 
 	UPROPERTY()
 		class ACauseOfFire* CauseOfFireRef;
+
+	//MissionManager 레퍼런스
+	UPROPERTY()
+		class AMissionManager* MissionManagerRef;
+
+	//ScriptManager 레퍼런스
+	UPROPERTY()
+		class AScriptManager* ScriptManagerRef;
 
 	//현재 가능한 InteractionType
 	UPROPERTY()

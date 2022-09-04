@@ -6,6 +6,8 @@
 #include "../public/InjuredCharacter.h"
 #include "../public/CauseOfFire.h"
 #include "../public/FirefighterGamemode.h"
+#include "../public/MissionManager.h"
+#include "../public/ScriptManager.h"
 #include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
@@ -28,6 +30,17 @@ AFirefighterCharacter::AFirefighterCharacter()
 	RescueSocket->SetRelativeRotation(FQuat(0.0f, 0.0f, -90.0f, 0.0f));
 	RescueSocket->TargetArmLength = 50.0f;
 	RescueSocket->bEnableCameraLag = true;
+
+	ScriptManager = CreateDefaultSubobject<UChildActorComponent>(TEXT("SCRIPT_MANAGER"));
+	ScriptManager->SetupAttachment(Super::FollowingCamera);
+	ScriptManager->SetRelativeLocation(FVector(0.0f, 0.0f, -10.0f));
+	ScriptManager->SetRelativeRotation(FQuat(0.0f, 0.0f, 180.0f, 0.0f));
+	ScriptManager->SetRelativeScale3D(FVector(0.4f));
+
+	MissionManager = CreateDefaultSubobject<UChildActorComponent>(TEXT("MISSION_MANAGER"));
+	MissionManager->SetupAttachment(Super::VROrigin);
+	MissionManager->SetRelativeLocation(FVector(90.0f, -30.0f, 72.5f));
+	MissionManager->SetRelativeRotation(FQuat(1980.0f, 90.0f, 2340.0f, 0.0f));
 }
 
 // Called when the game starts or when spawned
@@ -35,8 +48,17 @@ void AFirefighterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	MissionManagerRef = Cast<AMissionManager>(MissionManager->GetChildActor());
+	ScriptManagerRef = Cast<AScriptManager>(ScriptManager->GetChildActor());
 
-	if (GetWorld()) GamemodeRef = Cast<AFirefighterGamemode>(GetWorld()->GetAuthGameMode());
+	if (GetWorld()) //게임모드 레퍼런스를 초기화하고, 이벤트를 바인딩
+	{
+		GamemodeRef = Cast<AFirefighterGamemode>(GetWorld()->GetAuthGameMode());
+		GamemodeRef->UpdateMissionList.AddDynamic(this, &AFirefighterCharacter::UpdateMissionList);
+		GamemodeRef->PlayCrossFadeAnimation.AddDynamic(this, &AFirefighterCharacter::CrossFade);
+		GamemodeRef->ShowScriptWithID.AddDynamic(this, &AFirefighterCharacter::ShowScriptWithID);
+		GamemodeRef->ShowScriptWithString.AddDynamic(this, &AFirefighterCharacter::ShowScriptWithString);
+	}
 }
 
 // Called every frame
@@ -132,35 +154,40 @@ void AFirefighterCharacter::PutInjuredCharacter()
 	ResetInteractionState(); //인터랙션 설정값들 초기화 
 }
 
-void AFirefighterCharacter::SetCauseOfFireRef(ACauseOfFire* NewCauseOfFire)
-{
-	CauseOfFireRef = NewCauseOfFire; 
-}
-
-void AFirefighterCharacter::SetInjuredCharacterRef(AInjuredCharacter* NewInjuredCharacter)
-{
-	InjuredCharacterRef = NewInjuredCharacter;
-}
-
-void AFirefighterCharacter::SetInteractionType(EFirefighterInteractionType NewType)
-{
-	InteractionType = NewType;
-}
-
-void AFirefighterCharacter::SetIsReadyToInteraction(bool NewState)
-{
-	bIsReadyToInteraction = NewState;
-}
-
-void AFirefighterCharacter::SetIsCarrying(bool NewState)
-{
-	bIsCarrying = NewState;
-}
-
 void AFirefighterCharacter::ResetInteractionState()
 {
 	SetInjuredCharacterRef(nullptr); //Carry 타겟 캐릭터 지움
 	SetInteractionType(EFirefighterInteractionType::E_NONE); //상호작용 타입 None
 	SetIsCarrying(false); //업고 있지 않음을 체크
 	SetIsReadyToInteraction(false); //상호작용할 준비가 되어있지 않음을 체크
+}
+
+void AFirefighterCharacter::UpdateMissionList(int32 PlayerID, int32 MissionID, int32 Variable)
+{
+	if (!IsValid(MissionManagerRef)) return;
+	if (Variable == 0) MissionManagerRef->AddNewMission(MissionID);
+	else MissionManagerRef->UpdateMission(MissionID, Variable);
+}
+
+void AFirefighterCharacter::CrossFade(int32 PlayerID)
+{
+	if (!IsValid(GamemodeRef)) return;
+
+	GetCharacterMovement()->Deactivate(); //CrossFade 도중에는 캐릭터의 움직임을 멈춤
+	GamemodeRef->PlayCrossFadeAnim(PlayerID);
+	GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
+		GetCharacterMovement()->Activate();
+	}), 1.25f, false); //1.25초 뒤에 움직임 활성화
+}
+
+void AFirefighterCharacter::ShowScriptWithID(int32 PlayerID, int32 ScriptID)
+{
+	if (!IsValid(ScriptManagerRef)) return;
+	ScriptManagerRef->ShowScriptWithID(ScriptID);
+}
+
+void AFirefighterCharacter::ShowScriptWithString(int32 PlayerID, FString Script)
+{
+	if (!IsValid(ScriptManagerRef)) return;
+	ScriptManagerRef->ShowScriptWithString(Script);
 }

@@ -5,13 +5,14 @@
 #include "../public/FirefighterCharacter.h"
 #include "../public/FirefighterGamemode.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "Components/WidgetComponent.h"
 
 // Sets default values
 ACauseOfFire::ACauseOfFire()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	
+
 	DefaultSceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("DEFAULT_SCENE_ROOT"));
 	DefaultSceneRoot->SetRelativeLocation(FVector(0.0f));
 	SetRootComponent(DefaultSceneRoot);
@@ -29,6 +30,10 @@ ACauseOfFire::ACauseOfFire()
 
 	EffectParticle = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("EFFECT_PARTICLE"));
 	EffectParticle->SetupAttachment(DefaultSceneRoot);
+
+	InvestigateInfoWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("INVESTIGATE_INFO"));
+	InvestigateInfoWidgetComponent->SetupAttachment(DefaultSceneRoot);
+	InvestigateInfoWidgetComponent->SetVisibility(false);
 }
 
 // Called when the game starts or when spawned
@@ -39,6 +44,7 @@ void ACauseOfFire::BeginPlay()
 	GuideMesh->SetVisibility(false);
 	EffectParticle->SetVisibility(false);
 
+	//Overlap이벤트 바인딩
 	InteractionTrigger->OnComponentBeginOverlap.AddDynamic(this, &ACauseOfFire::InteractionTriggerBeginOverlap);
 	InteractionTrigger->OnComponentEndOverlap.AddDynamic(this, &ACauseOfFire::InteractionTriggerEndOverlap);
 
@@ -46,6 +52,11 @@ void ACauseOfFire::BeginPlay()
 	{
 		GamemodeRef = Cast<AFirefighterGamemode>(GetWorld()->GetAuthGameMode());
 		GamemodeRef->UpdateMissionList.AddDynamic(this, &ACauseOfFire::TryActivateMissionActor);
+	}
+	if (IsValid(InvestigateInfoWidgetClass))
+	{
+		
+		//InvestigateInfoWidgetRef = Cast<CastTarget>(InvestigateInfoWidgetComponent->GetWidget());
 	}
 }
 
@@ -60,7 +71,7 @@ void ACauseOfFire::EndPlay(EEndPlayReason::Type Reason)
 {
 	Super::EndPlay(Reason);
 	//할당된 미션을 업데이트 (미션 완료 조건 카운트를 1증가)
-	GamemodeRef->UpdateMissionListComponent.Broadcast(0, MissionID, 1);
+	GamemodeRef->UpdateMissionList.Broadcast(0, MissionID, 1);
 }
 
 void ACauseOfFire::InteractionTriggerBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -85,10 +96,10 @@ void ACauseOfFire::InteractionTriggerEndOverlap(UPrimitiveComponent* OverlappedC
 	PlayerCharacterRef->SetIsReadyToInteraction(false);
 }
 
-void ACauseOfFire::TryActivateMissionActor(int32 PlayerId, int32 NewMissionId, bool bIsRemove)
+void ACauseOfFire::TryActivateMissionActor(int32 PlayerId, int32 NewMissionId, int32 Variable)
 {
 	//추가되는 미션이 아니거나 지정한 미션 ID와 다르다면 반환
-	if (bIsRemove || NewMissionId != MissionID) return; 
+	if (Variable || NewMissionId != MissionID) return; 
 	
 	bIsActivated = true; 
 	GuideMesh->SetVisibility(true);

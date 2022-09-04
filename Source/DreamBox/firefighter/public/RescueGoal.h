@@ -3,7 +3,6 @@
 #pragma once
 
 #include "../../common/public/DreamBox.h"
-#include "GameFramework/Actor.h"
 #include "RescueGoal.generated.h"
 
 /*
@@ -29,6 +28,9 @@ public:
 		void TriggerBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor
 			, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+	UFUNCTION()
+		void TryActivateActor(int32 PlayerId, int32 MissionId, int32 Variable);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -46,6 +48,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UStaticMeshComponent* DestinationGuideMesh;
 
+	UPROPERTY(EditAnywhere)
+		UStaticMeshComponent* DestinationArrowMesh;
+
+public: 
 	//바인딩할 미션의 ID
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mission")
 		int32 MissionID = 0;
@@ -53,6 +59,9 @@ public:
 	//구출해야할 인원 수
 	UPROPERTY(EditAnywhere, Category = "Mission")
 		int32 TargetRescueCount = 3; 
+
+	UPROPERTY(EditAnywhere, Category = "Mission")
+		TArray<int32> RescueMissionIdList;
 
 private:
 	//현재까지 구출한 인원 수
@@ -70,4 +79,8 @@ private:
 	//C++ 딜레이 사용 위한 타이머 핸들 : 미사용
 	UPROPERTY()
 		struct FTimerHandle WaitHandle;
+
+	//미션 이벤트에 의해 활성화가 되었는지?
+	UPROPERTY()
+		bool bIsActivated;
 };

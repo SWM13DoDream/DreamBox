@@ -34,7 +34,7 @@ void AMissionTrigger::BeginPlay()
 	if (GetWorld()) //게임모드 레퍼런스 초기화 및 Delegate 이벤트 바인딩
 	{
 		GamemodeRef = Cast<AFirefighterGamemode>(GetWorld()->GetAuthGameMode());
-		GamemodeRef->UpdateMissionListComponent.AddDynamic(this, &AMissionTrigger::UpdateMissionTriggerCollision);
+		GamemodeRef->UpdateMissionList.AddDynamic(this, &AMissionTrigger::UpdateMissionTriggerCollision);
 	}
 }
 
@@ -58,9 +58,9 @@ void AMissionTrigger::UpdateMissionDelegate()
 	
 	//해당 트리거가 미션을 바로 제거하는 볼륨인지 여부에 따라 Delegate 호출
 	//아니라면? : 할당된 미션 ID를 기반으로 미션을 추가
-	//맞다면? : 할당된 미션 ID를 기반으로 미리 추가된 미션을 업데이트 (미션 카운트 +1)
-	if (!bIsRemoveVolume) GamemodeRef->UpdateMissionList.Broadcast(0, MissionID, bIsRemoveVolume);
-	else GamemodeRef->UpdateMissionListComponent.Broadcast(0, MissionID, bIsRemoveVolume);
+	//맞다면? : 할당된 미션 ID를 기반으로 강제로 미션을 완료 시킴)
+	if (!bIsRemoveVolume) GamemodeRef->UpdateMissionList.Broadcast(0, MissionID, 0);
+	else GamemodeRef->UpdateMissionList.Broadcast(0, MissionID, 2e9);
 }
 
 void AMissionTrigger::UpdateMissionTriggerCollision(int32 PlayerId, int32 RemoveMissionId, int32 NewCondition)

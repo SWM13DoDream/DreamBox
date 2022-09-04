@@ -20,7 +20,10 @@ ARescueGoal::ARescueGoal()
 	
 	DestinationGuideMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DESTINATION_GUIDE"));
 	DestinationGuideMesh->SetupAttachment(DefaultSceneRoot);
-}
+
+	DestinationArrowMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DESTINATION_ARROW"));
+	DestinationArrowMesh->SetupAttachment(DefaultSceneRoot);
+ }
 
 // Called when the game starts or when spawned
 void ARescueGoal::BeginPlay()
@@ -28,7 +31,11 @@ void ARescueGoal::BeginPlay()
 	Super::BeginPlay();
 	
 	EventTrigger->OnComponentBeginOverlap.AddDynamic(this, &ARescueGoal::TriggerBeginOverlap); //오버랩 이벤트
-	if (GetWorld()) GamemodeRef = Cast<AFirefighterGamemode>(GetWorld()->GetAuthGameMode()); //게임모드 레퍼런스 초기화
+	if (GetWorld())
+	{
+		GamemodeRef = Cast<AFirefighterGamemode>(GetWorld()->GetAuthGameMode()); //게임모드 레퍼런스 초기화
+		GamemodeRef->UpdateMissionList.AddDynamic(this, &ARescueGoal::TryActivateActor);
+	}
 }
 
 // Called every frame
@@ -41,7 +48,7 @@ void ARescueGoal::Tick(float DeltaTime)
 void ARescueGoal::TriggerBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor
 	, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (!IsValid(OtherActor) || !OtherActor->ActorHasTag("Player") || !IsValid(GamemodeRef)) return; //캐릭터와 게임모드 유효성 검사
+	if (!IsValid(OtherActor) || !OtherActor->ActorHasTag("Player") || !IsValid(GamemodeRef) || !bIsActivated) return; //캐릭터와 게임모드 유효성 검사
 
 	FirefighterCharacterRef = Cast<AFirefighterCharacter>(OtherActor); //레퍼런스 지정
 	if (!FirefighterCharacterRef->GetIsCarrying()) return; //캐릭터를 불러올 수 없거나 업고 있는 캐릭터가 없다면 반환
@@ -51,10 +58,28 @@ void ARescueGoal::TriggerBeginOverlap(UPrimitiveComponent* HitComp, AActor* Othe
 	if (MissionID != 0 && MissionID != injuredCharacter->GetMissionID()) return; //ID가 0? : 범용
 
 	GamemodeRef->PlayCrossFadeAnimation.Broadcast(0);  //CrossFade 호출
-	GamemodeRef->UpdateMissionListComponent.Broadcast(0, injuredCharacter->GetMissionID(), 1); //미션 업데이트 
+	GamemodeRef->UpdateMissionList.Broadcast(0, injuredCharacter->GetMissionID(), 1); //미션 업데이트 
 	GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&](){ 
 		FirefighterCharacterRef->PutInjuredCharacter(); //CrossFade 도중에 캐릭터를 내려둠
 		CurrentRescueCount += 1; //구조한 인원 수를 카운팅
 		if(TargetRescueCount == CurrentRescueCount) Destroy(); //목표로 하고 있는 인원 수가 되었다면 Destroy
 	}), 0.75f, false);
+}
+
+void ARescueGoal::TryActivateActor(int32 PlayerId, int32 MissionId, int32 Variable)
+{
+	if (Variable) return;
+
+	bool bIsContain = false;
+	for (const int32& RescueMissionID : RescueMissionIdList)
+	{
+		if (RescueMissionID != MissionID) continue;
+		bIsContain = true; 
+		break;
+	}
+	if (!bIsContain) return;
+
+	bIsActivated = true; 
+	DestinationGuideMesh->SetVisibility(true);
+	DestinationArrowMesh->SetVisibility(true);
 }

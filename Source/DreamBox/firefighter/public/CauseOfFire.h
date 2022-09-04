@@ -34,7 +34,7 @@ public:
 			, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	UFUNCTION()
-		void TryActivateMissionActor(int32 PlayerId, int32 NewMissionId, bool bIsRemove);
+		void TryActivateMissionActor(int32 PlayerId, int32 NewMissionId, int32 Variable);
 
 	UFUNCTION(BlueprintPure)
 		bool GetIsActivated() { return bIsActivated; }
@@ -59,14 +59,30 @@ public:
 	UPROPERTY(EditAnywhere)
 		class UParticleSystemComponent* EffectParticle;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		class UWidgetComponent* InvestigateInfoWidgetComponent;
+
 public: 
+	//사용자가 다가갈 시 띄울 위젯 클래스 레퍼런스
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+		TSubclassOf<UUserWidget> InvestigateInfoWidgetClass;
+
+	//본 액터에 할당된 미션ID
 	UPROPERTY(EditAnywhere, Category = "Gameplay")
 		int32 MissionID;
 
+	//Activate 되어 있지 않으면 상호작용 불가
 	UPROPERTY(EditAnywhere, Category = "Gameplay")
 		bool bIsActivated; 
+
+	//위젯 클래스의 본문 텍스트
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gameplay", meta = (MultiLine = true))
+		FText InfoText_;
 
 private: 	
 	UPROPERTY()
 		class AFirefighterGamemode* GamemodeRef; 
+
+	UPROPERTY()
+		UUserWidget* InvestigateInfoWidgetRef;
 };

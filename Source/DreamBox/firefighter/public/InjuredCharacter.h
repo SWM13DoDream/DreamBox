@@ -43,7 +43,7 @@ public:
 
 	//미션 추가 이벤트에 바인딩 되어서, 할당된 ID에 맞는 미션이 추가되면 이 액터를 Activate
 	UFUNCTION()
-		void TryActivateMissionActor(int TargetPlayerId, int NewMissionId, bool bIsRemove);
+		void TryActivateMissionActor(int TargetPlayerId, int NewMissionId, int32 Variable);
 
 	/* --- Get/Set 함수 ----- */
 	UFUNCTION(BlueprintPure)

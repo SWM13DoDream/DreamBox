@@ -89,9 +89,9 @@ void AInjuredCharacter::SetIsBeingRescued(bool NewState)
 	bIsBeingRescued = NewState; 
 }
 
-void AInjuredCharacter::TryActivateMissionActor(int TargetPlayerId, int NewMissionId, bool bIsRemove)
+void AInjuredCharacter::TryActivateMissionActor(int32 TargetPlayerId, int32 NewMissionId, int32 Variable)
 {
-	if (MissionID != NewMissionId || bIsRemove) return;  //제거되는 미션이거나 현재 이 NPC와 미션이 다르다면 반환
+	if (MissionID != NewMissionId || Variable) return;  //제거되는 미션이거나 현재 이 NPC와 미션이 다르다면 반환
 	bIsActivated = true; //할당된 ID에 맞는 미션이 추가되었다면? 구조 Interaction이 가능하도록 Activate
 	RescueGuideMesh->SetVisibility(true); //가이드 메시도 Visible하게 처리
 }

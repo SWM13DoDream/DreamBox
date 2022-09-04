@@ -125,7 +125,7 @@ bool AFire::CheckAndUpdateSuppressedState()
 	return true;
 }
 
-void AFire::UpdateMissionDelegate(int32 PlayerIdx, int32 TargetMissionID, int32 NewCondition) // 불 소멸시 델리게이트 호출 
+void AFire::UpdateMissionDelegate(int32 PlayerIdx, int32 TargetMissionID, int32 Variable) // 불 소멸시 델리게이트 호출 
 {
-	GamemodeRef->UpdateMissionListComponent.Broadcast(PlayerIdx, TargetMissionID, NewCondition);
+	GamemodeRef->UpdateMissionList.Broadcast(PlayerIdx, TargetMissionID, Variable);
 }
