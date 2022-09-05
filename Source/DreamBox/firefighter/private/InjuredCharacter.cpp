@@ -62,6 +62,7 @@ void AInjuredCharacter::InteractionTriggerBeginOverlap(UPrimitiveComponent* HitC
 	playerCharacter->SetInteractionType(EFirefighterInteractionType::E_CARRY); //캐릭터의 가능한 상호작용 타입 지정
 	playerCharacter->SetIsReadyToInteraction(true); //상호작용 가능함으로 체크
 	playerCharacter->SetInjuredCharacterRef(this); //업을 대상인 (this)를 캐릭터에게 전달
+	PlayWidgetAnimtion(true);
 }
 
 void AInjuredCharacter::InteractionTriggerEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor
@@ -71,6 +72,7 @@ void AInjuredCharacter::InteractionTriggerEndOverlap(UPrimitiveComponent* Overla
 	AFirefighterCharacter* playerCharacter = Cast<AFirefighterCharacter>(OtherActor); //레퍼런스 얻음
 	playerCharacter->SetInteractionType(EFirefighterInteractionType::E_NONE); //상호작용 None으로 롤백
 	playerCharacter->SetIsReadyToInteraction(false); //상호작용 불가능
+	PlayWidgetAnimtion(false);
 }
 
 void AInjuredCharacter::SetCharacterCollisionState(bool NewState)
@@ -91,7 +93,7 @@ void AInjuredCharacter::SetIsBeingRescued(bool NewState)
 
 void AInjuredCharacter::TryActivateMissionActor(int32 TargetPlayerId, int32 NewMissionId, int32 Variable)
 {
-	if (MissionID != NewMissionId || Variable) return;  //제거되는 미션이거나 현재 이 NPC와 미션이 다르다면 반환
+	if (MissionID != NewMissionId || Variable || bIsActivated) return;  //제거되는 미션이거나 현재 이 NPC와 미션이 다르다면 반환
 	bIsActivated = true; //할당된 ID에 맞는 미션이 추가되었다면? 구조 Interaction이 가능하도록 Activate
 	RescueGuideMesh->SetVisibility(true); //가이드 메시도 Visible하게 처리
 }

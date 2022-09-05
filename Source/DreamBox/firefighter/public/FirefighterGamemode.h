@@ -36,7 +36,7 @@ public:
 
 	//CrossFade 애니메이션을 출력
 	UPROPERTY(BlueprintAssignable, VisibleAnywhere, BlueprintCallable)
-		FDeleDynamicOneParam PlayCrossFadeAnimation; 
+		FDeleDynamicOneParam CrossFadeAnimationEvent; 
 
 protected:
 	// Called when the game starts or when spawned
@@ -83,6 +83,10 @@ private:
 	//시퀀스 플레이어
 	UPROPERTY()
 		class ULevelSequencePlayer* CrossFadePlayer;
+
+	//플레이어 캐릭터 레퍼런스
+	UPROPERTY()
+		ACharacter* PlayerCharacterRef;
 
 	//Delay 사용을 위한 타이머 핸들
 	UPROPERTY()

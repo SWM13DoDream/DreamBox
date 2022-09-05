@@ -8,7 +8,7 @@
 /*
  - Name        : AInjuredCharacter
  - Description : 캐릭터가 구조할 요구조자 캐릭터
- - Date        : 2022/09/02 LJH
+ - Date        : 2022/09/05 LJH
 */
 
 UCLASS()
@@ -44,6 +44,9 @@ public:
 	//미션 추가 이벤트에 바인딩 되어서, 할당된 ID에 맞는 미션이 추가되면 이 액터를 Activate
 	UFUNCTION()
 		void TryActivateMissionActor(int TargetPlayerId, int NewMissionId, int32 Variable);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void PlayWidgetAnimtion(bool bIsStart);
 
 	/* --- Get/Set 함수 ----- */
 	UFUNCTION(BlueprintPure)

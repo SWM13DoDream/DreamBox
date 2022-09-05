@@ -95,9 +95,6 @@ public: //Delegate 관련, 플레이어를 거치는 이유? - 멀티플레이 및 관전 기능 감안
 		void UpdateMissionList(int32 PlayerID, int32 MissionID, int32 Variable);
 
 	UFUNCTION()
-		void CrossFade(int32 PlayerID);
-
-	UFUNCTION()
 		void ShowScriptWithID(int32 PlayerID, int32 ScriptID);
 
 	UFUNCTION()

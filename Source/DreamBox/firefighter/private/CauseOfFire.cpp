@@ -53,11 +53,6 @@ void ACauseOfFire::BeginPlay()
 		GamemodeRef = Cast<AFirefighterGamemode>(GetWorld()->GetAuthGameMode());
 		GamemodeRef->UpdateMissionList.AddDynamic(this, &ACauseOfFire::TryActivateMissionActor);
 	}
-	if (IsValid(InvestigateInfoWidgetClass))
-	{
-		
-		//InvestigateInfoWidgetRef = Cast<CastTarget>(InvestigateInfoWidgetComponent->GetWidget());
-	}
 }
 
 // Called every frame
@@ -70,8 +65,9 @@ void ACauseOfFire::Tick(float DeltaTime)
 void ACauseOfFire::EndPlay(EEndPlayReason::Type Reason)
 {
 	Super::EndPlay(Reason);
+
 	//할당된 미션을 업데이트 (미션 완료 조건 카운트를 1증가)
-	GamemodeRef->UpdateMissionList.Broadcast(0, MissionID, 1);
+	if(bIsInteractionEnabled) GamemodeRef->UpdateMissionList.Broadcast(0, MissionID, 1);
 }
 
 void ACauseOfFire::InteractionTriggerBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -79,10 +75,14 @@ void ACauseOfFire::InteractionTriggerBeginOverlap(UPrimitiveComponent* HitComp, 
 	if (!IsValid(OtherActor) || !OtherActor->ActorHasTag("Player") || !bIsActivated) return; //플레이어 유효성 검사와 인터렉션 가능 조건 검사
 	
 	//플레이어가 오버랩 되면, 상호작용이 가능하도록 함
-	AFirefighterCharacter * PlayerCharacterRef = Cast<AFirefighterCharacter>(OtherActor);
-	PlayerCharacterRef->SetCauseOfFireRef(this); //이 액터의 주소를 전달
-	PlayerCharacterRef->SetInteractionType(EFirefighterInteractionType::E_INVESTIGATE);
-	PlayerCharacterRef->SetIsReadyToInteraction(true);
+	if (bIsInteractionEnabled)
+	{
+		AFirefighterCharacter* PlayerCharacterRef = Cast<AFirefighterCharacter>(OtherActor);
+		PlayerCharacterRef->SetCauseOfFireRef(this); //이 액터의 주소를 전달
+		PlayerCharacterRef->SetInteractionType(EFirefighterInteractionType::E_INVESTIGATE);
+		PlayerCharacterRef->SetIsReadyToInteraction(true);
+	}
+	PlayWidgetAnimation(true);
 }
 
 void ACauseOfFire::InteractionTriggerEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
@@ -94,6 +94,7 @@ void ACauseOfFire::InteractionTriggerEndOverlap(UPrimitiveComponent* OverlappedC
 	PlayerCharacterRef->SetCauseOfFireRef(nullptr); //플레이어가 참조하던 포인터를 초기화
 	PlayerCharacterRef->SetInteractionType(EFirefighterInteractionType::E_NONE);
 	PlayerCharacterRef->SetIsReadyToInteraction(false);
+	PlayWidgetAnimation(false);
 }
 
 void ACauseOfFire::TryActivateMissionActor(int32 PlayerId, int32 NewMissionId, int32 Variable)

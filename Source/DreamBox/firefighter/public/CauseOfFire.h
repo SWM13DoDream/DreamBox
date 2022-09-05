@@ -8,7 +8,7 @@
 /*
  - Name        : ACauseOfFire
  - Description : 화재 원인 조사 미션을 위한 액터. 플레이어는 "Investigation" 타입의 상호작용을 함
- - Date        : 2022/09/02 LJH
+ - Date        : 2022/09/05 LJH
 */
 
 UCLASS()
@@ -35,6 +35,9 @@ public:
 
 	UFUNCTION()
 		void TryActivateMissionActor(int32 PlayerId, int32 NewMissionId, int32 Variable);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void PlayWidgetAnimation(bool bIsStart);
 
 	UFUNCTION(BlueprintPure)
 		bool GetIsActivated() { return bIsActivated; }
@@ -63,26 +66,24 @@ public:
 		class UWidgetComponent* InvestigateInfoWidgetComponent;
 
 public: 
-	//사용자가 다가갈 시 띄울 위젯 클래스 레퍼런스
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
-		TSubclassOf<UUserWidget> InvestigateInfoWidgetClass;
-
 	//본 액터에 할당된 미션ID
 	UPROPERTY(EditAnywhere, Category = "Gameplay")
-		int32 MissionID;
+		int32 MissionID; 
 
-	//Activate 되어 있지 않으면 상호작용 불가
+	//상호작용(Investigation)이 가능한지?
 	UPROPERTY(EditAnywhere, Category = "Gameplay")
-		bool bIsActivated; 
+		bool bIsInteractionEnabled = true;
 
 	//위젯 클래스의 본문 텍스트
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gameplay", meta = (MultiLine = true))
 		FText InfoText_;
 
 private: 	
+	//게임모드 레퍼런스
 	UPROPERTY()
 		class AFirefighterGamemode* GamemodeRef; 
 
+	//Activate 되어 있지 않으면 상호작용 불가
 	UPROPERTY()
-		UUserWidget* InvestigateInfoWidgetRef;
+		bool bIsActivated;
 };

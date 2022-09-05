@@ -8,7 +8,7 @@
 /*
  - Name        : AFire
  - Descirption : FireHose의 물에 닿으면 꺼지는 불 액터
- - Date        : 2022/09/02 LJH
+ - Date        : 2022/09/05 LJH
 */
 
 UCLASS(Category = "Firefighter")
@@ -53,10 +53,6 @@ public:
 
 	UFUNCTION(BlueprintPure)
 		bool GetIsFireSuppressed() { return bIsFireSuppressed; }
-
-	//불이 꺼지면 바인딩된 미션을 업데이트 한다 
-	UFUNCTION()
-		void UpdateMissionDelegate(int32 PlayerIdx, int32 TargetMissionID, int32 NewCondition);
 
 protected:
 	// Called when the game starts or when spawned

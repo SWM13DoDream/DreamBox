@@ -9,7 +9,7 @@
  - Name        : AMissionTrigger
  - Description : 특정 미션을 추가 & 업데이트 & 제거
                  미션 Flow의 조정을 위해 특정 구간을 Block
- - Date        : 2022/09/01 LJH
+ - Date        : 2022/09/05 LJH
 */
 
 UCLASS()
@@ -24,10 +24,17 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	//플레이어가 오버랩 된다면, ID에 따라 미션을 업데이트
+	//플레이어가 MissionUpdate 볼륨에 오버랩 된다면, ID에 따라 미션을 업데이트
 	UFUNCTION()
-		void OnComponentEndOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor
+		void MissionUpdateEndOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor
 							, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	
+	//플레이어가 PrevMissionCheckTrigger 볼륨에 오버랩 된다면, 이전 미션을 완료했는지 판단
+	UFUNCTION()
+		void PrevMissionCheckBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor
+			, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+
 	//미션 델리게이트를 호출 (제거/추가 구분하여)
 	UFUNCTION()
 		void UpdateMissionDelegate();
@@ -57,17 +64,21 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Gameplay")
 		bool bIsAutoActivate = false;
 
-	//할당된 미션ID를 기반으로 제거 델리게이트를 호출할 것인지?
+	//할당된 미션ID의 진행도를 올리는 볼륨인지?
 	UPROPERTY(EditAnywhere, Category = "Gameplay")
-		bool bIsRemoveVolume = false;
+		bool bIsMissionGoalVolume = false;
 
 	//루트 컴포넌트
 	UPROPERTY(EditAnywhere)
 		USceneComponent* DefaultSceneRoot;
 
 	//플레이어의 오버랩으로 이벤트를 트리거
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		UBoxComponent* TriggerVolume;
+	UPROPERTY(EditAnywhere)
+		UBoxComponent* MissionUpdateTrigger; 
+
+	//이전 미션 완료 여부를 판단하는 트리거
+	UPROPERTY(EditAnywhere)
+		UBoxComponent* PrevMissionCheckTrigger;
 
 private:
 	//게임모드 레퍼런스

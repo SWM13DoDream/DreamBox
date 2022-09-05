@@ -55,7 +55,6 @@ void AFirefighterCharacter::BeginPlay()
 	{
 		GamemodeRef = Cast<AFirefighterGamemode>(GetWorld()->GetAuthGameMode());
 		GamemodeRef->UpdateMissionList.AddDynamic(this, &AFirefighterCharacter::UpdateMissionList);
-		GamemodeRef->PlayCrossFadeAnimation.AddDynamic(this, &AFirefighterCharacter::CrossFade);
 		GamemodeRef->ShowScriptWithID.AddDynamic(this, &AFirefighterCharacter::ShowScriptWithID);
 		GamemodeRef->ShowScriptWithString.AddDynamic(this, &AFirefighterCharacter::ShowScriptWithString);
 	}
@@ -87,7 +86,7 @@ void AFirefighterCharacter::TryInteraction()
 	{
 	//구조 대상자를 업는 상호작용
 	case EFirefighterInteractionType::E_CARRY :
-		GamemodeRef->PlayCrossFadeAnimation.Broadcast(0); //PlayerID는 임시로 0
+		GamemodeRef->CrossFadeAnimationEvent.Broadcast(0); //PlayerID는 임시로 0
 		GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&](){
 			CarryInjuredCharacter(); //FadeIn 중간에 캐릭터를 업음
 		}), 0.75f, false); 
@@ -100,7 +99,7 @@ void AFirefighterCharacter::TryInteraction()
 
 	//화재 원인 액터를 조사하는 상호작용
 	case EFirefighterInteractionType::E_INVESTIGATE :
-		GamemodeRef->PlayCrossFadeAnimation.Broadcast(0); //PlayerID는 임시로 0
+		GamemodeRef->CrossFadeAnimationEvent.Broadcast(0); //PlayerID는 임시로 0
 		GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
 			InvestigateCauseOfFire(); //FadeIn 중간에 캐릭터를 업음
 			}), 0.75f, false);
@@ -167,17 +166,6 @@ void AFirefighterCharacter::UpdateMissionList(int32 PlayerID, int32 MissionID, i
 	if (!IsValid(MissionManagerRef)) return;
 	if (Variable == 0) MissionManagerRef->AddNewMission(MissionID);
 	else MissionManagerRef->UpdateMission(MissionID, Variable);
-}
-
-void AFirefighterCharacter::CrossFade(int32 PlayerID)
-{
-	if (!IsValid(GamemodeRef)) return;
-
-	GetCharacterMovement()->Deactivate(); //CrossFade 도중에는 캐릭터의 움직임을 멈춤
-	GamemodeRef->PlayCrossFadeAnim(PlayerID);
-	GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
-		GetCharacterMovement()->Activate();
-	}), 1.25f, false); //1.25초 뒤에 움직임 활성화
 }
 
 void AFirefighterCharacter::ShowScriptWithID(int32 PlayerID, int32 ScriptID)

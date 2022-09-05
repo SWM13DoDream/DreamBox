@@ -48,14 +48,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UStaticMeshComponent* DestinationGuideMesh;
 
+	//구조 종료 포인트를 시각적으로 보여주는 가이드 메시 (화살표)
 	UPROPERTY(EditAnywhere)
 		UStaticMeshComponent* DestinationArrowMesh;
 
-public: 
-	//바인딩할 미션의 ID
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mission")
-		int32 MissionID = 0;
-
+public:
 	//구출해야할 인원 수
 	UPROPERTY(EditAnywhere, Category = "Mission")
 		int32 TargetRescueCount = 3; 

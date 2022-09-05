@@ -121,11 +121,6 @@ bool AFire::CheckAndUpdateSuppressedState()
 	bIsFireSuppressed = true; //불 진압 여부를 나타내는 변수를 업데이트
 	FireGuideMesh->SetVisibility(false); //FireGuideMesh를 Hidden으로 지정
 	
-	UpdateMissionDelegate(0, MissionID, 1); //0번째 플레이어만 업데이트
+	GamemodeRef->UpdateMissionList.Broadcast(0, MissionID, 1); //미션 업데이트
 	return true;
-}
-
-void AFire::UpdateMissionDelegate(int32 PlayerIdx, int32 TargetMissionID, int32 Variable) // 불 소멸시 델리게이트 호출 
-{
-	GamemodeRef->UpdateMissionList.Broadcast(PlayerIdx, TargetMissionID, Variable);
 }
