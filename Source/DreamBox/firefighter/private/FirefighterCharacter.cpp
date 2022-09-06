@@ -29,7 +29,6 @@ AFirefighterCharacter::AFirefighterCharacter()
 	RescueSocket->SetupAttachment(FollowingCamera);
 	RescueSocket->SetRelativeRotation(FQuat(0.0f, 0.0f, -90.0f, 0.0f));
 	RescueSocket->TargetArmLength = 50.0f;
-	RescueSocket->bEnableCameraLag = true;
 
 	ScriptManager = CreateDefaultSubobject<UChildActorComponent>(TEXT("SCRIPT_MANAGER"));
 	ScriptManager->SetupAttachment(Super::FollowingCamera);

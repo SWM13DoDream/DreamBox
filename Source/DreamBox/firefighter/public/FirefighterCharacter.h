@@ -10,7 +10,7 @@
 /*
  - Name        : AFirefighterCharacter
  - Descirption : Firefighter 직업의 메인 Playable 캐릭터
- - Date        : 2022/09/02 LJH
+ - Date        : 2022/09/06 LJH
 */
 
 UCLASS()

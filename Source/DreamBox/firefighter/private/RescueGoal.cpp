@@ -20,9 +20,11 @@ ARescueGoal::ARescueGoal()
 	
 	DestinationGuideMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DESTINATION_GUIDE"));
 	DestinationGuideMesh->SetupAttachment(DefaultSceneRoot);
+	DestinationGuideMesh->SetVisibility(false);
 
 	DestinationArrowMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DESTINATION_ARROW"));
 	DestinationArrowMesh->SetupAttachment(DefaultSceneRoot);
+	DestinationArrowMesh->SetVisibility(false);
  }
 
 // Called when the game starts or when spawned
