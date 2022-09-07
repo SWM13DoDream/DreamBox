@@ -1,0 +1,390 @@
+{
+	"actions": [
+		{
+			"name": "/actions/main/out/vibrateleft",
+			"type": "vibration",
+			"requirement": "optional"
+		},
+		{
+			"name": "/actions/main/out/vibrateright",
+			"type": "vibration",
+			"requirement": "optional"
+		},
+		{
+			"name": "/actions/main/in/open_console",
+			"type": "boolean",
+			"requirement": "optional"
+		},
+		{
+			"name": "/actions/dev/in/Button1Cap_L",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/Button1_L",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/Button2Cap_L",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/Button2_L",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/SystemCap_L",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/System_L",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/Menu_L",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/TriggerCap_L",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/Trigger_L",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/GripCap_L",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/Grip_L",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/StickCap_L",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/Thumbstick_L",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/ThumbstickUp_L",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/ThumbstickDown_L",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/ThumbstickLeft_L",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/ThumbstickRight_L",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/PadCap_L",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/Trackpad_L",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/TrackpadUp_L",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/TrackpadDown_L",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/TrackpadLeft_L",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/TrackpadRight_L",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/Button1Cap_R",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/Button1_R",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/Button2Cap_R",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/Button2_R",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/SystemCap_R",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/System_R",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/Menu_R",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/TriggerCap_R",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/Trigger_R",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/GripCap_R",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/Grip_R",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/StickCap_R",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/Thumbstick_R",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/ThumbstickUp_R",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/ThumbstickDown_R",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/ThumbstickLeft_R",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/ThumbstickRight_R",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/PadCap_R",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/Trackpad_R",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/TrackpadUp_R",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/TrackpadDown_R",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/TrackpadLeft_R",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/TrackpadRight_R",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/main/in/Teleport_L",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/main/in/Teleport_R",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/main/in/Emote_L",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/main/in/Emote_R",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/main/in/Console",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/main/in/Interact_L",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/main/in/Interact_R",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/dev/in/TriggerAxis_L axis",
+			"type": "vector1"
+		},
+		{
+			"name": "/actions/dev/in/GripAxis_L axis",
+			"type": "vector1"
+		},
+		{
+			"name": "/actions/dev/in/StickL_X,StickL_Y X Y_axis2d",
+			"type": "vector2"
+		},
+		{
+			"name": "/actions/dev/in/PadL_X,PadL_Y X Y_axis2d",
+			"type": "vector2"
+		},
+		{
+			"name": "/actions/dev/in/TriggerAxis_R axis",
+			"type": "vector1"
+		},
+		{
+			"name": "/actions/dev/in/GripAxis_R axis",
+			"type": "vector1"
+		},
+		{
+			"name": "/actions/dev/in/StickR_X,StickR_Y X Y_axis2d",
+			"type": "vector2"
+		},
+		{
+			"name": "/actions/dev/in/PadR_X,PadR_Y X Y_axis2d",
+			"type": "vector2"
+		}
+	],
+	"action_sets": [
+		{
+			"name": "/actions/dev",
+			"usage": "leftright"
+		},
+		{
+			"name": "/actions/main",
+			"usage": "leftright"
+		}
+	],
+	"default_bindings": [
+		{
+			"controller_type": "gamepad",
+			"binding_url": "gamepad.json"
+		},
+		{
+			"controller_type": "holographic_controller",
+			"binding_url": "holographic_controller.json"
+		},
+		{
+			"controller_type": "indexhmd",
+			"binding_url": "indexhmd.json"
+		},
+		{
+			"controller_type": "knuckles",
+			"binding_url": "knuckles.json"
+		},
+		{
+			"controller_type": "oculus_touch",
+			"binding_url": "oculus_touch.json"
+		},
+		{
+			"controller_type": "rift",
+			"binding_url": "rift.json"
+		},
+		{
+			"controller_type": "vive",
+			"binding_url": "vive.json"
+		},
+		{
+			"controller_type": "vive_controller",
+			"binding_url": "vive_controller.json"
+		},
+		{
+			"controller_type": "vive_cosmos_controller",
+			"binding_url": "vive_cosmos_controller.json"
+		},
+		{
+			"controller_type": "vive_pro",
+			"binding_url": "vive_pro.json"
+		},
+		{
+			"controller_type": "vive_tracker_camera",
+			"binding_url": "vive_tracker_camera.json"
+		}
+	],
+	"localization": [
+		{
+			"language_tag": "en_us",
+			"/actions/main/out/vibrateleft": "Haptic (Left)",
+			"/actions/main/out/vibrateright": "Haptic (Right)",
+			"/actions/main/in/open_console": "Open Console",
+			"/actions/dev/in/Button1Cap_L": "Button1Cap_L",
+			"/actions/dev/in/Button1_L": "Button1_L",
+			"/actions/dev/in/Button2Cap_L": "Button2Cap_L",
+			"/actions/dev/in/Button2_L": "Button2_L",
+			"/actions/dev/in/SystemCap_L": "SystemCap_L",
+			"/actions/dev/in/System_L": "System_L",
+			"/actions/dev/in/Menu_L": "Menu_L",
+			"/actions/dev/in/TriggerCap_L": "TriggerCap_L",
+			"/actions/dev/in/Trigger_L": "Trigger_L",
+			"/actions/dev/in/GripCap_L": "GripCap_L",
+			"/actions/dev/in/Grip_L": "Grip_L",
+			"/actions/dev/in/StickCap_L": "StickCap_L",
+			"/actions/dev/in/Thumbstick_L": "Thumbstick_L",
+			"/actions/dev/in/ThumbstickUp_L": "ThumbstickUp_L",
+			"/actions/dev/in/ThumbstickDown_L": "ThumbstickDown_L",
+			"/actions/dev/in/ThumbstickLeft_L": "ThumbstickLeft_L",
+			"/actions/dev/in/ThumbstickRight_L": "ThumbstickRight_L",
+			"/actions/dev/in/PadCap_L": "PadCap_L",
+			"/actions/dev/in/Trackpad_L": "Trackpad_L",
+			"/actions/dev/in/TrackpadUp_L": "TrackpadUp_L",
+			"/actions/dev/in/TrackpadDown_L": "TrackpadDown_L",
+			"/actions/dev/in/TrackpadLeft_L": "TrackpadLeft_L",
+			"/actions/dev/in/TrackpadRight_L": "TrackpadRight_L",
+			"/actions/dev/in/Button1Cap_R": "Button1Cap_R",
+			"/actions/dev/in/Button1_R": "Button1_R",
+			"/actions/dev/in/Button2Cap_R": "Button2Cap_R",
+			"/actions/dev/in/Button2_R": "Button2_R",
+			"/actions/dev/in/SystemCap_R": "SystemCap_R",
+			"/actions/dev/in/System_R": "System_R",
+			"/actions/dev/in/Menu_R": "Menu_R",
+			"/actions/dev/in/TriggerCap_R": "TriggerCap_R",
+			"/actions/dev/in/Trigger_R": "Trigger_R",
+			"/actions/dev/in/GripCap_R": "GripCap_R",
+			"/actions/dev/in/Grip_R": "Grip_R",
+			"/actions/dev/in/StickCap_R": "StickCap_R",
+			"/actions/dev/in/Thumbstick_R": "Thumbstick_R",
+			"/actions/dev/in/ThumbstickUp_R": "ThumbstickUp_R",
+			"/actions/dev/in/ThumbstickDown_R": "ThumbstickDown_R",
+			"/actions/dev/in/ThumbstickLeft_R": "ThumbstickLeft_R",
+			"/actions/dev/in/ThumbstickRight_R": "ThumbstickRight_R",
+			"/actions/dev/in/PadCap_R": "PadCap_R",
+			"/actions/dev/in/Trackpad_R": "Trackpad_R",
+			"/actions/dev/in/TrackpadUp_R": "TrackpadUp_R",
+			"/actions/dev/in/TrackpadDown_R": "TrackpadDown_R",
+			"/actions/dev/in/TrackpadLeft_R": "TrackpadLeft_R",
+			"/actions/dev/in/TrackpadRight_R": "TrackpadRight_R",
+			"/actions/main/in/Teleport_L": "Teleport_L",
+			"/actions/main/in/Teleport_R": "Teleport_R",
+			"/actions/main/in/Emote_L": "Emote_L",
+			"/actions/main/in/Emote_R": "Emote_R",
+			"/actions/main/in/Console": "Console",
+			"/actions/main/in/Interact_L": "Interact_L",
+			"/actions/main/in/Interact_R": "Interact_R",
+			"/actions/dev/in/TriggerAxis_L axis": "TriggerAxis_L",
+			"/actions/dev/in/GripAxis_L axis": "GripAxis_L",
+			"/actions/dev/in/StickL_X,StickL_Y X Y_axis2d": "StickL",
+			"/actions/dev/in/PadL_X,PadL_Y X Y_axis2d": "PadL",
+			"/actions/dev/in/TriggerAxis_R axis": "TriggerAxis_R",
+			"/actions/dev/in/GripAxis_R axis": "GripAxis_R",
+			"/actions/dev/in/StickR_X,StickR_Y X Y_axis2d": "StickR",
+			"/actions/dev/in/PadR_X,PadR_Y X Y_axis2d": "PadR",
+			"/actions/dev": "Dev Hidden Actions",
+			"/actions/main": "Main Game Actions"
+		}
+	]
+}

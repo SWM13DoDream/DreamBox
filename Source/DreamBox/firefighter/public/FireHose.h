@@ -2,46 +2,66 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
-#include "NiagaraFunctionLibrary.h"
-#include "NiagaraComponent.h"
+#include "../../common/public/DreamBox.h"
 #include "NiagaraDataInterfaceExport.h"
-#include "Components/ChildActorComponent.h"
 #include "FireHose.generated.h"
 
 /*
  - Name        : AFireHose
- - Descirption : 물을 뿜는 소방호스 액터
- - Date        : 2022/06/22 LJH
+ - Description : 물을 뿜는 소방호스 액터
+ - Date        : 2022/09/02 LJH
 */
 
-UCLASS(Category="FireFighter")
-class DREAMBOX_API AFireHose : public AActor
+UCLASS(Category="Firefighter")
+class DREAMBOX_API AFireHose : public AActor, public INiagaraParticleCallbackHandler
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
 	AFireHose();
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
 	
-	UPROPERTY(VisibleDefaultsOnly)
-		USceneComponent* DefaultSceneRoot;
+	//물 이미터를 활성화
+	UFUNCTION()
+		void ActivateEmitter();
 
-	//소방호스의 물 이미터
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gameplay")	
-		UNiagaraComponent* WaterEmitter;				 
-	
-	//Hose의 메인 StaticMesh
-	UPROPERTY(EditAnywhere, Category = "Gameplay")
-		UChildActorComponent * HoseMesh; 
-	
+	//물 이미터를 비활성화
+	UFUNCTION()
+		void DeactivateEmitter();
+
+	UFUNCTION(BlueprintCallable)
+		void ApplyDamageToFire(FVector Location);
+
+	UFUNCTION()
+		virtual void ReceiveParticleData_Implementation(const TArray<FBasicParticleData>& Data, UNiagaraSystem* NiagaraSystem) override;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+public: /*Component와 BP 접근 변수*/
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gameplay")
+		float FireHoseDamage;
 
+	UPROPERTY(VisibleDefaultsOnly)
+		USceneComponent* DefaultSceneRoot;
+
+	//소방호스의 물 이미터
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gameplay")
+		class UNiagaraComponent* WaterEmitter;
+
+	//Hose의 메인 StaticMesh
+	UPROPERTY(EditAnywhere, Category = "Gameplay")
+		UChildActorComponent* HoseMesh;
+
+	//Firehose의 사운드 이펙트
+	UPROPERTY(EditAnywhere, Category = "Sound")
+		class UAudioComponent* FirehoseSound; 
+
+private:
+	//사운드 이펙트 볼륨 배수
+	UPROPERTY()
+		float SoundVolumeMultipiler = 1.0f;
 };

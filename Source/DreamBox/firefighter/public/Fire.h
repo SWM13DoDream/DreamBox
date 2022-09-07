@@ -2,19 +2,16 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
-#include "Particles/ParticleSystemComponent.h"
+#include "../../common/public/DreamBox.h"
 #include "Fire.generated.h"
-
 
 /*
  - Name        : AFire
  - Descirption : FireHose의 물에 닿으면 꺼지는 불 액터
- - Date        : 2022/06/26 LJH
+ - Date        : 2022/09/05 LJH
 */
 
-UCLASS(Category = "FireFighter")
+UCLASS(Category = "Firefighter")
 class DREAMBOX_API AFire : public AActor
 {
 	GENERATED_BODY()
@@ -26,25 +23,17 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	//불과 수증기 Emitter의 Scale을 업데이트 (멀티캐스트)
-	UFUNCTION(NetMulticast, reliable)//NetMulticast, Reliable)
-		void MulticastUpdateEmitterScale(UParticleSystemComponent* Target, const FVector& NewScale);
-
-	//불과 수증기 Emitter의 Scale을 업데이트 (서버에서 실행)
-	UFUNCTION(Server, reliable)
-		void ServerRPCUpdateEmitterScale(UParticleSystemComponent* Target, const FVector& NewScale);
-
 	//Steam(불 진압 시 나오는 수증기)의 Opacity 값 조절을 위한 동적 머티리얼을 생성
 	UFUNCTION()
 		void InitSteamDynamicMaterial();
 
-	//불이 꺼지고 수증기가 소멸하는 효과를 위해 Opacity값을 Update (멀티캐스트)
-	UFUNCTION(NetMulticast, reliable)
-		void MulticastUpdateSteamOpacity();
+	//Emmiter의 크기를 업데이트한다
+	UFUNCTION()
+		void UpdateEmitterScale(class UParticleSystemComponent* Target, const float Variance);
 
-	//불이 꺼지고 수증기가 소멸하는 효과를 위해 Opacity값을 Update (서버에서 실행
-	UFUNCTION(Server, reliable)
-		void ServerRPCUpdateSteamOpacity(); 
+	//Steam의 투명도를 업데이트 한다
+	UFUNCTION()
+		void UpdateSteamOpacity();
 
 	//FireHose의 NS_Emiiter가 Apply하는 데미지를 받는다. FireScaleSize를 DamageAmount 만큼 줄임
 	UFUNCTION()
@@ -56,39 +45,97 @@ public:
 
 	//Destroy할 준비가 되었다면, Destroy를 시도 (수증기가 모두 사라지면 Destroy)
 	UFUNCTION()
-		void TryDestroy();
+		void TryDestroyFire();
+
+	//불이 꺼졌는지 확인하고 꺼졌을 시의 로직을 실행 (콜리전, Destroy 처리 등)
+	UFUNCTION()
+		bool CheckAndUpdateSuppressedState();
+
+	UFUNCTION(BlueprintPure)
+		bool GetIsFireSuppressed() { return bIsFireSuppressed; }
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-private:
+public:
+	//미션 ID. 해당 값을 기반으로 미션 업데이트 델리게이트 호출
+	UPROPERTY(EditAnywhere, Category = "Mission")
+		int32 MissionID;
+
+	//수증기의 초기 Opacity 값
+	UPROPERTY(EditAnywhere, Category = "Gameplay")
+		float SteamEmitterInitialOpacity = 1.0f; 
+
+	//수증기가 소멸할때까지 걸리는 시간
+	UPROPERTY(EditAnywhere, Category = "Gameplay")
+		float SteamEmitterLifeSpan = 100.0f;
+
 	UPROPERTY(VisibleDefaultsOnly)
 		USceneComponent* DefaultSceneRoot;
 
+	//불 이미터
 	UPROPERTY(EditAnywhere, Category = "VFX")
-		UParticleSystemComponent* FireEmitter; //불 이미터
+		class UParticleSystemComponent* FireEmitter;
 
+	//연기 효과 이미터 (화재 진압 로직 시)
 	UPROPERTY(EditAnywhere, Category = "VFX")
-		UParticleSystemComponent* SteamEmitter; //연기 효과 이미터 (화재 진압 로직 시)
+		class UParticleSystemComponent* SteamEmitter;
 
+	//연기 이미터 원본 머티리얼 
 	UPROPERTY(EditAnywhere, Category = "VFX")
-		UMaterialInterface* SteamMaterialInterface; //연기 이미터 원본 머티리얼 
+		class UMaterialInterface* SteamMaterialInterface; 
 
+	//연기 이미터  Opacity 조절을 위한 다이나믹 머티리얼
 	UPROPERTY()
-		UMaterialInstanceDynamic* SteamDynamicMaterial; //연기 이미터  Opacity 조절을 위한 다이나믹 머티리얼
+		class UMaterialInstanceDynamic* SteamDynamicMaterial; 
 
-	UPROPERTY(VisibleDefaultsOnly, Category = "Gameplay")
-		float FireScaleSize = 1.0f;   //불 이미터의 크기 (범위 : 0<=size<=1)
+	//불에 가까이 가지 못하게 하는 콜리전 볼륨
+	UPROPERTY(EditAnywhere)
+		USphereComponent* BlockingVolume;
 
-	UPROPERTY(VisibleDefaultsOnly, Category = "Gameplay")
-		float SteamScaleSize = 0.0f;  //수증기 이미터의 크기 
+	//불 경계를 나타내는 스태틱 메시
+	UPROPERTY(EditAnywhere)
+		UStaticMeshComponent* FireGuideMesh;
 
-	UPROPERTY(VisibleDefaultsOnly, Category = "Gameplay")
-		float SteamOpacityValue = 1.0f; //수증기 이미터의 Opacity
-
+private:
+	//게임모드 레퍼런스
 	UPROPERTY()
-		bool IsReadyToDestroy = false; 
+		class AFirefighterGamemode* GamemodeRef;
 
+	//이미터 업데이트 타이머 핸들
+	UPROPERTY()
+		FTimerHandle EmitterUpdateTimerHandle;
 
+	//이미터 제거 타이머 핸들
+	UPROPERTY()
+		FTimerHandle DestroyTimerHandle;
+
+	//Smoke의 최대 스케일
+	UPROPERTY()
+		float SmokeMaxScale = 5.0f;
+
+	//불 이미터의 크기 (범위 : 0<=size<=1)
+	UPROPERTY(VisibleDefaultsOnly, Category = "Gameplay")
+		float FireScaleSize = 1.0f;   
+
+	//수증기 이미터의 크기
+	UPROPERTY(VisibleDefaultsOnly, Category = "Gameplay")
+		float SteamScaleSize = 0.0f;   
+
+	//수증기 이미터의 Opacity
+	UPROPERTY(VisibleDefaultsOnly, Category = "Gameplay")
+		float SteamOpacityValue;
+
+	//연기의 Life (특정 시간만큼 Opacity 업데이트)
+	UPROPERTY()
+		float SteamLifeSpan = 100.0f; 
+
+	//Fire 액터를 Destroy를 할 준비가 되어있는지 판단
+	UPROPERTY()
+		bool bIsReadyToDestroy = false; 
+
+	//불이 진압이 되었는지?
+	UPROPERTY()
+		bool bIsFireSuppressed;
 };
