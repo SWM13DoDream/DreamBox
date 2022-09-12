@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include "../../common/public/DreamBox.h"
 #include "GameFramework/GameModeBase.h"
 #include "DreamBoxGameModeBase.generated.h"
 
