@@ -12,6 +12,20 @@
  - Date        : 2022/07/26 DEVroar
 */
 
+// 우주비행사의 임무 목록을 ENUM으로 관리
+UENUM(BlueprintType)
+namespace EAstronautMissionType
+{
+	enum Type
+	{
+		/** 탐사선 임무 - 월면 기지에서 수행 */
+		LEM,
+
+		/** 사령선 임무 - 루나 게이트웨이에서 수행 */
+		CSM
+	};
+}
+
 UCLASS()
 class DREAMBOX_API AAstronautGamemode : public AGameModeBase
 {
@@ -91,6 +105,10 @@ public:
 	// 캐릭터 beginplay 시 호출되는 타이머/미션 위젯 컨트롤러 등록 함수
 	UFUNCTION(BlueprintCallable)
 		void RegisterWidgetControllers(class UTimerWidget* Timer, class UMissionWidget* Mission);
+
+	// 캐릭터 임무 선택 시 호출되는 플레이어 임무 시작 함수 (위치 변경, 임무 세팅 등)
+	UFUNCTION(BlueprintCallable)
+		void InitializeMission(class AAstronautCharacter* Target, int32 Mission);
 
 	// 특수 기능 함수: 시퀀서를 호출하여 화면 크로스페이드
 	UFUNCTION(BlueprintImplementableEvent, Category = "Event")

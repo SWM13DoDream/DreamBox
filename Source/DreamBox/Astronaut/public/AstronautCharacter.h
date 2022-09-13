@@ -44,4 +44,8 @@ public:
 	// 캐릭터 VR Origin에 부착되는 미션 표시 위젯
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		class UWidgetComponent* MissionWidget;
+
+	// 플레이어가 선택한 임무
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		int32 SelectedMission;
 };

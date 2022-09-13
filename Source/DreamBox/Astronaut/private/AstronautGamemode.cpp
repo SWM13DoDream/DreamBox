@@ -4,6 +4,7 @@
 #include "../public/MissionWidget.h"
 #include "../public/TimerWidget.h"
 #include "../public/GamemodeArbiter.h"
+#include "../public/AstronautCharacter.h"
 
 void AAstronautGamemode::BeginPlay() 
 {
@@ -107,6 +108,22 @@ void AAstronautGamemode::RegisterWidgetControllers(class UTimerWidget* Timer, cl
 {
 	CharacterTimerController = Timer;
 	CharacterMissionController = Mission;
+}
+
+void AAstronautGamemode::InitializeMission(class AAstronautCharacter* Target, int32 Mission)
+{
+	if (Mission == EAstronautMissionType::LEM)
+	{
+		// 월면 기지에 위치한 탐사선 내부로 캐릭터 이동
+		Target->SetActorLocation({-22009.0f, -25467.0f, -106513.0f});
+		Target->SetActorRotation({ 0.0f, 80.0f, 0.0f });
+	}
+	else if (Mission == EAstronautMissionType::CSM)
+	{
+		// 월면 상공에 위치한 루나 게이트웨이 내부로 캐릭터 이동
+		Target->SetActorLocation({ -222951.0f, 31875.0f, 141047.0f });
+		Target->SetActorRotation({ 0.0f, 0.0f, 0.0f });
+	}
 }
 
 void AAstronautGamemode::HandleTimer()
