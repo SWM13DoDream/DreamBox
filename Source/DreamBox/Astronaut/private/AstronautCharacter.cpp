@@ -22,6 +22,8 @@ AAstronautCharacter::AAstronautCharacter()
 
 	MissionWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("MISSION_WIDGET"));
 	MissionWidget->SetupAttachment(VROrigin);
+
+	SelectedMission = EAstronautMissionType::LEM;
 }
 
 // Called when the game starts or when spawned
@@ -34,6 +36,11 @@ void AAstronautCharacter::BeginPlay()
 		Cast<UTimerWidget>(TimerWidget->GetWidget()),
 		Cast<UMissionWidget>(MissionWidget->GetWidget())
 	);
+
+	// Gamemode->InitializeMission(this, SelectedMission);
+
+	// TEST: 현재 사령선 임무 관련 테스트 중
+	Gamemode->InitializeMission(this, EAstronautMissionType::CSM);
 }
 
 // Called to bind functionality to input
