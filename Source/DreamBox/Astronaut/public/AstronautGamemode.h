@@ -18,11 +18,25 @@ namespace EAstronautMissionType
 {
 	enum Type
 	{
-		/** 탐사선 임무 - 월면 기지에서 수행 */
+		// 탐사선 임무 - 월면 기지에서 수행
 		LEM,
 
-		/** 사령선 임무 - 루나 게이트웨이에서 수행 */
+		// 사령선 임무 - 루나 게이트웨이에서 수행
 		CSM
+	};
+}
+
+// 우주비행사 사령선 임무의 이동 방식을 ENUM으로 관리 (LEM 임무에서는 사용하지 않음)
+UENUM(BlueprintType)
+namespace EAstronautCSMMoveType
+{
+	enum Type
+	{
+		// 선내 작업 - 스태틱 메시를 잡으면서 이동
+		IVA,
+
+		// 선외 작업 - 생명줄을 고정하면서 이동
+		EVA
 	};
 }
 
