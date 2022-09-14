@@ -117,12 +117,16 @@ void AAstronautGamemode::InitializeMission(class AAstronautCharacter* Target, in
 		// 월면 기지에 위치한 탐사선 내부로 캐릭터 이동
 		Target->SetActorLocation({-22009.0f, -25467.0f, -106513.0f});
 		Target->SetActorRotation({ 0.0f, 80.0f, 0.0f });
+
+		Target->Movement->GravityScale = 0.17f;
 	}
 	else if (Mission == EAstronautMissionType::CSM)
 	{
 		// 월면 상공에 위치한 루나 게이트웨이 내부로 캐릭터 이동
-		Target->SetActorLocation({ -222951.0f, 31875.0f, 141047.0f });
+		Target->SetActorLocation({ -222951.0f, 31804.0f, 141102.0f });
 		Target->SetActorRotation({ 0.0f, 0.0f, 0.0f });
+
+		Target->Movement->GravityScale = 0.0f;
 	}
 }
 
