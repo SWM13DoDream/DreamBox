@@ -41,6 +41,7 @@ AVRCharacter::AVRCharacter()
 	WidgetInteraction->SetupAttachment(FollowingCamera);
 	WidgetInteraction->ComponentTags = { "Widget" };
 
+	GetMovementComponent()->SetJumpAllowed(false); //Jump 비활성화
 	bUseControllerRotationYaw = false; //SnapRotate를 위해 컨트롤 Yaw 로테이션 사용을 끔 (오버라이드 방지)
 }
 
@@ -67,6 +68,9 @@ void AVRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAxis("SnapTurn", this, &AVRCharacter::SnapTurn);
 	PlayerInputComponent->BindAxis("MoveForward", this, &AVRCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AVRCharacter::MoveRight);
+
+	PlayerInputComponent->BindAction("Interaction", IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction("Interaction", IE_Released, this, &ACharacter::StopJumping);
 }
 
 void AVRCharacter::MoveForward(float Value)

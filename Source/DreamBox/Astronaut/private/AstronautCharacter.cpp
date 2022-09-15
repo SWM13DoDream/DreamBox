@@ -44,11 +44,6 @@ void AAstronautCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AAstronautCharacter::OnInteract);
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &AAstronautCharacter::ReleaseInteract);
 
-	// 추가 입력 : 점프
-	PlayerInputComponent->BindAction("Interaction", IE_Pressed, this, &ACharacter::Jump);
-	PlayerInputComponent->BindAction("Interaction", IE_Released, this, &ACharacter::StopJumping);
-
-	// PlayerInputComponent->BindAction("Interaction", IE_Pressed, this, &AAstronautCharacter::TryInteraction);
 }
 
 void AAstronautCharacter::OnInteract()
