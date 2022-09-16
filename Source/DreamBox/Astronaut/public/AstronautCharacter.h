@@ -127,6 +127,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EVA")
 		float EVACharacterHeight;
 
+	// 선외 작업 시 캐릭터 Pitch 시점 변경
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EVA")
+		float EVACharacterPitch;
+
 	// 선외 작업 Grip의 판정 반경
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EVA")
 		float EVAGripRadius;
