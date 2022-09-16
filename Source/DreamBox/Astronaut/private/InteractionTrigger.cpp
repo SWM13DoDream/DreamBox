@@ -3,6 +3,7 @@
 #include "../public/InteractionTrigger.h"
 #include "../public/AstronautGamemode.h"
 #include "../public/InteractionWidget.h"
+#include "../public/AstronautCharacter.h"
 #include "Components/WidgetComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -131,6 +132,20 @@ void AInteractionTrigger::OnInteract()
 		else if (InteractionKey.Equals(TEXT("MissionRobot")))
 		{
 			Gamemode->DoSubMission(5);
+		}
+		else if (InteractionKey.Equals(TEXT("ExitGateway")))
+		{
+			Gamemode->PlayCrossFade();
+
+			GetWorld()->GetTimerManager().SetTimer(DelayHandler, FTimerDelegate::CreateLambda([&]()
+			{
+				AAstronautCharacter* Player =
+					Cast<AAstronautCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+				Player->StartEVA();
+
+				// 핸들러 초기화
+				GetWorld()->GetTimerManager().ClearTimer(DelayHandler);
+			}), 1.0f, false);
 		}
 	}
 }
