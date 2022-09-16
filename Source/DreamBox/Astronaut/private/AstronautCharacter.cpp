@@ -134,7 +134,7 @@ void AAstronautCharacter::StartEVA()
 
 	// 캐릭터 위치 이동, 해당 위치에 케이블 연결
 	SetActorLocation({ -219572.0f, 30307.0f, 142456.0f });
-	SetActorRotation({ 0.0f, 90.0f, 0.0f });
+	SetActorRotation({ -EVACharacterPitch, 90.0f, 0.0f });
 	RecentHookPoint = GetActorLocation();
 
 	// 케이블 길이 체크 타이머 등록
