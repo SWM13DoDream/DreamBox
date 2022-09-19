@@ -42,6 +42,10 @@ public:
 	UFUNCTION()
 		void ResetSnapTurn();
 
+	//Jump를 활성화/비활성화 함
+	UFUNCTION()
+		void SetCanJump(bool NewState);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -74,6 +78,11 @@ public:
 	//C++ 딜레이 사용 위한 타이머 핸들 
 	UPROPERTY()
 		struct FTimerHandle WaitHandle;
+
+	//점프가 가능한지? (BP에서 옵션 지정, 기본값 : t)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
+		bool bCanJump = true; 
+
 
 private:
 	//SnapTurn 실행이 끝났는지? (연속 입력 방지)

@@ -41,7 +41,6 @@ AVRCharacter::AVRCharacter()
 	WidgetInteraction->SetupAttachment(FollowingCamera);
 	WidgetInteraction->ComponentTags = { "Widget" };
 
-	GetMovementComponent()->SetJumpAllowed(false); //Jump 비활성화
 	bUseControllerRotationYaw = false; //SnapRotate를 위해 컨트롤 Yaw 로테이션 사용을 끔 (오버라이드 방지)
 }
 
@@ -49,7 +48,7 @@ AVRCharacter::AVRCharacter()
 void AVRCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	SetCanJump(true);
 }
 
 // Called every frame
@@ -105,4 +104,9 @@ void AVRCharacter::SnapTurn(float Value)
 void AVRCharacter::ResetSnapTurn()
 {
 	bSnapTurnIsFinished = false; //다시 SnapTurn을 할 수 있도록 설정
+}
+
+void AVRCharacter::SetCanJump(bool NewState)
+{
+	GetCharacterMovement()->SetJumpAllowed(NewState);
 }
