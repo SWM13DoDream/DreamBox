@@ -31,6 +31,7 @@ AAstronautCharacter::AAstronautCharacter()
 	IVAGripRadius = 30.0f;
 	IVAPullingForceMultiplier = 3000.0f;
 	IVAPushingForceMultiplier = 9000.0f;
+	IVAPullingForceDecrementInterval = 60;
 
 	// EVA에 필요한 캐릭터 고정 케이블 (기본적으로 비활성화된 상태)
 	Cable = CreateDefaultSubobject<UCableComponent>(TEXT("CABLE"));
@@ -41,6 +42,7 @@ AAstronautCharacter::AAstronautCharacter()
 	EVACharacterHeight = 40.0f;
 	EVAGripRadius = 75.0f;
 	EVAPullingForceMultiplier = 3000.0f;
+	EVAPullingForceDecrementInterval = 60;
 	EVAHookForce = 1000000.0f;
 	EVAExternalForceMagnitude = 12000.0f;
 	EVACableMaxLength = 1500.0f;
@@ -118,6 +120,11 @@ void AAstronautCharacter::InitializeMission()
 
 		Movement->GravityScale = 0.0f;
 		RegisterHookHand();
+
+		PullingForceDecrementCounter = 0;
+
+		// 캐릭터 물리 체크 타이머 등록
+		GetWorldTimerManager().SetTimer(TimerHandler, this, &AAstronautCharacter::ForceChecker, 1.0f / 120, true, 1.0f / 120);
 	}
 }
 
@@ -133,12 +140,12 @@ void AAstronautCharacter::StartEVA()
 	Cable->SetHiddenInGame(false);
 
 	// 캐릭터 위치 이동, 해당 위치에 케이블 연결
-	SetActorLocation({ -219572.0f, 30307.0f, 142456.0f });
-	SetActorRotation({ -EVACharacterPitch, 90.0f, 0.0f });
+	SetActorLocation({ -223090.0, 31871.0, 141389.0 });
+	SetActorRotation({ -EVACharacterPitch, 0.0f, 0.0f });
 	RecentHookPoint = GetActorLocation();
 
-	// 케이블 길이 체크 타이머 등록
-	GetWorldTimerManager().SetTimer(TimerHandler, this, &AAstronautCharacter::EVACableChecker, 1.0f / 120, true, 1.0f / 120);
+	Movement->StopMovementImmediately();
+	Movement->ClearAccumulatedForces();
 }
 
 void AAstronautCharacter::ReturnIVA()
@@ -157,7 +164,28 @@ void AAstronautCharacter::ReturnIVA()
 	SetActorRotation({ 0.0f, -90.0f, 0.0f });
 
 	// 케이블 길이 체크 타이머 해제
-	GetWorldTimerManager().ClearTimer(TimerHandler);
+	// GetWorldTimerManager().ClearTimer(TimerHandler);
+
+	Movement->StopMovementImmediately();
+	Movement->ClearAccumulatedForces();
+}
+
+void AAstronautCharacter::MoveForward(float Value)
+{
+	if (SelectedMission == EAstronautMissionType::LEM) 
+	{
+		FVector Direction = FRotationMatrix(FollowingCamera->GetComponentRotation()).GetScaledAxis(EAxis::X);
+		AddMovementInput(Direction, Value);
+	}
+}
+
+void AAstronautCharacter::MoveRight(float Value)
+{
+	if (SelectedMission == EAstronautMissionType::LEM)
+	{
+		FVector Direction = FRotationMatrix(FollowingCamera->GetComponentRotation()).GetScaledAxis(EAxis::Y);
+		AddMovementInput(Direction, Value);
+	}
 }
 
 void AAstronautCharacter::OnInteract()
@@ -175,48 +203,86 @@ void AAstronautCharacter::OnGrip(AActor* HandActor, bool bIsLeft)
 	// Sphere Tracing을 이용해 잡을 수 있는 스태틱 메시가 있는지 확인
 	if (SelectedMission == EAstronautMissionType::CSM)
 	{
-		// 선외 작업 시, 케이블이 너무 팽팽해지면 이동 불가
-		if (MoveType == EAstronautCSMMoveType::EVA && 
-			GetCableLength() > EVACableMaxLength * 0.7f) return;
-
 		FVector TraceStartLocation = HandActor->GetActorLocation();
 		FVector TraceEndLocation =
 			TraceStartLocation + HandActor->GetActorForwardVector();
 		TArray<TEnumAsByte<EObjectTypeQuery>> TargetTypes;
 		TEnumAsByte<EObjectTypeQuery> WorldStatic = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldStatic);
 		TargetTypes.Add(WorldStatic);
-
-		// Default parameters
 		TArray<AActor*> IgnoreActors;
-		FHitResult HitResult;
 
-		float GripRadius = 
-			(MoveType == EAstronautCSMMoveType::IVA) ? IVAGripRadius : EVAGripRadius;
-
-		bool bIsSphereTraceSucceed = UKismetSystemLibrary::SphereTraceSingleForObjects(
-			GetWorld(), TraceStartLocation, TraceEndLocation, GripRadius, TargetTypes,
-			false, IgnoreActors, EDrawDebugTrace::ForDuration, HitResult, true
-		);
-
-		if (bIsSphereTraceSucceed)
+		if (MoveType == EAstronautCSMMoveType::IVA)
 		{
-			Movement->StopMovementImmediately();
-			Movement->ClearAccumulatedForces();
-			float Dist = UKismetMathLibrary::Vector_Distance(GetActorLocation(), TraceStartLocation);
-			float PullingForceMultiplier =
-				(MoveType == EAstronautCSMMoveType::IVA) ?
-				IVAPullingForceMultiplier : EVAPullingForceMultiplier;
-			Movement->AddForce((TraceStartLocation - GetActorLocation()) * PullingForceMultiplier);
+			FHitResult HitResult;
 
-			if (bIsLeft)
+			bool bIsSphereTraceSucceed = UKismetSystemLibrary::SphereTraceSingleForObjects(
+				GetWorld(), TraceStartLocation, TraceEndLocation, IVAGripRadius, TargetTypes,
+				false, IgnoreActors, EDrawDebugTrace::ForDuration, HitResult, true
+			);
+
+			if (bIsSphereTraceSucceed)
 			{
-				bIsGrabbingL = true;
-				RecentGrabbingPointL = TraceStartLocation - GetActorLocation();
+				Movement->StopMovementImmediately();
+				Movement->ClearAccumulatedForces();
+				FVector PullingForce = (TraceStartLocation - GetActorLocation()) * IVAPullingForceMultiplier;
+
+				Movement->AddForce(PullingForce);
+				RecentPullingForce = PullingForce;
+
+				PullingForceDecrementCounter = IVAPullingForceDecrementInterval;
+
+				if (bIsLeft)
+				{
+					bIsGrabbingL = true;
+					RecentGrabbingPointL = TraceStartLocation - GetActorLocation();
+				}
+				else
+				{
+					bIsGrabbingR = true;
+					RecentGrabbingPointR = TraceStartLocation - GetActorLocation();
+				}
 			}
-			else
+		}
+		else if (MoveType == EAstronautCSMMoveType::EVA)
+		{
+			TArray<FHitResult> HitResults;
+
+			bool bIsSphereTraceSucceed = UKismetSystemLibrary::SphereTraceMultiForObjects(
+				GetWorld(), TraceStartLocation, TraceEndLocation, EVAGripRadius, TargetTypes,
+				false, IgnoreActors, EDrawDebugTrace::ForDuration, HitResults, true
+			);
+
+			if (bIsSphereTraceSucceed)
 			{
-				bIsGrabbingR = true;
-				RecentGrabbingPointR = TraceStartLocation - GetActorLocation();
+				for (FHitResult Target : HitResults)
+				{
+					TArray<FName> Classifier = Target.Actor->Tags;
+					if (Classifier.Num() > 0 && Classifier[0].ToString().Equals("HookPoint"))
+					{
+						Movement->StopMovementImmediately();
+						Movement->ClearAccumulatedForces();
+						FVector PullingForce = (TraceStartLocation - GetActorLocation()) * EVAPullingForceMultiplier;
+
+						Movement->AddForce(PullingForce);
+						RecentPullingForce = PullingForce;
+
+						PullingForceDecrementCounter = EVAPullingForceDecrementInterval;
+
+						if (bIsLeft)
+						{
+							bIsGrabbingL = true;
+							RecentGrabbingPointL = TraceStartLocation - GetActorLocation();
+						}
+						else
+						{
+							bIsGrabbingR = true;
+							RecentGrabbingPointR = TraceStartLocation - GetActorLocation();
+						}
+
+						break;
+					}
+				}
+				
 			}
 		}
 	}
@@ -237,6 +303,7 @@ void AAstronautCharacter::ReleaseGrip(AActor* HandActor, bool bIsLeft)
 				{
 					FVector Diff = RecentGrabbingPointL - RelativeHandLocation;
 					Movement->AddForce(Diff * IVAPushingForceMultiplier);
+					PullingForceDecrementCounter = 0;
 				}
 			}
 			else if (!bIsLeft && bIsGrabbingR)
@@ -247,6 +314,7 @@ void AAstronautCharacter::ReleaseGrip(AActor* HandActor, bool bIsLeft)
 				{
 					FVector Diff = RecentGrabbingPointR - RelativeHandLocation;
 					Movement->AddForce(Diff * IVAPushingForceMultiplier);
+					PullingForceDecrementCounter = 0;
 				}
 			}
 		}
@@ -259,6 +327,7 @@ void AAstronautCharacter::ReleaseGrip(AActor* HandActor, bool bIsLeft)
 				if (!bIsGrabbingR)
 				{
 					Movement->AddForce(FVector(0.0f, -1.0f, 0.3f) * EVAExternalForceMagnitude);
+					PullingForceDecrementCounter = 0;
 				}
 			}
 			else if (!bIsLeft && bIsGrabbingR)
@@ -267,6 +336,7 @@ void AAstronautCharacter::ReleaseGrip(AActor* HandActor, bool bIsLeft)
 				if (!bIsGrabbingL)
 				{
 					Movement->AddForce(FVector(0.0f, -1.0f, 0.3f) * EVAExternalForceMagnitude);
+					PullingForceDecrementCounter = 0;
 				}
 			}
 		}
@@ -284,39 +354,64 @@ void AAstronautCharacter::ControlHook()
 
 	// Default parameters
 	TArray<AActor*> IgnoreActors;
-	FHitResult HitResult;
+	TArray<FHitResult> HitResults;
 
-	bool bIsSphereTraceSucceed = UKismetSystemLibrary::SphereTraceSingleForObjects(
+	bool bIsSphereTraceSucceed = UKismetSystemLibrary::SphereTraceMultiForObjects(
 		GetWorld(), TraceStartLocation, TraceEndLocation, EVAGripRadius, TargetTypes,
-		false, IgnoreActors, EDrawDebugTrace::ForDuration, HitResult, true
+		false, IgnoreActors, EDrawDebugTrace::ForDuration, HitResults, true
 	);
 
 	// 안전줄을 연결할 부분을 찾은 경우 그 곳을 새로운 연결점으로 세팅
 	if (bIsSphereTraceSucceed)
 	{
-		RecentHookPoint = HitResult.ImpactPoint;
+		for (FHitResult Target : HitResults)
+		{
+			TArray<FName> Classifier = Target.Actor->Tags;
+			if (Classifier.Num() > 0 && Classifier[0].ToString().Equals("HookPoint"))
+			{
+				RecentHookPoint = Target.ImpactPoint;
+				return;
+			}
+		}
 	}
-	// 허공에서 사용한 경우 안전줄의 시작 지점을 향해 힘을 받음
-	else
-	{
-		Movement->StopMovementImmediately();
-		Movement->ClearAccumulatedForces();
 
-		FVector DirectionVector = UKismetMathLibrary::GetDirectionUnitVector(GetActorLocation(), RecentHookPoint);
-		Movement->AddForce(DirectionVector * EVAHookForce);
-	}
+	// 허공에서 사용한 경우 안전줄의 시작 지점을 향해 힘을 받음
+	Movement->StopMovementImmediately();
+	Movement->ClearAccumulatedForces();
+
+	FVector DirectionVector = UKismetMathLibrary::GetDirectionUnitVector(GetActorLocation(), RecentHookPoint);
+	Movement->AddForce(DirectionVector * EVAHookForce);
 }
 
-void AAstronautCharacter::EVACableChecker()
+void AAstronautCharacter::ForceChecker()
 {
-	// Cable의 End Location은 상대 위치로 결정되기 때문에 계속 업데이트 해주어야 함
-	Cable->EndLocation =
-		UKismetMathLibrary::InverseTransformLocation(GetActorTransform(), RecentHookPoint);
-
-	if (GetCableLength() > EVACableMaxLength)
+	if (PullingForceDecrementCounter > 0)
 	{
-		Movement->StopMovementImmediately();
-		Movement->ClearAccumulatedForces();
+		FVector CounterForce = (MoveType == EAstronautCSMMoveType::IVA) ?
+			-RecentPullingForce / IVAPullingForceDecrementInterval
+			: -RecentPullingForce / EVAPullingForceDecrementInterval;
+
+		Movement->AddForce(CounterForce);
+		PullingForceDecrementCounter -= 1;
+
+		if (PullingForceDecrementCounter == 0)
+		{
+			Movement->StopMovementImmediately();
+			Movement->ClearAccumulatedForces();
+		}
+	}
+
+	if (MoveType == EAstronautCSMMoveType::EVA)
+	{
+		// Cable의 End Location은 상대 위치로 결정되기 때문에 계속 업데이트 해주어야 함
+		Cable->EndLocation =
+			UKismetMathLibrary::InverseTransformLocation(GetActorTransform(), RecentHookPoint);
+
+		if (GetCableLength() > EVACableMaxLength)
+		{
+			Movement->StopMovementImmediately();
+			Movement->ClearAccumulatedForces();
+		}
 	}
 }
 

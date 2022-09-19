@@ -24,6 +24,12 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent);
 
+	// VR 캐릭터 이동 재정의
+		void MoveForward(float Value) override;
+
+	// VR 캐릭터 이동 재정의
+		void MoveRight(float Value) override;
+
 	// 인터렉션 키 Press에 바인딩
 	UFUNCTION()
 		void OnInteract();
@@ -117,6 +123,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IVA")
 		float IVAPullingForceMultiplier;
 
+	// 선내 작업 OnGrip 시 속도 감소 기간
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IVA")
+		int32 IVAPullingForceDecrementInterval;
+
 	// 선내 작업 ReleaseGrip 시 이동 속도비
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IVA")
 		float IVAPushingForceMultiplier;
@@ -139,6 +149,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EVA")
 		float EVAPullingForceMultiplier;
 
+	// 선외 작업 OnGrip 시 속도 감소 기간
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EVA")
+		int32 EVAPullingForceDecrementInterval;
+
 	// 선외 작업 Grip을 모두 뗄 시 발생하는 외력 강도
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EVA")
 		float EVAExternalForceMagnitude;
@@ -158,11 +172,17 @@ private:
 	// 왼손 및 오른손 최근 홀딩 지점 (AstronautCharacter에 대한 손 오브젝트의 Relative Location으로 정의)
 	FVector RecentGrabbingPointL, RecentGrabbingPointR;
 
+	// 최근 pulling force 정보 (점진적 속도 감소에 필요)
+	FVector RecentPullingForce;
+
+	// Pulling Force 감소 카운터
+	int32 PullingForceDecrementCounter;
+
 	// 최근 고정 케이블 연결 지점
 	FVector RecentHookPoint;
 
-	// 선외 작업 시 1/120초마다 실행되어, 케이블의 길이가 너무 길어지면 외력을 제거 
-	void EVACableChecker();
+	// 사령선 임무 시 1/120초마다 실행되어, 캐릭터에게 적용하는 물리 정보를 체크
+	void ForceChecker();
 	FTimerHandle TimerHandler;
 
 	// 케이블의 길이를 반환하는 함수. 편의를 위해 선언
