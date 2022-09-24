@@ -2,8 +2,8 @@
 
 
 #include "../public/FirefighterGamemode.h"
-#include "Kismet/GameplayStatics.h"
 #include "../public/FirefighterCharacter.h"
+#include "Kismet/GameplayStatics.h"
 #include "LevelSequenceActor.h"
 #include "LevelSequencePlayer.h"
 
@@ -11,17 +11,25 @@ void AFirefighterGamemode::BeginPlay()
 {
 	Super::BeginPlay();
 
-	InitLevelSequence();
-	ShowInitialScript();
-	
-	//플레이어 캐릭터 레퍼런스 초기화
+	//플레이어 캐릭터 레퍼런스 초기화 및 이벤트 바인딩
 	if (GetWorld())
 	{
-		PlayerCharacterRef = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+		PlayerCharacterRef = Cast<AFirefighterCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+		PlayerCharacterRef->SetCharacterVisibility(false);
 		CrossFadeAnimationEvent.AddDynamic(this, &AFirefighterGamemode::PlayCrossFadeAnim);
 	}
 }
 
+void AFirefighterGamemode::BeginPlayAfterLoading(int32 PlayerID)
+{
+	Super::BeginPlayAfterLoading(PlayerID);
+
+	//	PlayCrossFadeAnim(PlayerID);
+	PlayerCharacterRef->SetCharacterVisibility(true);
+	PlayerCharacterRef->SetActorLocation(FVector(52.0f, -372.f, 100.0f));
+	PlayerCharacterRef->AddActorWorldRotation({ 0.0f, -90.0f, 0.0f });
+	ShowInitialScript();
+}
 
 void AFirefighterGamemode::AddToCompleteSet(int32 MissionID)
 {
@@ -34,12 +42,6 @@ bool AFirefighterGamemode::GetMissionIsComplete(int32 MissionID)
 	return CompleteMissionSet.Contains(MissionID);
 }
 
-void AFirefighterGamemode::InitLevelSequence()
-{
-	ALevelSequenceActor* OutActor = nullptr;
-	CrossFadePlayer = ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), CrossFade, FMovieSceneSequencePlaybackSettings(), OutActor);
-}
-
 void AFirefighterGamemode::ShowInitialScript()
 {
 	if (!bShowInitScript) return;
@@ -50,9 +52,9 @@ void AFirefighterGamemode::ShowInitialScript()
 
 void AFirefighterGamemode::PlayCrossFadeAnim(int32 PlayerID)
 {
-	if (!IsValid(CrossFadePlayer)) return;
-	CrossFadePlayer->Play();
-	
+	Super::PlayCrossFadeAnim(PlayerID);
+	/* -- 플레이어 ID에 따라 구분할 로직이 들어갈 자리 -- */
+
 	if (IsValid(PlayerCharacterRef))
 	{
 		PlayerCharacterRef->GetCharacterMovement()->Deactivate();

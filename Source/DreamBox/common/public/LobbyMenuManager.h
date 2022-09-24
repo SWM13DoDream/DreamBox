@@ -24,6 +24,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	//트리거에 오버랩? -> 위젯을 띄움 / 멀티플레이를 감안해서 Overlap된 Player Cnt 체킹 필요
 	UFUNCTION()
 		void MenuTriggerBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor
 			, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -50,6 +51,10 @@ public:
 	//플레이어에 의해 트리거 되면, 메뉴 UI가 나타남
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Gameplay")
 		UBoxComponent* MenuTriggerVolume; 
+
+	//위젯 트리거 영역을 표시할 발판 메시
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Gameplay")
+		UStaticMeshComponent* MenuTriggerMesh;
 
 	//메인메뉴 UI 컴포넌트, BP 내에서 클래스를 지정
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Gameplay|UI")

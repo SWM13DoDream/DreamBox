@@ -46,6 +46,7 @@ AFirefighterCharacter::AFirefighterCharacter()
 void AFirefighterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	SetCanJump(false);
 	
 	MissionManagerRef = Cast<AMissionManager>(MissionManager->GetChildActor());
 	ScriptManagerRef = Cast<AScriptManager>(ScriptManager->GetChildActor());
@@ -158,6 +159,12 @@ void AFirefighterCharacter::ResetInteractionState()
 	SetInteractionType(EFirefighterInteractionType::E_NONE); //상호작용 타입 None
 	SetIsCarrying(false); //업고 있지 않음을 체크
 	SetIsReadyToInteraction(false); //상호작용할 준비가 되어있지 않음을 체크
+}
+
+void AFirefighterCharacter::SetCharacterVisibility(bool NewState) const
+{
+	FireHose->SetVisibility(NewState);
+	MissionManager->SetVisibility(NewState);
 }
 
 void AFirefighterCharacter::UpdateMissionList(int32 PlayerID, int32 MissionID, int32 Variable)

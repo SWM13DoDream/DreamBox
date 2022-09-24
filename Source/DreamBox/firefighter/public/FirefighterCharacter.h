@@ -10,7 +10,7 @@
 /*
  - Name        : AFirefighterCharacter
  - Descirption : Firefighter 직업의 메인 Playable 캐릭터
- - Date        : 2022/09/06 LJH
+ - Date        : 2022/09/24 LJH
 */
 
 UCLASS()
@@ -52,8 +52,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void PutInjuredCharacter();
 
-public: //멤버변수 Read Write
-
+public: // Set Get
 	//상호작용 할 화재원인액터의 레퍼런스 지정
 	UFUNCTION(BlueprintCallable)
 		void SetCauseOfFireRef(ACauseOfFire* NewCauseOfFire) { CauseOfFireRef = NewCauseOfFire; }
@@ -89,6 +88,10 @@ public: //멤버변수 Read Write
 	//업고있는 InjuredCharacter의 레퍼런스를 반환
 	UFUNCTION(BlueprintCallable)
 		AInjuredCharacter* GetInjuredCharacterRef() const { return InjuredCharacterRef;  }
+
+	//캐릭터의 Visibility를 설정
+	UFUNCTION()
+		void SetCharacterVisibility(bool NewState) const;
 
 public: //Delegate 관련, 플레이어를 거치는 이유? - 멀티플레이 및 관전 기능 감안
 	UFUNCTION()

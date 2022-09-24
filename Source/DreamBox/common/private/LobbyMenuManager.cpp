@@ -17,7 +17,10 @@ ALobbyMenuManager::ALobbyMenuManager()
 	MenuTriggerVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("MENU_TRIGGER"));
 	MenuTriggerVolume->SetupAttachment(DefaultSceneRoot);
 	MenuTriggerVolume->SetRelativeLocation({ 100.0f, 0.0f, 0.0f });
-	MenuTriggerVolume->SetRelativeScale3D({ 1.0f, 2.75f, 3.0f });
+	MenuTriggerVolume->SetRelativeScale3D({ 1.0f, 1.75f, 3.0f });
+
+	MenuTriggerMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MENU_TRIGGER_MESH"));
+	MenuTriggerMesh->SetupAttachment(DefaultSceneRoot);
 
 	MenuWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("MENU_WIDGET"));
 	MenuWidgetComponent->SetupAttachment(DefaultSceneRoot);
@@ -33,6 +36,8 @@ void ALobbyMenuManager::BeginPlay()
 	Super::BeginPlay();
 	
 	MenuWidgetRef = MenuWidgetComponent->GetWidget();
+	MenuTriggerVolume->OnComponentBeginOverlap.AddDynamic(this, &ALobbyMenuManager::MenuTriggerBeginOverlap);
+	MenuTriggerVolume->OnComponentEndOverlap.AddDynamic(this, &ALobbyMenuManager::MenuTriggerEndOverlap);
 }
 
 // Called every frame
