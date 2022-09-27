@@ -6,6 +6,7 @@
 #include "../public/DialogController.h"
 #include "../public/AstronautGamemode.h"
 #include "../public/GamemodeArbiter.h"
+#include "../public/MissionSelectionPanel.h"
 #include "../../../../../Plugins/Runtime/CableComponent/Source/CableComponent/Classes/CableComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Components/WidgetInteractionComponent.h"
@@ -64,6 +65,7 @@ void AAstronautCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	Movement = this->GetCharacterMovement();
+	bMovable = false;
 }
 
 // Called to bind functionality to input
@@ -81,7 +83,7 @@ void AAstronautCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 
 void AAstronautCharacter::MoveForward(float Value)
 {
-	if (SelectedMission == EAstronautMissionType::LEM)
+	if (bMovable && SelectedMission == EAstronautMissionType::LEM)
 	{
 		FVector Direction = FRotationMatrix(FollowingCamera->GetComponentRotation()).GetScaledAxis(EAxis::X);
 		AddMovementInput(Direction, Value);
@@ -90,7 +92,7 @@ void AAstronautCharacter::MoveForward(float Value)
 
 void AAstronautCharacter::MoveRight(float Value)
 {
-	if (SelectedMission == EAstronautMissionType::LEM)
+	if (bMovable && SelectedMission == EAstronautMissionType::LEM)
 	{
 		FVector Direction = FRotationMatrix(FollowingCamera->GetComponentRotation()).GetScaledAxis(EAxis::Y);
 		AddMovementInput(Direction, Value);
@@ -99,16 +101,10 @@ void AAstronautCharacter::MoveRight(float Value)
 
 void AAstronautCharacter::OnSpecialKey()
 {
-	if (SelectedMission == EAstronautMissionType::LEM)
+	if (bMovable)
 	{
-		Jump();
-	}
-	else
-	{
-		if (MoveType == EAstronautCSMMoveType::EVA)
-		{
-			ControlHook();
-		}
+		if (SelectedMission == EAstronautMissionType::LEM) Jump();
+		else if (MoveType == EAstronautCSMMoveType::EVA) ControlHook();
 	}
 }
 
@@ -135,8 +131,31 @@ void AAstronautCharacter::RegisterArbiter(class AGamemodeArbiter* Invoker)
 	Arbiter = Invoker;
 }
 
+void AAstronautCharacter::OpenSelectMissionPanel()
+{
+	// 인자값이 SetHiddenInGame을 결정하므로 false로 넘겨 선택 패널 활성화
+	Arbiter->MissionSelectionControllable->SetStatus_Implementation(false);
+}
+
+void AAstronautCharacter::SelectMission(int32 Mission)
+{
+	SelectedMission = Mission;
+	ENetMode NetworkingMode = GetWorld()->GetNetMode();
+	if (NetworkingMode == ENetMode::NM_ListenServer || NetworkingMode == ENetMode::NM_Client)
+	{
+		MakeRPCSelectMission(Mission);
+	}
+	else
+	{
+		Arbiter->MissionSelectionControllable->SetStatus_Implementation(true);
+		PlayMissionInitSequence();
+	}
+}
+
 void AAstronautCharacter::InitializeMission()
 {
+	bMovable = true;		// test
+
 	if (SelectedMission == EAstronautMissionType::LEM)
 	{
 		// 월면 기지에 위치한 탐사선 내부로 캐릭터 이동
@@ -145,6 +164,8 @@ void AAstronautCharacter::InitializeMission()
 		Movement->GravityScale = 0.17f;
 
 		// 타이머 및 미션 컨트롤러 초기화
+		TimerWidget->SetHiddenInGame(false);
+		MissionWidget->SetHiddenInGame(false);
 		TimerController = Cast<UTimerWidget>(TimerWidget->GetWidget());
 		MissionController = Cast<UMissionWidget>(MissionWidget->GetWidget());
 
@@ -180,7 +201,7 @@ void AAstronautCharacter::InitializeMission()
 		// 1초에 한 번씩 호출되는 타이머를 세팅. (초기값 5분)
 		Time = 300;
 		GetWorldTimerManager().SetTimer(MissionTickHandler, this, &AAstronautCharacter::MissionTick, 1.0f, true, 1.0f);
-		
+
 		MissionController->UpdateMainMissionDisplay();
 		MissionController->UpdateSubMissionDisplay();
 
@@ -212,11 +233,6 @@ void AAstronautCharacter::InitializeMission()
 	// Dialog Controller 활성화
 	ADialogController* Dialog = Cast<ADialogController>(DialogController->GetChildActor());
 	Dialog->SetActivated(true);
-}
-
-void AAstronautCharacter::OpenSelectMissionPanel()
-{
-	// TODO
 }
 
 void AAstronautCharacter::DoMainMission()
@@ -552,10 +568,82 @@ void AAstronautCharacter::OnRPCStartContent_Implementation()
 
 void AAstronautCharacter::MakeRPCSelectMission_Implementation(int32 Mission)
 {
+	AAstronautGamemode* Gamemode =
+		Cast<AAstronautGamemode>(UGameplayStatics::GetGameMode(GetWorld()));
 
+	// 서버 플레이어 캐릭터
+	if (IsLocallyControlled())
+	{
+		if (Mission != EAstronautMissionType::NONE)
+		{
+			// 리슨 서버 호스트지만 다른 플레이어 없이 미션을 선택한 경우 그냥 시작
+			if (Gamemode->RemotePlayer == nullptr)
+			{
+				Gamemode->bInMission = true;
+				Arbiter->MissionSelectionControllable->SetStatus_Implementation(true);
+				PlayMissionInitSequence();
+			}
+			// 다른 플레이어가 존재하고, 그가 미션을 선택한 경우 게임 시작
+			else if (Gamemode->ClientMission != EAstronautMissionType::NONE)
+			{
+				Gamemode->HostMission = Mission;
+				Gamemode->RemotePlayer->OnRPCCheckReadyState(true, Mission);
+				OnRPCCheckReadyState(true, Mission);
+			}
+			// 다른 플레이어가 존재하고, 아직 미션을 선택하지 않은 경우 미션 Lock
+			else
+			{
+				Gamemode->HostMission = Mission;
+				Gamemode->RemotePlayer->OnRPCCheckReadyState(false, Mission);
+			}
+		}
+		else
+		{
+			// 다른 플레이어의 미션 Lock 해제
+			Gamemode->HostMission = Mission;
+			Gamemode->RemotePlayer->OnRPCCheckReadyState(false, Mission);
+		}
+	}
+	// 클라이언트 플레이어 캐릭터
+	else
+	{
+		if (Mission != EAstronautMissionType::NONE)
+		{
+			// 호스트 플레이어가 미션을 선택한 경우 게임 시작
+			if (Gamemode->HostMission != EAstronautMissionType::NONE)
+			{
+				Gamemode->ClientMission = Mission;
+				Gamemode->RemotePlayer->OnRPCCheckReadyState(true, Mission);
+				OnRPCCheckReadyState(true, Mission);
+			}
+			// 호스트 플레이어가 아직 미션을 선택하지 않은 경우 미션 Lock
+			else
+			{
+				Gamemode->ClientMission = Mission;
+				Gamemode->LocalPlayer->OnRPCCheckReadyState(false, Mission);
+			}
+		}
+		else
+		{
+			// 호스트 플레이어의 미션 Lock 해제
+			Gamemode->ClientMission = Mission;
+			Gamemode->LocalPlayer->OnRPCCheckReadyState(false, Mission);
+		}
+	}
 }
 
-void AAstronautCharacter::OnRPCCheckReadyState_Implementation()
+void AAstronautCharacter::OnRPCCheckReadyState_Implementation(bool bStartMission, int32 MissionToLock)
 {
+	if (bStartMission)
+	{
+		Arbiter->MissionSelectionControllable->SetStatus_Implementation(true);
+		PlayMissionInitSequence();
+	}
+	else
+	{
+		AMissionSelectionPanel* SelectionPanel = 
+			Cast<AMissionSelectionPanel>(Arbiter->MissionSelectionControllable->GetActor());
 
+		SelectionPanel->LockMission(MissionToLock);
+	}
 }

@@ -27,31 +27,35 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	// Gamemode에서 제어하는 SignDisplay 액터 오브젝트 레퍼런스 배열
+	// 월드 뷰포트 상의 MissionSelectionPanel 액터 오브젝트 레퍼런스
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Controllables")
+		TScriptInterface<class IAstronautControllableInterface> MissionSelectionControllable;
+
+	// 월드 뷰포트 상의 SignDisplay 액터 오브젝트 레퍼런스 배열
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Controllables")
 		TArray<TScriptInterface<class IAstronautControllableInterface>> SignDisplayControllables;
 
-	// Gamemode에서 제어하는 InteractionTrigger 액터 오브젝트 레퍼런스 (메인 미션)
+	// 월드 뷰포트 상의 InteractionTrigger 액터 오브젝트 레퍼런스 (메인 미션)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Controllables")
 		TScriptInterface<class IAstronautControllableInterface> MainInteractionControllable;
 
-	// Gamemode에서 제어하는 InteractionTrigger 액터 오브젝트 레퍼런스 배열 (서브 미션)
+	// 월드 뷰포트 상의 InteractionTrigger 액터 오브젝트 레퍼런스 배열 (서브 미션)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Controllables")
 		TArray<TScriptInterface<class IAstronautControllableInterface>> SubInteractionControllables;
 
-	// Gamemode에서 제어하는 ControllableStaticMesh 액터 오브젝트 레퍼런스 (메인 미션)
+	// 월드 뷰포트 상의 ControllableStaticMesh 액터 오브젝트 레퍼런스 (메인 미션)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Controllables")
 		TScriptInterface<class IAstronautControllableInterface> MainStaticMeshControllable;
 
-	// Gamemode에서 제어하는 ControllableStaticMesh 액터 오브젝트 레퍼런스 배열 (서브 미션)
+	// 월드 뷰포트 상의 ControllableStaticMesh 액터 오브젝트 레퍼런스 배열 (서브 미션)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Controllables")
 		TArray<TScriptInterface<class IAstronautControllableInterface>> SubStaticMeshControllables;
 
-	// Gamemode에서 제어하는 Destination Guide 액터 오브젝트 레퍼런스 (메인 미션)
+	// 월드 뷰포트 상의 Destination Guide 액터 오브젝트 레퍼런스 (메인 미션)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Controllables")
 		TScriptInterface<class IAstronautControllableInterface> MainGuideControllable;
 
-	// Gamemode에서 제어하는 Destination Guide 액터 오브젝트 레퍼런스 배열 (서브 미션)
+	// 월드 뷰포트 상의 Destination Guide 액터 오브젝트 레퍼런스 배열 (서브 미션)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Controllables")
 		TArray<TScriptInterface<class IAstronautControllableInterface>> SubGuideControllables;
 
