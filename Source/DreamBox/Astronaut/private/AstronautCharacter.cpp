@@ -3,12 +3,14 @@
 #include "../public/AstronautCharacter.h"
 #include "../public/TimerWidget.h"
 #include "../public/MissionWidget.h"
+#include "../public/DialogController.h"
 #include "../public/AstronautGamemode.h"
+#include "../public/GamemodeArbiter.h"
 #include "../../../../../Plugins/Runtime/CableComponent/Source/CableComponent/Classes/CableComponent.h"
-#include "Kismet/GameplayStatics.h"
-#include "TimerManager.h"
 #include "Components/WidgetComponent.h"
 #include "Components/WidgetInteractionComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "TimerManager.h"
 #include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
@@ -18,11 +20,20 @@ AAstronautCharacter::AAstronautCharacter()
 	PrimaryActorTick.bCanEverTick = false;
 	this->Tags = { "Player" };
 
+	InfoWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("INFO_WIDGET"));
+	InfoWidget->SetupAttachment(FollowingCamera);
+	InfoWidget->SetHiddenInGame(true);
+
+	DialogController = CreateDefaultSubobject<UChildActorComponent>(TEXT("DIALOG_WIDGET"));
+	DialogController->SetupAttachment(FollowingCamera);
+
 	TimerWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("TIMER_WIDGET"));
 	TimerWidget->SetupAttachment(VROrigin);
+	TimerWidget->SetHiddenInGame(true);
 
 	MissionWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("MISSION_WIDGET"));
 	MissionWidget->SetupAttachment(VROrigin);
+	MissionWidget->SetHiddenInGame(true);
 
 	SelectedMission = EAstronautMissionType::CSM;
 	MoveType = EAstronautCSMMoveType::IVA;
@@ -52,18 +63,7 @@ AAstronautCharacter::AAstronautCharacter()
 void AAstronautCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	AAstronautGamemode* Gamemode = Cast<AAstronautGamemode>(UGameplayStatics::GetGameMode(GetWorld()));
-	Gamemode->RegisterWidgetControllers(
-		Cast<UTimerWidget>(TimerWidget->GetWidget()),
-		Cast<UMissionWidget>(MissionWidget->GetWidget())
-	);
-
 	Movement = this->GetCharacterMovement();
-
-	// TEST: 현재 사령선 임무 관련 테스트 중
-	InitializeMission();
-	Gamemode->InitializeMission(this, SelectedMission);
 }
 
 // Called to bind functionality to input
@@ -77,6 +77,24 @@ void AAstronautCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	// 추가 입력 : 점프
 	PlayerInputComponent->BindAction("Interaction", IE_Pressed, this, &AAstronautCharacter::OnSpecialKey);
 	PlayerInputComponent->BindAction("Interaction", IE_Released, this, &AAstronautCharacter::ReleaseSpecialKey);
+}
+
+void AAstronautCharacter::MoveForward(float Value)
+{
+	if (SelectedMission == EAstronautMissionType::LEM)
+	{
+		FVector Direction = FRotationMatrix(FollowingCamera->GetComponentRotation()).GetScaledAxis(EAxis::X);
+		AddMovementInput(Direction, Value);
+	}
+}
+
+void AAstronautCharacter::MoveRight(float Value)
+{
+	if (SelectedMission == EAstronautMissionType::LEM)
+	{
+		FVector Direction = FRotationMatrix(FollowingCamera->GetComponentRotation()).GetScaledAxis(EAxis::Y);
+		AddMovementInput(Direction, Value);
+	}
 }
 
 void AAstronautCharacter::OnSpecialKey()
@@ -102,6 +120,21 @@ void AAstronautCharacter::ReleaseSpecialKey()
 	}
 }
 
+void AAstronautCharacter::OnInteract()
+{
+	WidgetInteraction->PressPointerKey(EKeys::LeftMouseButton);
+}
+
+void AAstronautCharacter::ReleaseInteract()
+{
+	WidgetInteraction->ReleasePointerKey(EKeys::LeftMouseButton);
+}
+
+void AAstronautCharacter::RegisterArbiter(class AGamemodeArbiter* Invoker)
+{
+	Arbiter = Invoker;
+}
+
 void AAstronautCharacter::InitializeMission()
 {
 	if (SelectedMission == EAstronautMissionType::LEM)
@@ -109,8 +142,57 @@ void AAstronautCharacter::InitializeMission()
 		// 월면 기지에 위치한 탐사선 내부로 캐릭터 이동
 		SetActorLocation({ -22009.0f, -25467.0f, -106513.0f });
 		SetActorRotation({ 0.0f, 80.0f, 0.0f });
-
 		Movement->GravityScale = 0.17f;
+
+		// 타이머 및 미션 컨트롤러 초기화
+		TimerController = Cast<UTimerWidget>(TimerWidget->GetWidget());
+		MissionController = Cast<UMissionWidget>(MissionWidget->GetWidget());
+
+		// 6개 옵션 중 3개를 선택하는 이진 선택자 목록 (ex. 7 = 000111, 11 = 001011, 13 = 001101 ... ) 
+		int32 RandomMissionIndices[] = { 7, 11, 13, 14, 19, 21, 22, 25, 26, 28, 35, 37, 38, 41, 42, 44, 49, 50, 52, 56 };
+		int32 RandomMissionSelector = RandomMissionIndices[FMath::RandRange(0, 19)];
+
+		// 랜덤 선택자에 따라서 bool[SUBMISSION_NUM] 타입인 bIsSubmissionDone를 초기화 및 할당
+		for (int i = 0; i < 6; i++)
+		{
+			if (RandomMissionSelector % 2 == 1)
+			{
+				bIsSubmissionDone[i] = true;
+
+				// UnsetSubMission(i)를 쓰지 않고 true 인자를 쓰는 로직을 사용
+				// true 인자를 interactiontrigger로 넘기면 게임 시작 시에 발생하는 무결성 문제를 해결 가능
+				Arbiter->SubInteractionControllables[i]->SetStatus_Implementation(true);
+			}
+			else
+			{
+				RandomSubmissionIndices.Add(i);
+				SubMissionText.Add(Arbiter->SUB_MISSION_TEXT[i]);
+
+				Arbiter->SubStaticMeshControllables[i]->SetStatus_Implementation(true);
+			}
+			RandomMissionSelector /= 2;
+		}
+
+		// 메인 미션 관련 변수 초기화 (서브 미션은 InitializeMissions에서 처리)
+		bIsMissionDone = false;
+		MainMissionText = Arbiter->MAIN_MISSION_INIT;
+
+		// 1초에 한 번씩 호출되는 타이머를 세팅. (초기값 5분)
+		Time = 300;
+		GetWorldTimerManager().SetTimer(MissionTickHandler, this, &AAstronautCharacter::MissionTick, 1.0f, true, 1.0f);
+		
+		MissionController->UpdateMainMissionDisplay();
+		MissionController->UpdateSubMissionDisplay();
+
+		// SignDisplay 설정
+		for (int i = 0; i < 6; i++)
+		{
+			if (!bIsSubmissionDone[i])
+			{
+				if (i < 4) Arbiter->SignDisplayControllables[i]->SetStatus_Implementation(false);
+			}
+			else Arbiter->SubGuideControllables[i]->SetStatus_Implementation(false);
+		}
 	}
 	else if (SelectedMission == EAstronautMissionType::CSM)
 	{
@@ -124,8 +206,67 @@ void AAstronautCharacter::InitializeMission()
 		PullingForceDecrementCounter = 0;
 
 		// 캐릭터 물리 체크 타이머 등록
-		GetWorldTimerManager().SetTimer(TimerHandler, this, &AAstronautCharacter::ForceChecker, 1.0f / 120, true, 1.0f / 120);
+		GetWorldTimerManager().SetTimer(ForceCheckHandler, this, &AAstronautCharacter::ForceChecker, 1.0f / 120, true, 1.0f / 120);
 	}
+
+	// Dialog Controller 활성화
+	ADialogController* Dialog = Cast<ADialogController>(DialogController->GetChildActor());
+	Dialog->SetActivated(true);
+}
+
+void AAstronautCharacter::OpenSelectMissionPanel()
+{
+	// TODO
+}
+
+void AAstronautCharacter::DoMainMission()
+{
+	bIsMissionDone = true;
+	MainMissionText = Arbiter->MAIN_MISSION_DONE;
+
+	Arbiter->MainStaticMeshControllable->SetStatus_Implementation(true);
+	Arbiter->MainInteractionControllable->SetStatus_Implementation(false);
+	Arbiter->MainGuideControllable->SetStatus_Implementation(false);
+
+	// 미션 위젯 디스플레이 업데이트
+	MissionController->UpdateMainMissionDisplay();
+}
+
+void AAstronautCharacter::DoSubMission(int32 Index)
+{
+	bIsSubmissionDone[Index] = true;
+	for (int32 i = 0; i < 3; i++)
+	{
+		if (RandomSubmissionIndices[i] == Index)
+		{
+			bIsSubmissionDone[Index] = true;
+			SubMissionText[i] = Arbiter->SUB_MISSION_DONE;
+		}
+	}
+	Arbiter->SubInteractionControllables[Index]->SetStatus_Implementation(false);
+
+	// 미션 위젯 디스플레이 업데이트
+	MissionController->UpdateSubMissionDisplay();
+
+	// 가이드 액터 Visibility 설정
+	Arbiter->SubGuideControllables[Index]->SetStatus_Implementation(false);
+}
+
+void AAstronautCharacter::MoveLEM(bool bIsEntering)
+{
+	if (bIsEntering)
+	{
+		SetActorLocation(FVector(-22065.0f, -25610.0f, -106490.0f));
+	}
+	else
+	{
+		SetActorLocation(FVector(-21255.0f, -24510.0f, -106770.0f));
+	}
+}
+
+bool AAstronautCharacter::IsAboardable()
+{
+	return Time <= 20 || Time >= (300 - 20);
 }
 
 void AAstronautCharacter::StartEVA()
@@ -168,34 +309,6 @@ void AAstronautCharacter::ReturnIVA()
 
 	Movement->StopMovementImmediately();
 	Movement->ClearAccumulatedForces();
-}
-
-void AAstronautCharacter::MoveForward(float Value)
-{
-	if (SelectedMission == EAstronautMissionType::LEM) 
-	{
-		FVector Direction = FRotationMatrix(FollowingCamera->GetComponentRotation()).GetScaledAxis(EAxis::X);
-		AddMovementInput(Direction, Value);
-	}
-}
-
-void AAstronautCharacter::MoveRight(float Value)
-{
-	if (SelectedMission == EAstronautMissionType::LEM)
-	{
-		FVector Direction = FRotationMatrix(FollowingCamera->GetComponentRotation()).GetScaledAxis(EAxis::Y);
-		AddMovementInput(Direction, Value);
-	}
-}
-
-void AAstronautCharacter::OnInteract()
-{
-	WidgetInteraction->PressPointerKey(EKeys::LeftMouseButton);
-}
-
-void AAstronautCharacter::ReleaseInteract()
-{
-	WidgetInteraction->ReleasePointerKey(EKeys::LeftMouseButton);
 }
 
 void AAstronautCharacter::OnGrip(AActor* HandActor, bool bIsLeft)
@@ -254,7 +367,7 @@ void AAstronautCharacter::OnGrip(AActor* HandActor, bool bIsLeft)
 
 			if (bIsSphereTraceSucceed)
 			{
-				for (FHitResult Target : HitResults)
+				for (const FHitResult Target : HitResults)
 				{
 					TArray<FName> Classifier = Target.Actor->Tags;
 					if (Classifier.Num() > 0 && Classifier[0].ToString().Equals("HookPoint"))
@@ -364,7 +477,7 @@ void AAstronautCharacter::ControlHook()
 	// 안전줄을 연결할 부분을 찾은 경우 그 곳을 새로운 연결점으로 세팅
 	if (bIsSphereTraceSucceed)
 	{
-		for (FHitResult Target : HitResults)
+		for (const FHitResult Target : HitResults)
 		{
 			TArray<FName> Classifier = Target.Actor->Tags;
 			if (Classifier.Num() > 0 && Classifier[0].ToString().Equals("HookPoint"))
@@ -381,6 +494,14 @@ void AAstronautCharacter::ControlHook()
 
 	FVector DirectionVector = UKismetMathLibrary::GetDirectionUnitVector(GetActorLocation(), RecentHookPoint);
 	Movement->AddForce(DirectionVector * EVAHookForce);
+}
+
+void AAstronautCharacter::MissionTick()
+{
+	Time -= 1;
+	if (Time < 0) Time = 300;
+
+	if (TimerController != nullptr) TimerController->UpdateDisplay();
 }
 
 void AAstronautCharacter::ForceChecker()
@@ -418,4 +539,23 @@ void AAstronautCharacter::ForceChecker()
 float AAstronautCharacter::GetCableLength()
 {
 	return (RecentHookPoint - GetActorLocation()).Size();
+}
+
+// =============================== //
+// 멀티플레이 관련 함수 구현부입니다. //
+// =============================== //
+
+void AAstronautCharacter::OnRPCStartContent_Implementation()
+{
+	PlayInitialSequence();
+}
+
+void AAstronautCharacter::MakeRPCSelectMission_Implementation(int32 Mission)
+{
+
+}
+
+void AAstronautCharacter::OnRPCCheckReadyState_Implementation()
+{
+
 }

@@ -8,7 +8,8 @@
 
 /*
  - Name        : AGamemodeArbiter
- - Description : Map에 배치되어 Gamemode를 중계하는 C++ 액터
+ - Description : Map에 배치되어 게임 로직 - 아웃라이너 액터들을 중계하는 C++ 액터
+ - Caution     : AstronautGamemode가 아니라 AstronautCharacter에서 관리됨. (멀티플레이)
  - Date        : 2022/09/03 DEVroar
 */
 
@@ -53,4 +54,18 @@ public:
 	// Gamemode에서 제어하는 Destination Guide 액터 오브젝트 레퍼런스 배열 (서브 미션)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Controllables")
 		TArray<TScriptInterface<class IAstronautControllableInterface>> SubGuideControllables;
+
+public:
+	// 미션 위젯 표시 TEXT 상수값. 역시 뷰포트에서 기본값 설정
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Constant)
+		FText MAIN_MISSION_INIT;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Constant)
+		FText MAIN_MISSION_DONE;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Constant)
+		TArray<FText> SUB_MISSION_TEXT;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Constant)
+		FText SUB_MISSION_DONE;
 };

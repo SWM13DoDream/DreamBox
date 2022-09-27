@@ -3,8 +3,8 @@
 #pragma once
 
 #include "../../common/public/DreamBox.h"
-#include "AstronautStructBase.h"
 #include "AstronautControllableInterface.h"
+#include "AstronautStructBase.h"
 #include "InteractionTrigger.generated.h"
 
 /*
@@ -39,9 +39,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Control")
 		class UInteractionWidget* Widget;
 
-	// AstronautGamemode 타입으로 미리 캐스팅되는 Gamemode 변수
+	// AstronautCharacter 타입으로 미리 캐스팅되는 로컬 플레이어 레퍼런스
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Control")
-		class AAstronautGamemode* Gamemode;
+		class AAstronautCharacter* LocalPlayer;
 
 public:
 	// 이 C++에서 BeginPlay 호출 후 BP에서 파생된 InitializeMode() 이벤트 실행

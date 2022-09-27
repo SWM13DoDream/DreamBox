@@ -33,11 +33,15 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Control")
 		class UDialogWidget* Widget;
 
-	// AstronautGamemode 타입으로 미리 캐스팅되는 Gamemode 변수
+	// AstronautCharacter 타입으로 미리 캐스팅되는 로컬 플레이어 레퍼런스
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Control")
-		class AAstronautGamemode* Gamemode;
+		class AAstronautCharacter* LocalPlayer;
 
 public:
+	// 다이얼로그 컨트롤러 액터의 활성화 상태 설정
+	UFUNCTION(BlueprintCallable)
+		void SetActivated(bool bValue);
+
 	// 우주과학자 인트로 다이얼로그 이벤트. BP에서 구현
 	UFUNCTION(BlueprintImplementableEvent, Category = "Event")
 		void LEMDialogIntro();
