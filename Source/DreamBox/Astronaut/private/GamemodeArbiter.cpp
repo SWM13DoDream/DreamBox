@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "../public/GamemodeArbiter.h"
+#include "../public/AstronautCharacter.h"
 #include "Kismet/GameplayStatics.h"
-#include "../public/AstronautGamemode.h"
 
 // Sets default values
 AGamemodeArbiter::AGamemodeArbiter()
@@ -16,6 +16,18 @@ AGamemodeArbiter::AGamemodeArbiter()
 void AGamemodeArbiter::BeginPlay()
 {
 	Super::BeginPlay();
-	AAstronautGamemode* Gamemode = Cast<AAstronautGamemode>(UGameplayStatics::GetGameMode(GetWorld()));
-	Gamemode->RegisterArbiter(this);
+
+	AAstronautCharacter* LocalPlayer;
+	ACharacter* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+	if (Player->IsLocallyControlled())
+	{
+		LocalPlayer = Cast<AAstronautCharacter>(Player);
+	}
+	else
+	{
+		Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 1);
+		LocalPlayer = Cast<AAstronautCharacter>(Player);
+	}
+
+	LocalPlayer->RegisterArbiter(this);
 }

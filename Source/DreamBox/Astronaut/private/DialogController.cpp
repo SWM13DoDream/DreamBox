@@ -2,7 +2,7 @@
 
 #include "../public/DialogController.h"
 #include "../public/DialogWidget.h"
-#include "../public/AstronautGamemode.h"
+#include "../public/AstronautCharacter.h"
 #include "Components/WidgetComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -25,19 +25,35 @@ void ADialogController::BeginPlay()
 
 	// 미리 캐스팅된 주요 제어 변수를 저장
 	Widget = Cast<UDialogWidget>(WidgetComponent->GetWidget());
-	Gamemode = Cast<AAstronautGamemode>(UGameplayStatics::GetGameMode(GetWorld()));
+	ACharacter* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+	if (Player->IsLocallyControlled()) LocalPlayer = Cast<AAstronautCharacter>(Player);
+	else
+	{
+		Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 1);
+		LocalPlayer = Cast<AAstronautCharacter>(Player);
+	}
+}
 
-	// 타이머에 UpdateState 연동
-	GetWorldTimerManager().SetTimer(UpdateStateHandler, this, &ADialogController::UpdateState, 1.0f, true, 1.0f);
-	
-	// 게임 시작 시 다이얼로그 출력
-	LEMDialogIntro();
+void ADialogController::SetActivated(bool bValue)
+{
+	if (bValue)
+	{
+		// 타이머에 UpdateState 연동
+		GetWorldTimerManager().SetTimer(UpdateStateHandler, this, &ADialogController::UpdateState, 1.0f, true, 1.0f);
+
+		// 미션 시작 시점에 다이얼로그 출력
+		LEMDialogIntro();
+	}
+	else
+	{
+		GetWorldTimerManager().ClearTimer(UpdateStateHandler);
+	}
 }
 
 // 타이머에 bind되어 호출되는 업데이트 함수 (expected: one invocation per second)
 void ADialogController::UpdateState()
 {
-	int32 Time = Gamemode->Time;
+	int32 Time = LocalPlayer->Time;
 	if (DialogState == 0 && Time < 150)
 	{
 		DialogState = 1;

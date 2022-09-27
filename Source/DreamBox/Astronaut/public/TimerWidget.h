@@ -5,7 +5,6 @@
 #include "../../common/public/DreamBox.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/TextBlock.h"
-#include "AstronautGamemode.h"
 #include "TimerWidget.generated.h"
 
 /*
@@ -40,9 +39,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UTextBlock* ContentText;
 
-	// AstronautGamemode 타입으로 미리 캐스팅되는 Gamemode 변수
+	// AstronautCharacter 타입으로 미리 캐스팅되는 로컬 플레이어 레퍼런스
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Control")
-		class AAstronautGamemode* Gamemode;
+		class AAstronautCharacter* LocalPlayer;
 
 public:
 	// Gamemode에서 매 초마다 호출되어 타이머 디스플레이 체크

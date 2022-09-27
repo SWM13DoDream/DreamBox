@@ -1,7 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "../public/InteractionTrigger.h"
-#include "../public/AstronautGamemode.h"
 #include "../public/InteractionWidget.h"
 #include "../public/AstronautCharacter.h"
 #include "Components/WidgetComponent.h"
@@ -30,7 +29,13 @@ void AInteractionTrigger::BeginPlay()
 
 	// 미리 캐스팅된 주요 제어 변수를 저장
 	Widget = Cast<UInteractionWidget>(WidgetComponent->GetWidget());
-	Gamemode = Cast<AAstronautGamemode>(UGameplayStatics::GetGameMode(GetWorld()));
+	ACharacter* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+	if (Player->IsLocallyControlled()) LocalPlayer = Cast<AAstronautCharacter>(Player);
+	else
+	{
+		Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 1);
+		LocalPlayer = Cast<AAstronautCharacter>(Player);
+	}
 
 	InitializeMode();
 }
@@ -46,9 +51,9 @@ void AInteractionTrigger::OnTriggerEnter(class AActor* OtherActor)
 	{
 		if (bHasVariableMode)
 		{
-			if (Gamemode->bIsMissionDone)
+			if (LocalPlayer->bIsMissionDone)
 			{
-				if (Gamemode->IsAboardable())
+				if (LocalPlayer->IsAboardable())
 				{
 					FString NewMode = "FinishMission";
 					InteractionMode = FName(*NewMode);
@@ -83,11 +88,11 @@ void AInteractionTrigger::OnInteract()
 		FString InteractionKey = InteractionMode.ToString();
 		if (InteractionKey.Equals(TEXT("ExitVehicle")))
 		{
-			Gamemode->PlayCrossFade();
+			LocalPlayer->PlayCrossFade();
 
 			GetWorld()->GetTimerManager().SetTimer(DelayHandler, FTimerDelegate::CreateLambda([&]()
 			{
-				Gamemode->MoveLEM(false);
+				LocalPlayer->MoveLEM(false);
 
 				// 핸들러 초기화
 				GetWorld()->GetTimerManager().ClearTimer(DelayHandler);
@@ -95,11 +100,11 @@ void AInteractionTrigger::OnInteract()
 		}
 		else if (InteractionKey.Equals(TEXT("EnterVehicle")))
 		{
-			Gamemode->PlayCrossFade();
+			LocalPlayer->PlayCrossFade();
 
 			GetWorld()->GetTimerManager().SetTimer(DelayHandler, FTimerDelegate::CreateLambda([&]()
 			{
-				Gamemode->MoveLEM(true);
+				LocalPlayer->MoveLEM(true);
 
 				// 핸들러 초기화
 				GetWorld()->GetTimerManager().ClearTimer(DelayHandler);
@@ -107,35 +112,35 @@ void AInteractionTrigger::OnInteract()
 		}
 		else if (InteractionKey.Equals(TEXT("Install")))
 		{
-			Gamemode->DoMainMission();
+			LocalPlayer->DoMainMission();
 		}
 		else if (InteractionKey.Equals(TEXT("MissionPlant")))
 		{
-			Gamemode->DoSubMission(0);
+			LocalPlayer->DoSubMission(0);
 		}
 		else if (InteractionKey.Equals(TEXT("MissionCrew")))
 		{
-			Gamemode->DoSubMission(1);
+			LocalPlayer->DoSubMission(1);
 		}
 		else if (InteractionKey.Equals(TEXT("MissionLaboratory")))
 		{
-			Gamemode->DoSubMission(2);
+			LocalPlayer->DoSubMission(2);
 		}
 		else if (InteractionKey.Equals(TEXT("MissionSilo")))
 		{
-			Gamemode->DoSubMission(3);
+			LocalPlayer->DoSubMission(3);
 		}
 		else if (InteractionKey.Equals(TEXT("MissionRock")))
 		{
-			Gamemode->DoSubMission(4);
+			LocalPlayer->DoSubMission(4);
 		}
 		else if (InteractionKey.Equals(TEXT("MissionRobot")))
 		{
-			Gamemode->DoSubMission(5);
+			LocalPlayer->DoSubMission(5);
 		}
 		else if (InteractionKey.Equals(TEXT("ExitGateway")))
 		{
-			Gamemode->PlayCrossFade();
+			LocalPlayer->PlayCrossFade();
 
 			GetWorld()->GetTimerManager().SetTimer(DelayHandler, FTimerDelegate::CreateLambda([&]()
 			{
@@ -164,7 +169,7 @@ bool AInteractionTrigger::IsValidPlayer(class AActor* TargetActor)
 
 void AInteractionTrigger::SetStatus_Implementation(bool Value)
 {
-	// Value = true인 경우 무결성 보장 (게임 시작 시, Widget->Animate 호출하지 않음)
-	Unset();
-	if (!Value) Widget->Animate(false);
+ 	// Value = true인 경우 무결성 보장 (게임 시작 시, Widget->Animate 호출하지 않음)
+ 	Unset();
+ 	if (!Value) Widget->Animate(false);
 }

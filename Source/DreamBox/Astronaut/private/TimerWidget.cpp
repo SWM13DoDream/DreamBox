@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "../public/TimerWidget.h"
+#include "../public/AstronautCharacter.h"
 #include "Kismet/GameplayStatics.h"
 
 #define LOCTEXT_NAMESPACE "TextFormatter"
@@ -18,7 +19,13 @@ void UTimerWidget::NativeConstruct()
 	ContentText = Cast<UTextBlock>(GetWidgetFromName(TEXT("ContentText")));
 
 	// 미리 캐스팅된 주요 제어 변수를 저장
-	Gamemode = Cast<AAstronautGamemode>(UGameplayStatics::GetGameMode(GetWorld()));
+	ACharacter* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+	if (Player->IsLocallyControlled()) LocalPlayer = Cast<AAstronautCharacter>(Player);
+	else
+	{
+		Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 1);
+		LocalPlayer = Cast<AAstronautCharacter>(Player);
+	}
 
 	// bIsAboardable 또한 초기 상태는 true
 	bWasAboardable = true;
@@ -26,10 +33,10 @@ void UTimerWidget::NativeConstruct()
 
 void UTimerWidget::UpdateDisplay()
 {
-	int32 Time = Gamemode->Time;
+	int32 Time = LocalPlayer->Time;
 
 	// TitleText 내용 변경
-	if (Gamemode->IsAboardable() && Gamemode->bIsMissionDone)
+	if (LocalPlayer->IsAboardable() && LocalPlayer->bIsMissionDone)
 	{
 		TitleText->SetText(TITLE_DONEABLE);
 	}
@@ -51,9 +58,9 @@ void UTimerWidget::UpdateDisplay()
 	ChangeTimerRotation((300 - Time) * 1.2f);
 
 	// bWasAboardable 상태 업데이트
-	if (bWasAboardable != Gamemode->IsAboardable())
+	if (bWasAboardable != LocalPlayer->IsAboardable())
 	{
-		bWasAboardable = Gamemode->IsAboardable();
+		bWasAboardable = LocalPlayer->IsAboardable();
 		ChangeTimeColor(bWasAboardable);
 	}
 }
