@@ -38,11 +38,6 @@ public:
 	UFUNCTION()
 		void ReleaseInteract();
 
-public:
-	// 임무 시작
-	UFUNCTION(BlueprintCallable)
-		void InitializeMission();
-
 protected:
 	// 실제 우주비행사 컨텐츠 시작은 아래 멀티플레이 관련 함수에서 Client RPC로 정의되어 있음.
 	virtual void BeginPlay() override;
@@ -84,6 +79,18 @@ public:
 	// 미션 선택 위젯 패널 열기 (Arbiter 사용)
 	UFUNCTION(BlueprintCallable)
 		void OpenSelectMissionPanel();
+
+	// 미션 선택 시 외부 위젯으로부터 호출
+	UFUNCTION(BlueprintCallable)
+		void SelectMission(int32 Mission);
+
+	// 미션 선택 창 -> 미션 시작 위치로 자연스러운 이동을 위해 시퀀서 동작
+	UFUNCTION(BlueprintImplementableEvent, Category = "PreMission")
+		void PlayMissionInitSequence();
+
+	// 임무 시작. PlayMissionInitSequence에 의해 호출
+	UFUNCTION(BlueprintCallable)
+		void InitializeMission();
 
 	// 정보 위젯 열기. FName 파라미터에 따라 다른 로직을 사용함
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "Event")
@@ -129,7 +136,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		TArray<FText> SubMissionText;
 
-	// 플레이어가 움직일 수 있는지 여부를 관리. bMovable = false인 경우 타이머 또한 정지함
+	// 플레이어가 움직이거나 기타 행동을 할 수 있는지 여부를 관리.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		bool bMovable;
 
@@ -304,5 +311,5 @@ public:
 
 	// 위 MakeRPCSelectMission으로부터 호출. 게임 모드에 접근할 수 없음에 주의
 	UFUNCTION(Client, Reliable)
-		void OnRPCCheckReadyState();
+		void OnRPCCheckReadyState(bool bStartMission, int32 MissionToLock);
 };

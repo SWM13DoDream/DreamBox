@@ -30,4 +30,7 @@ class DREAMBOX_API IAstronautControllableInterface
 public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interface")
 		void SetStatus(bool Value);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interface")
+		AActor* GetActor();
 };
