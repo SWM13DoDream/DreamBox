@@ -9,7 +9,7 @@
 /*
  - Name        : AFirefighterGamemode
  - Descirption : Firefighter 직업군의 메인 게임모드 (미션 업데이트 및 트랜지션 위젯 이벤트 포함)
- - Date        : 2022/09/21 LJH
+ - Date        : 2022/09/26 LJH
 */
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FDeleDynamicThreeInt, int32, PlayerID, int32, MissionID, int32, Variable);
@@ -39,11 +39,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	//크로스 페이드를 실제로 출력하는 로직
-	virtual void PlayCrossFadeAnim(int32 PlayerID) override;
-
 	// 로딩 직후의 BeginPlay
-	virtual void BeginPlayAfterLoading(int32 PlayerID) override;
+	virtual void BeginPlayAfterLoading() override;
 
 public:
 	//완료한 미션을 셋에 추가

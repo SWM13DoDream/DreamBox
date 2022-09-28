@@ -8,7 +8,7 @@
 /*
  - Name        : ARescueGoal
  - Description : 구조되고 있는 캐릭터를 내려놓을 포인트를 나타내고, 구조 종료 이벤트를 호출하는 액터
- - Date   : 2022/09/06 LJH
+ - Date   : 2022/09/27 LJH
 */
 
 UCLASS()

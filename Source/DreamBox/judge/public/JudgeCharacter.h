@@ -7,8 +7,7 @@
 /*
 - Name			: AJudgeCharacter
 - Description	: 판사 캐릭터 WidgetIntercation을 통해 다른 Widget 들과 Interaction
-- Date			: 2022-08-12
-- Version		: 1.0.1 Ver
+- Date			: 2022-08-26 LJH
 */
 
 
@@ -32,9 +31,5 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-public:
-
-private:
-	void MoveForward(float NewAxisValue);
-	void MoveRight(float NewAxisValue);
+	
 };

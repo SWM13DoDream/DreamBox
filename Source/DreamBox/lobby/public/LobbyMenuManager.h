@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "DreamBox.h"
+#include "../../common/public/DreamBox.h"
 #include "LobbyMenuManager.generated.h"
 
 /*

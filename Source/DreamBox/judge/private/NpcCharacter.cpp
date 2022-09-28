@@ -3,6 +3,7 @@
 
 #include "../public/NpcCharacter.h"
 #include "../public/SScriptStruct.h"
+#include "../public/JudgeGameMode.h"
 #include "Engine/DataTable.h"
 #include "Components/WidgetComponent.h"
 
@@ -22,6 +23,18 @@ void ANpcCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	if (GetWorld())
+	{
+		GamemodeRef = Cast<AJudgeGameMode>(GetWorld()->GetAuthGameMode());
+	}
+	if (IsValid(GamemodeRef))
+	{
+		GamemodeRef->AfterLoadingEvent.AddDynamic(this, &ANpcCharacter::BeginPlayAfterLoading);
+	}
+}
+
+void ANpcCharacter::BeginPlayAfterLoading()
+{
 	AddArray(FirstScriptDT, FirstScript, FirstDelay);
 	AddArray(SecondScriptDT, SecondScript, SecondDelay);
 	AddArray(ThirdScriptDT, ThirdScript, ThirdDelay);

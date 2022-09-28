@@ -3,4 +3,5 @@
 #pragma once
 
 #include "EngineMinimal.h"
-
+#include "DreamBoxGameStateBase.h"
+#include "DreamBoxGameModeBase.h"

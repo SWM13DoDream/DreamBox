@@ -3,16 +3,15 @@
 /*
 - Name			: AJudgeGameMode
 - Description	: 모든 스크립트 DataTable 과 Delegate를 포함하고 있는 GameMode
-- Date			: 2022-09-16
-- Version		: 1.0.1 Ver
+- Date			: 2022-09-26 LJH
 */
 
 
 #pragma once
 
 #include "../../common/public/DreamBox.h"
+#include "../../common/public/DreamBoxGameModeBase.h"
 #include "Engine/DataTable.h"
-#include "GameFramework/GameMode.h"
 #include "JudgeGameMode.generated.h"
 
 
@@ -56,15 +55,17 @@ public:
  *
  */
 UCLASS()
-class DREAMBOX_API AJudgeGameMode : public AGameMode
+class DREAMBOX_API AJudgeGameMode : public ADreamBoxGameModeBase
 {
 	GENERATED_BODY()
 
 public:
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 
-	UFUNCTION()
-		virtual void BeginPlay() override;
+	virtual void BeginPlay() override;
+
+	// 로딩 직후의 BeginPlay
+	virtual void BeginPlayAfterLoading() override;	
 
 	// DataTable을 기반으로 구조체에 데이터 Add
 	UFUNCTION()
@@ -85,10 +86,16 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		bool TryStartOfCourtBattle();
+
 	UFUNCTION(BlueprintCallable)
 		bool TryStartOfPetition();
+
 	UFUNCTION(BlueprintCallable)
 		bool TryStartOfFinalJudgement();
+
+	//BP의 Beginplay 로직을 AfterLoading이벤트로 옮기기 위한 게임 초기화 함수
+	UFUNCTION(BlueprintImplementableEvent)
+		void InitializeGame();
 
 public:
 	// 위젯의 ON / OFF 여부를 위한 Boolean 변수

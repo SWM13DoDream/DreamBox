@@ -9,8 +9,7 @@
 /*
 - Name			: AIntroduce [ 이름변경 요망 ]
 - Description	: 각 종 Floating Widget을 담당하는 Actor
-- Date			: 2022-08-12
-- Version		: 1.0.1 ver
+- Date			: 2022-09-27 LJH
 */
 
 // 데이터를 담기위한 구조체 생성
@@ -65,4 +64,8 @@ public:
 	// Next Page의 여부를 확인하는 Boolean 변수
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WIDGET")
 		bool isNextPage;
+
+	UPROPERTY()
+		class AJudgeGameMode* GamemodeRef;
+
 };

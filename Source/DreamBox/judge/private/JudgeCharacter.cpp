@@ -36,20 +36,7 @@ void AJudgeCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	// 상하좌우 이동을 바인딩 [ 오큘러스 & 키보드 ]
-	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &AJudgeCharacter::MoveForward);
-	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &AJudgeCharacter::MoveRight);
 	// 마우스의 이동을 바인딩 [ 마우스 ]
 	PlayerInputComponent->BindAxis(TEXT("Turn"), this, &AJudgeCharacter::AddControllerYawInput);
 	PlayerInputComponent->BindAxis(TEXT("LookUp"), this, &AJudgeCharacter::AddControllerPitchInput);
-}
-
-void AJudgeCharacter::MoveForward(float NewAxisValue)
-{
-	AddMovementInput(GetActorForwardVector(), NewAxisValue);
-}
-
-void AJudgeCharacter::MoveRight(float NewAxisValue)
-{
-	AddMovementInput(GetActorRightVector(), NewAxisValue);
 }

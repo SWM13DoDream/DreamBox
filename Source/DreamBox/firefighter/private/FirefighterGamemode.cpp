@@ -16,15 +16,13 @@ void AFirefighterGamemode::BeginPlay()
 	{
 		PlayerCharacterRef = Cast<AFirefighterCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 		PlayerCharacterRef->SetCharacterVisibility(false);
-		CrossFadeAnimationEvent.AddDynamic(this, &AFirefighterGamemode::PlayCrossFadeAnim);
 	}
 }
 
-void AFirefighterGamemode::BeginPlayAfterLoading(int32 PlayerID)
+void AFirefighterGamemode::BeginPlayAfterLoading()
 {
-	Super::BeginPlayAfterLoading(PlayerID);
+	Super::BeginPlayAfterLoading();
 
-	//	PlayCrossFadeAnim(PlayerID);
 	PlayerCharacterRef->SetCharacterVisibility(true);
 	PlayerCharacterRef->SetActorLocation(FVector(52.0f, -372.f, 100.0f));
 	PlayerCharacterRef->AddActorWorldRotation({ 0.0f, -90.0f, 0.0f });
@@ -48,18 +46,4 @@ void AFirefighterGamemode::ShowInitialScript()
 	GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
 		ShowScriptWithID.Broadcast(0, InitialScriptID);
 	}), 0.5f, false);
-}
-
-void AFirefighterGamemode::PlayCrossFadeAnim(int32 PlayerID)
-{
-	Super::PlayCrossFadeAnim(PlayerID);
-	/* -- 플레이어 ID에 따라 구분할 로직이 들어갈 자리 -- */
-
-	if (IsValid(PlayerCharacterRef))
-	{
-		PlayerCharacterRef->GetCharacterMovement()->Deactivate();
-		GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
-			PlayerCharacterRef->GetCharacterMovement()->Activate();
-		}), 1.25f, false);
-	}
 }

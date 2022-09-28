@@ -2,6 +2,7 @@
 
 
 #include "../public/JudgePlayerController.h"
+#include "../public/JudgeGameMode.h"
 
 void AJudgePlayerController::BeginPlay()
 {
@@ -11,3 +12,4 @@ void AJudgePlayerController::BeginPlay()
 	FInputModeGameOnly InputMode;
 	SetInputMode(InputMode);
 }
+

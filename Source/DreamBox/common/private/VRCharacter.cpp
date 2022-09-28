@@ -3,13 +3,15 @@
 
 #include "../public/VRCharacter.h"
 #include "TimerManager.h"
+#include "LevelSequenceActor.h"
+#include "LevelSequencePlayer.h"
 #include "Components/WidgetInteractionComponent.h"
 
 /*
  - Name        : AVRCharacter
  - Description : VRImmersiveHands 에셋 기반의 Base 캐릭터 클래스
 				 직업별 캐릭터를 본 클래스를 상속
- - Date        : 2022/09/02 LJH
+ - Date        : 2022/09/28 LJH
 */
 
 // Sets default values
@@ -47,14 +49,19 @@ AVRCharacter::AVRCharacter()
 // Called when the game starts or when spawned
 void AVRCharacter::BeginPlay()
 {
-	Super::BeginPlay();
+	Super::BeginPlay();	
+
+	PlayerControllerID = UGameplayStatics::GetPlayerControllerID(Cast<APlayerController>(Controller));
 	SetCanJump(true);
+	InitLevelSequence();
 }
+
 
 // Called every frame
 void AVRCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
 
 }
 
@@ -71,6 +78,40 @@ void AVRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction("Interaction", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Interaction", IE_Released, this, &ACharacter::StopJumping);
 }
+
+
+void AVRCharacter::OnRPCStartContent_Implementation(int32 PlayerID, FContentStartInfo StartInfo)
+{
+	if (HasAuthority())
+	{
+		OnRPCInitPlayerTransform(FTransform(StartInfo.StartRotation, StartInfo.StartLocation, FVector(1.0f)));
+	}
+	else
+	{
+		MakeRPCInitPlayerTransform(FTransform(StartInfo.StartRotation, StartInfo.StartLocation, FVector(1.0f)));
+	}
+}
+
+void AVRCharacter::MakeRPCInitPlayerTransform_Implementation(FTransform InitialTransform)
+{
+	OnRPCInitPlayerTransform(InitialTransform);
+}
+
+void AVRCharacter::OnRPCInitPlayerTransform_Implementation(FTransform InitialTransform)
+{
+	SetActorLocation(InitialTransform.GetLocation(), false);
+	SetActorRotation(InitialTransform.GetRotation());
+}
+
+void AVRCharacter::InitLevelSequence()
+{
+	ALevelSequenceActor* OutActor = nullptr;
+	if (IsValid(CrossFadeSequence))
+	{
+		CrossFadePlayer = ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), CrossFadeSequence, FMovieSceneSequencePlaybackSettings(), OutActor);
+	}
+}
+
 
 void AVRCharacter::MoveForward(float Value)
 {
@@ -95,18 +136,37 @@ void AVRCharacter::SnapTurn(float Value)
 	AddActorWorldRotation({ 0.0f, 45.0f * Direction, 0.0f }, true, nullptr); //로테이션을 45도 돌림
 
 	GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
-		ResetSnapTurn();
+		ResetSnapTurnControllerInput();
 	}), 0.15f, false); //각 입력의 0.15초 뒤에 새로운 입력이 가능 (연속 입력 방지)
 
 	bSnapTurnIsFinished = true;
 }
 
-void AVRCharacter::ResetSnapTurn()
+void AVRCharacter::ResetSnapTurnControllerInput()
 {
 	bSnapTurnIsFinished = false; //다시 SnapTurn을 할 수 있도록 설정
+}
+
+void AVRCharacter::PlayCrossFadeAnim()
+{
+	if (!IsValid(CrossFadePlayer)) return;
+	CrossFadePlayer->Play();
+
+	GetCharacterMovement()->Deactivate();
+	GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
+		GetCharacterMovement()->Activate();
+	}), 1.25f, false);
 }
 
 void AVRCharacter::SetCanJump(bool NewState)
 {
 	GetCharacterMovement()->SetJumpAllowed(NewState);
+}
+
+void AVRCharacter::InitGameModeRef()
+{
+	if (GetWorld())
+	{
+		GamemodeRef = GetWorld()->GetAuthGameMode<ADreamBoxGameModeBase>();
+	}
 }

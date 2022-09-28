@@ -3,13 +3,14 @@
 #pragma once
 
 #include "DreamBox.h"
+#include "TransitionStructBase.h"
 #include "GameFramework/Character.h"
 #include "VRCharacter.generated.h"
 
 /*
  - Name        : AVRCharacter
  - Descirption : 메인 Playable VR 캐릭터 Base
- - Date        : 2022/09/01 LJH
+ - Date        : 2022/09/27 LJH
 */
 
 UCLASS()
@@ -26,6 +27,17 @@ public:
 
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
+public:
+	UFUNCTION(Client, Reliable)
+		virtual void OnRPCStartContent(int32 PlayerID, FContentStartInfo StartInfo);
+
+	UFUNCTION(Server, Reliable)
+		virtual void MakeRPCInitPlayerTransform(FTransform InitialTransform);
+
+	UFUNCTION(NetMulticast, Reliable)
+		virtual void OnRPCInitPlayerTransform(FTransform InitialTransform);
+
+public:
 	//기본 이동 함수 : 앞뒤 이동
 	UFUNCTION()
 		void MoveForward(float Value);
@@ -40,11 +52,23 @@ public:
 
 	//SnapTurn이 연속으로 입력되는 것을 방지하는 함수
 	UFUNCTION()
-		void ResetSnapTurn();
+		void ResetSnapTurnControllerInput();
+
+	//크로스 페이드를 실제로 출력하는 로직, 각 자식 게임모드 클래스에서 바인딩 해야함
+	//PlayerID 미사용 파라미터 제거 예정
+	UFUNCTION(BlueprintCallable)
+		void PlayCrossFadeAnim();
+
+	
+	UFUNCTION()
+		virtual void InitLevelSequence();
 
 	//Jump를 활성화/비활성화 함
 	UFUNCTION()
 		void SetCanJump(bool NewState);
+
+	UFUNCTION()
+		void InitGameModeRef();
 
 protected:
 	// Called when the game starts or when spawned
@@ -74,7 +98,14 @@ public:
 	//VR Immersive 에셋 사용을 위한 컴포넌트
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		class UWidgetInteractionComponent* WidgetInteraction;
-	
+
+
+//=============== 컴포넌트가 아닌 멤버 ======================
+public:
+	//크로스 페이드 효과 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Sequence")
+		class ULevelSequence* CrossFadeSequence;
+
 	//C++ 딜레이 사용 위한 타이머 핸들 
 	UPROPERTY()
 		struct FTimerHandle WaitHandle;
@@ -83,9 +114,19 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
 		bool bCanJump = true; 
 
-
 private:
 	//SnapTurn 실행이 끝났는지? (연속 입력 방지)
 	UPROPERTY()
 		bool bSnapTurnIsFinished;
+
+	UPROPERTY()
+		int32 PlayerControllerID;
+
+	//시퀀스 플레이어 (FadeIn & Out)
+	UPROPERTY()
+		class ULevelSequencePlayer* CrossFadePlayer;
+
+	UPROPERTY()
+		class ADreamBoxGameModeBase* GamemodeRef; 
+
 };

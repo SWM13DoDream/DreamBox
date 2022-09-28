@@ -74,7 +74,7 @@ private:
 		class AFirefighterGamemode* GamemodeRef;
 
 	UPROPERTY()
-		ACharacter* PlayerCharacterRef;
+		class AVRCharacter* PlayerCharacterRef;
 
 	//C++ 딜레이 사용 위한 타이머 핸들 
 	UPROPERTY()

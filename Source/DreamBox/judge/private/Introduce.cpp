@@ -2,6 +2,7 @@
 
 
 #include "../public/Introduce.h"
+#include "../public/JudgeGameMode.h"
 #include "Components/WidgetComponent.h"
 
 // Sets default values
@@ -29,7 +30,7 @@ AIntroduce::AIntroduce()
 void AIntroduce::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	if (isNextPage) NextPage->SetHiddenInGame(false);
 	else NextPage->SetHiddenInGame(true);
 }

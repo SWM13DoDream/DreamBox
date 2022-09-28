@@ -10,7 +10,7 @@
 /*
  - Name        : AFirefighterCharacter
  - Descirption : Firefighter 직업의 메인 Playable 캐릭터
- - Date        : 2022/09/24 LJH
+ - Date        : 2022/09/28 LJH
 */
 
 UCLASS()
@@ -127,13 +127,12 @@ public:
 		UChildActorComponent* MissionManager;
 
 private:
-	//게임모드 레퍼런스
-	UPROPERTY()
-		class AFirefighterGamemode* GamemodeRef;
-
 	//업을 캐릭터의 레퍼런스 (InValid 할 경우 불가능)
 	UPROPERTY()
 		class AInjuredCharacter* InjuredCharacterRef;
+
+	UPROPERTY()
+		class AFirefighterGamemode* FirefighterGamemodeRef;
 
 	//화재 원인 액터 레퍼런스 
 	UPROPERTY()

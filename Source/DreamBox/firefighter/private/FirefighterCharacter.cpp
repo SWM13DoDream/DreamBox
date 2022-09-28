@@ -51,13 +51,9 @@ void AFirefighterCharacter::BeginPlay()
 	MissionManagerRef = Cast<AMissionManager>(MissionManager->GetChildActor());
 	ScriptManagerRef = Cast<AScriptManager>(ScriptManager->GetChildActor());
 
-	if (GetWorld()) //게임모드 레퍼런스를 초기화하고, 이벤트를 바인딩
-	{
-		GamemodeRef = Cast<AFirefighterGamemode>(GetWorld()->GetAuthGameMode());
-		GamemodeRef->UpdateMissionList.AddDynamic(this, &AFirefighterCharacter::UpdateMissionList);
-		GamemodeRef->ShowScriptWithID.AddDynamic(this, &AFirefighterCharacter::ShowScriptWithID);
-		GamemodeRef->ShowScriptWithString.AddDynamic(this, &AFirefighterCharacter::ShowScriptWithString);
-	}
+	FirefighterGamemodeRef->UpdateMissionList.AddDynamic(this, &AFirefighterCharacter::UpdateMissionList);
+	FirefighterGamemodeRef->ShowScriptWithID.AddDynamic(this, &AFirefighterCharacter::ShowScriptWithID);
+	FirefighterGamemodeRef->ShowScriptWithString.AddDynamic(this, &AFirefighterCharacter::ShowScriptWithString);
 }
 
 // Called every frame
@@ -86,7 +82,7 @@ void AFirefighterCharacter::TryInteraction()
 	{
 	//구조 대상자를 업는 상호작용
 	case EFirefighterInteractionType::E_CARRY :
-		GamemodeRef->CrossFadeAnimationEvent.Broadcast(0); //PlayerID는 임시로 0
+		PlayCrossFadeAnim(); //PlayerID는 0
 		GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&](){
 			CarryInjuredCharacter(); //FadeIn 중간에 캐릭터를 업음
 		}), 0.75f, false); 
@@ -99,7 +95,7 @@ void AFirefighterCharacter::TryInteraction()
 
 	//화재 원인 액터를 조사하는 상호작용
 	case EFirefighterInteractionType::E_INVESTIGATE :
-		GamemodeRef->CrossFadeAnimationEvent.Broadcast(0); //PlayerID는 임시로 0
+		PlayCrossFadeAnim();
 		GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
 			InvestigateCauseOfFire(); //FadeIn 중간에 캐릭터를 업음
 			}), 0.75f, false);
