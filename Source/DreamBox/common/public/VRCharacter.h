@@ -2,14 +2,25 @@
 
 #pragma once
 
+<<<<<<< HEAD
 #include "DreamBox.h"
 #include "GameFramework/Character.h"
+=======
+#include "EngineMinimal.h"
+#include "GameFramework/Character.h"
+#include "TimerManager.h"
+#include "Components/WidgetInteractionComponent.h"
+>>>>>>> 37667fc1c8371a3dc5717464c7a857d6d5968402
 #include "VRCharacter.generated.h"
 
 /*
  - Name        : AVRCharacter
  - Descirption : 메인 Playable VR 캐릭터 Base
+<<<<<<< HEAD
  - Date        : 2022/09/01 LJH
+=======
+ - Date        : 2022/08/20 LJH
+>>>>>>> 37667fc1c8371a3dc5717464c7a857d6d5968402
 */
 
 UCLASS()
@@ -20,7 +31,11 @@ class DREAMBOX_API AVRCharacter : public ACharacter
 public:
 	// Sets default values for this character's properties
 	AVRCharacter();
+<<<<<<< HEAD
 	
+=======
+
+>>>>>>> 37667fc1c8371a3dc5717464c7a857d6d5968402
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -46,7 +61,11 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+<<<<<<< HEAD
 public:	
+=======
+public:
+>>>>>>> 37667fc1c8371a3dc5717464c7a857d6d5968402
 	//VR Immersive 에셋 사용을 위한 컴포넌트
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		USceneComponent* VROrigin;
@@ -69,11 +88,19 @@ public:
 
 	//VR Immersive 에셋 사용을 위한 컴포넌트
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+<<<<<<< HEAD
 		class UWidgetInteractionComponent* WidgetInteraction;
 	
 	//C++ 딜레이 사용 위한 타이머 핸들 
 	UPROPERTY()
 		struct FTimerHandle WaitHandle;
+=======
+		UWidgetInteractionComponent* WidgetInteraction;
+
+	//C++ 딜레이 사용 위한 타이머 핸들 
+	UPROPERTY()
+		FTimerHandle WaitHandle;
+>>>>>>> 37667fc1c8371a3dc5717464c7a857d6d5968402
 
 private:
 	//SnapTurn 실행이 끝났는지? (연속 입력 방지)
