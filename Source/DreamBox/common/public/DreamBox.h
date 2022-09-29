@@ -3,5 +3,6 @@
 #pragma once
 
 #include "EngineMinimal.h"
+#include "VRCharacter.h"
 #include "DreamBoxGameStateBase.h"
 #include "DreamBoxGameModeBase.h"

@@ -25,9 +25,9 @@ void AJudgeGameMode::BeginPlay()
 	AddArray(ActualJudgement);
 }
 
-void AJudgeGameMode::BeginPlayAfterLoading()
+void AJudgeGameMode::PostLoadingEvent()
 {
-	Super::BeginPlayAfterLoading();
+	Super::PostLoadingEvent();
 	InitializeGame(); 
 }
 

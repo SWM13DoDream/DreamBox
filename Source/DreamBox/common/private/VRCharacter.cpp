@@ -2,6 +2,7 @@
 
 
 #include "../public/VRCharacter.h"
+#include "../public/PersistentLevelBase.h"
 #include "TimerManager.h"
 #include "LevelSequenceActor.h"
 #include "LevelSequencePlayer.h"
@@ -51,9 +52,12 @@ void AVRCharacter::BeginPlay()
 {
 	Super::BeginPlay();	
 
+	InitLevelScriptRef();
+	InitGameModeRef();
+	InitLevelSequence();
+
 	PlayerControllerID = UGameplayStatics::GetPlayerControllerID(Cast<APlayerController>(Controller));
 	SetCanJump(true);
-	InitLevelSequence();
 }
 
 
@@ -112,7 +116,6 @@ void AVRCharacter::InitLevelSequence()
 	}
 }
 
-
 void AVRCharacter::MoveForward(float Value)
 {
 	//현재 Controller의 X 방향으로 Value 만큼 이동
@@ -170,3 +173,17 @@ void AVRCharacter::InitGameModeRef()
 		GamemodeRef = GetWorld()->GetAuthGameMode<ADreamBoxGameModeBase>();
 	}
 }
+
+void AVRCharacter::InitLevelScriptRef()
+{
+	if (GetWorld())
+	{
+		LevelScriptRef = Cast<APersistentLevelBase>(GetWorld()->GetLevelScriptActor());
+	}
+}
+
+void AVRCharacter::PreLoadingEnd()
+{
+	LevelScriptRef->UnloadTransitionLevel();
+}
+

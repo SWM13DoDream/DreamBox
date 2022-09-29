@@ -31,12 +31,22 @@ void ALobbyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 void ALobbyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	InitLevelScriptRef();
-	InitLevelSequence();
 	
-	if (IsValid(LevelScriptRef))
+	if (IsValid(GetLevelScriptRef()))
 	{
-		LevelScriptRef->LoadingDoneEvent.AddDynamic(this, &ALobbyCharacter::PlayLobbyInitSequenceAnim);
+		GetLevelScriptRef()->PreLoadingEnd.AddDynamic(this, &ALobbyCharacter::PreLoadingEnd);
+	}
+}
+
+void ALobbyCharacter::PreLoadingEnd()
+{
+	PlayLevelInitSequence();
+
+	if (IsValid(GetLevelScriptRef()))
+	{
+		GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
+			GetLevelScriptRef()->PostLoadingEvent.Broadcast();
+		}), 2.25f, false);
 	}
 }
 
@@ -59,18 +69,3 @@ void ALobbyCharacter::PlayLobbyAppearAnim()
 	}
 }
 
-void ALobbyCharacter::InitLevelScriptRef()
-{
-	if (GetWorld())
-	{
-		LevelScriptRef = Cast<APersistentLevelBase>(GetWorld()->GetLevelScriptActor());
-	}
-}
-
-void ALobbyCharacter::CallLevelLoadEndEvent()
-{
-	if (IsValid(LevelScriptRef))
-	{
-		LevelScriptRef->UnloadTransitionLevel();
-	}
-}

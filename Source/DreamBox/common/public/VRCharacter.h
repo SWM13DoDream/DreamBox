@@ -10,7 +10,7 @@
 /*
  - Name        : AVRCharacter
  - Descirption : 메인 Playable VR 캐릭터 Base
- - Date        : 2022/09/27 LJH
+ - Date        : 2022/09/29 LJH
 */
 
 UCLASS()
@@ -27,6 +27,9 @@ public:
 
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
+///============================================
+/// Replication, RPC 관련 함수
+///============================================
 public:
 	UFUNCTION(Client, Reliable)
 		virtual void OnRPCStartContent(int32 PlayerID, FContentStartInfo StartInfo);
@@ -37,6 +40,9 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 		virtual void OnRPCInitPlayerTransform(FTransform InitialTransform);
 
+///============================================
+/// 기본적인 Movement 관련 함수
+///============================================
 public:
 	//기본 이동 함수 : 앞뒤 이동
 	UFUNCTION()
@@ -54,26 +60,42 @@ public:
 	UFUNCTION()
 		void ResetSnapTurnControllerInput();
 
-	//크로스 페이드를 실제로 출력하는 로직, 각 자식 게임모드 클래스에서 바인딩 해야함
-	//PlayerID 미사용 파라미터 제거 예정
-	UFUNCTION(BlueprintCallable)
-		void PlayCrossFadeAnim();
-
-	
-	UFUNCTION()
-		virtual void InitLevelSequence();
-
 	//Jump를 활성화/비활성화 함
 	UFUNCTION()
 		void SetCanJump(bool NewState);
 
+///============================================
+/// Level Sequence / Level Streaming 관련 함수
+///============================================
+public:
+	virtual void PreLoadingEnd();
+	
+	//크로스 페이드를 실제로 출력하는 로직, 각 자식 게임모드 클래스에서 바인딩 해야함
+	//PlayerID 미사용 파라미터 제거 예정
+	UFUNCTION(BlueprintCallable)
+		void PlayCrossFadeAnim();
+	
+	UFUNCTION()
+		virtual void InitLevelSequence();
+
+	//게임모드 레퍼런스 초기화
 	UFUNCTION()
 		void InitGameModeRef();
+
+	//레벨 스크립트 레퍼런스를 초기화
+	UFUNCTION()
+		void InitLevelScriptRef();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+		class APersistentLevelBase* GetLevelScriptRef() { return LevelScriptRef; }
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+///============================================
+/// 컴포넌트  멤버
+///============================================
 public:	
 	//VR Immersive 에셋 사용을 위한 컴포넌트
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -99,8 +121,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		class UWidgetInteractionComponent* WidgetInteraction;
 
-
-//=============== 컴포넌트가 아닌 멤버 ======================
+///============================================
+/// 비컴포넌트 멤버
+///============================================
 public:
 	//크로스 페이드 효과 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Sequence")
@@ -114,6 +137,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
 		bool bCanJump = true; 
 
+///============================================
+/// private 멤버
+///============================================
 private:
 	//SnapTurn 실행이 끝났는지? (연속 입력 방지)
 	UPROPERTY()
@@ -127,6 +153,9 @@ private:
 		class ULevelSequencePlayer* CrossFadePlayer;
 
 	UPROPERTY()
-		class ADreamBoxGameModeBase* GamemodeRef; 
+		class ADreamBoxGameModeBase* GamemodeRef;
+
+	UPROPERTY()
+		class APersistentLevelBase* LevelScriptRef;
 
 };

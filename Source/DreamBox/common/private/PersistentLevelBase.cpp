@@ -32,10 +32,7 @@ void APersistentLevelBase::SetupLevelOptions()
 	}
 }
 
-void APersistentLevelBase::BroadcastLoadingDoneEvent()
+void APersistentLevelBase::BroadcastPostLoadingEvent()
 {
-	if (IsValid(GamemodeRef))
-	{
-		GamemodeRef->AfterLoadingEvent.Broadcast();
-	}
+	PostLoadingEvent.Broadcast();
 }

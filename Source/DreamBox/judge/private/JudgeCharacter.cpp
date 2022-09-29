@@ -2,6 +2,7 @@
 
 
 #include "../public/JudgeCharacter.h"
+#include "../../common/public/PersistentLevelBase.h"
 #include "Components/WidgetInteractionComponent.h"
 #include "Components/WidgetComponent.h"
 
@@ -10,20 +11,27 @@ AJudgeCharacter::AJudgeCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
-
-	// 캐릭터가 시작될 때 Player0으로 시작되게 만듬
-	AutoPossessPlayer = EAutoReceiveInput::Player0;
 	
-	// 캐릭터의 이동 속도를 250으로 변경
-	GetCharacterMovement()->MaxWalkSpeed = 250.0f;
+	ScriptWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("SCRIPT"));
+	ScriptWidget->SetupAttachment(FollowingCamera);
+	ScriptWidget->SetRelativeLocation({ 60.0f, 0.0f, -25.0f });
+	ScriptWidget->SetRelativeScale3D({ 1.0f, 0.07f, 0.07f });
+	ScriptWidget->SetDrawSize({ 800.0f, 150.0f });
+	ScriptWidget->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 // Called when the game starts or when spawned
 void AJudgeCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (IsValid(GetLevelScriptRef()))
+	{
+		GetLevelScriptRef()->PreLoadingEnd.AddDynamic(this, &AJudgeCharacter::PreLoadingEnd);
+		GetLevelScriptRef()->PostLoadingEvent.AddDynamic(this, &AJudgeCharacter::PostLoadingEvent);
+	}
 }
-/*aaa*/
+
 // Called every frame
 void AJudgeCharacter::Tick(float DeltaTime)
 {
@@ -35,8 +43,22 @@ void AJudgeCharacter::Tick(float DeltaTime)
 void AJudgeCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+}
 
-	// 마우스의 이동을 바인딩 [ 마우스 ]
-	PlayerInputComponent->BindAxis(TEXT("Turn"), this, &AJudgeCharacter::AddControllerYawInput);
-	PlayerInputComponent->BindAxis(TEXT("LookUp"), this, &AJudgeCharacter::AddControllerPitchInput);
+void AJudgeCharacter::PreLoadingEnd()
+{
+	PlayCrossFadeAnim();
+
+	if (IsValid(GetLevelScriptRef()))
+	{
+		GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
+			GetLevelScriptRef()->PostLoadingEvent.Broadcast();
+		}), 0.75f, false);
+	}
+}
+
+void AJudgeCharacter::PostLoadingEvent()
+{
+	ScriptWidget->SetVisibility(true);
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 }

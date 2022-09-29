@@ -11,6 +11,12 @@
 #include "../../common/public/DreamBox.h"
 #include "NpcCharacter.generated.h"
 
+/*
+ - Name        : ANPCCharacter
+ - Descirption : NPC 캐릭터
+ - Date        : 2022/09/29 LJH
+ */
+
 UCLASS()
 class DREAMBOX_API ANpcCharacter : public ACharacter
 {
@@ -32,7 +38,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UFUNCTION()
-		void BeginPlayAfterLoading();
+		void PostLoadingEvent();
 
 	// DataTable를 통해 Script와 Delay를 각각 배열에 집어넣는 함수
 	UFUNCTION()
@@ -74,4 +80,6 @@ private:
 	UPROPERTY()
 		class AJudgeGameMode* GamemodeRef;
 
+	UPROPERTY()
+		class APersistentLevelBase* LevelScriptRef;
 };

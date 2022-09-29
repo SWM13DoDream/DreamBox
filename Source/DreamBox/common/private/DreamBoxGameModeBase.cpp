@@ -3,13 +3,21 @@
 
 #include "../public/DreamBoxGameModeBase.h"
 #include "../public/VRCharacter.h"
+#include "../public/PersistentLevelBase.h"
 #include "Kismet/GameplayStatics.h"
 
 void ADreamBoxGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	AfterLoadingEvent.AddDynamic(this, &ADreamBoxGameModeBase::BeginPlayAfterLoading);
+	if (GetWorld())
+	{
+		LevelScriptRef = Cast<APersistentLevelBase>(GetWorld()->GetLevelScriptActor());
+		if (IsValid(LevelScriptRef))
+		{
+			LevelScriptRef->PostLoadingEvent.AddDynamic(this, &ADreamBoxGameModeBase::PostLoadingEvent);
+		}
+	}
 }
 
 void ADreamBoxGameModeBase::PostLogin(APlayerController* NewPlayerController)
@@ -20,7 +28,7 @@ void ADreamBoxGameModeBase::PostLogin(APlayerController* NewPlayerController)
 	PlayerCharacterList.Add(Cast<AVRCharacter>(NewPlayerController->GetCharacter()));
 }
 
-void ADreamBoxGameModeBase::BeginPlayAfterLoading()
+void ADreamBoxGameModeBase::PostLoadingEvent()
 {
 	for (int32 playerIdx = 0; playerIdx < PlayerCharacterList.Num(); playerIdx++)
 	{

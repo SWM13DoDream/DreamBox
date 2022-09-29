@@ -8,6 +8,7 @@
 #include "../public/FirefighterGamemode.h"
 #include "../public/MissionManager.h"
 #include "../public/ScriptManager.h"
+#include "../../common/public/PersistentLevelBase.h"
 #include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
@@ -31,13 +32,13 @@ AFirefighterCharacter::AFirefighterCharacter()
 	RescueSocket->TargetArmLength = 50.0f;
 
 	ScriptManager = CreateDefaultSubobject<UChildActorComponent>(TEXT("SCRIPT_MANAGER"));
-	ScriptManager->SetupAttachment(Super::FollowingCamera);
+	ScriptManager->SetupAttachment(FollowingCamera);
 	ScriptManager->SetRelativeLocation(FVector(0.0f, 0.0f, -10.0f));
 	ScriptManager->SetRelativeRotation(FQuat(0.0f, 0.0f, 180.0f, 0.0f));
 	ScriptManager->SetRelativeScale3D(FVector(0.4f));
 
 	MissionManager = CreateDefaultSubobject<UChildActorComponent>(TEXT("MISSION_MANAGER"));
-	MissionManager->SetupAttachment(Super::VROrigin);
+	MissionManager->SetupAttachment(VROrigin);
 	MissionManager->SetRelativeLocation(FVector(90.0f, -30.0f, 72.5f));
 	MissionManager->SetRelativeRotation(FQuat(1980.0f, 90.0f, 2340.0f, 0.0f));
 }
@@ -48,12 +49,25 @@ void AFirefighterCharacter::BeginPlay()
 	Super::BeginPlay();
 	SetCanJump(false);
 	
+	
 	MissionManagerRef = Cast<AMissionManager>(MissionManager->GetChildActor());
 	ScriptManagerRef = Cast<AScriptManager>(ScriptManager->GetChildActor());
-
-	FirefighterGamemodeRef->UpdateMissionList.AddDynamic(this, &AFirefighterCharacter::UpdateMissionList);
-	FirefighterGamemodeRef->ShowScriptWithID.AddDynamic(this, &AFirefighterCharacter::ShowScriptWithID);
-	FirefighterGamemodeRef->ShowScriptWithString.AddDynamic(this, &AFirefighterCharacter::ShowScriptWithString);
+	
+	if (GetWorld())
+	{
+		FirefighterGamemodeRef = GetWorld()->GetAuthGameMode<AFirefighterGamemode>();
+		if (IsValid(GetLevelScriptRef()))
+		{
+			GetLevelScriptRef()->PreLoadingEnd.AddDynamic(this, &AFirefighterCharacter::PreLoadingEnd);
+		}
+		if (IsValid(FirefighterGamemodeRef))
+		{
+			FirefighterGamemodeRef->UpdateMissionList.AddDynamic(this, &AFirefighterCharacter::UpdateMissionList);
+			FirefighterGamemodeRef->ShowScriptWithID.AddDynamic(this, &AFirefighterCharacter::ShowScriptWithID);
+			FirefighterGamemodeRef->ShowScriptWithString.AddDynamic(this, &AFirefighterCharacter::ShowScriptWithString);
+		}
+	}
+	
 }
 
 // Called every frame
@@ -90,7 +104,6 @@ void AFirefighterCharacter::TryInteraction()
 	
 	//물건을 집는 상호작용
 	case EFirefighterInteractionType::E_PICK :
-		
 		break;
 
 	//화재 원인 액터를 조사하는 상호작용
@@ -98,9 +111,8 @@ void AFirefighterCharacter::TryInteraction()
 		PlayCrossFadeAnim();
 		GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
 			InvestigateCauseOfFire(); //FadeIn 중간에 캐릭터를 업음
-			}), 0.75f, false);
+		}), 0.75f, false);
 		break;
-
 	//그 외
 	default:
 		break;
@@ -180,4 +192,16 @@ void AFirefighterCharacter::ShowScriptWithString(int32 PlayerID, FString Script)
 {
 	if (!IsValid(ScriptManagerRef)) return;
 	ScriptManagerRef->ShowScriptWithString(Script);
+}
+
+void AFirefighterCharacter::PreLoadingEnd()
+{
+	PlayCrossFadeAnim();
+
+	if (IsValid(GetLevelScriptRef()))
+	{
+		GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
+			GetLevelScriptRef()->PostLoadingEvent.Broadcast();
+		}), 2.25f, false);
+	}
 }

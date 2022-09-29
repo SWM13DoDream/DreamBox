@@ -40,7 +40,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	// 로딩 직후의 BeginPlay
-	virtual void BeginPlayAfterLoading() override;
+	virtual void PostLoadingEvent() override;
 
 public:
 	//완료한 미션을 셋에 추가

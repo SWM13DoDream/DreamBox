@@ -65,7 +65,7 @@ public:
 	virtual void BeginPlay() override;
 
 	// 로딩 직후의 BeginPlay
-	virtual void BeginPlayAfterLoading() override;	
+	virtual void PostLoadingEvent() override;	
 
 	// DataTable을 기반으로 구조체에 데이터 Add
 	UFUNCTION()
