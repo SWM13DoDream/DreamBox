@@ -66,6 +66,7 @@ void AAstronautCharacter::BeginPlay()
 	Super::BeginPlay();
 	Movement = this->GetCharacterMovement();
 	bMovable = false;
+	bIsWaitingPlayer = false;
 }
 
 // Called to bind functionality to input
@@ -131,10 +132,44 @@ void AAstronautCharacter::RegisterArbiter(class AGamemodeArbiter* Invoker)
 	Arbiter = Invoker;
 }
 
+void AAstronautCharacter::CloseWaitingPanel()
+{
+	if (bIsWaitingPlayer)
+	{
+		AMissionSelectionPanel* SelectionPanel =
+			Cast<AMissionSelectionPanel>(Arbiter->MissionSelectionControllable->GetActor_Implementation());
+
+		SelectionPanel->StopWaitingPlayer();
+	}
+}
+
 void AAstronautCharacter::OpenSelectMissionPanel()
 {
-	// 인자값이 SetHiddenInGame을 결정하므로 false로 넘겨 선택 패널 활성화
-	Arbiter->MissionSelectionControllable->SetStatus_Implementation(false);
+	ENetMode NetworkingMode = GetWorld()->GetNetMode();
+
+	if (NetworkingMode == ENetMode::NM_ListenServer)
+	{
+		AAstronautGamemode* Gamemode =
+			Cast<AAstronautGamemode>(UGameplayStatics::GetGameMode(GetWorld()));
+
+		if (Gamemode->RemotePlayer == nullptr)
+		{
+			AMissionSelectionPanel* SelectionPanel =
+				Cast<AMissionSelectionPanel>(Arbiter->MissionSelectionControllable->GetActor_Implementation());
+
+			SelectionPanel->WaitingForPlayer(Gamemode->GetIPAddr());
+			bIsWaitingPlayer = true;
+		}
+		else
+		{
+			// 인자값이 SetHiddenInGame을 결정하므로 false로 넘겨 선택 패널 활성화
+			Arbiter->MissionSelectionControllable->SetStatus_Implementation(false);
+		}
+	}
+	else
+	{
+		Arbiter->MissionSelectionControllable->SetStatus_Implementation(false);
+	}
 }
 
 void AAstronautCharacter::SelectMission(int32 Mission)
@@ -154,8 +189,6 @@ void AAstronautCharacter::SelectMission(int32 Mission)
 
 void AAstronautCharacter::InitializeMission()
 {
-	bMovable = true;		// test
-
 	if (SelectedMission == EAstronautMissionType::LEM)
 	{
 		// 월면 기지에 위치한 탐사선 내부로 캐릭터 이동
@@ -228,11 +261,26 @@ void AAstronautCharacter::InitializeMission()
 
 		// 캐릭터 물리 체크 타이머 등록
 		GetWorldTimerManager().SetTimer(ForceCheckHandler, this, &AAstronautCharacter::ForceChecker, 1.0f / 120, true, 1.0f / 120);
+
+		// 1초에 한 번씩 호출되는 타이머를 세팅. (초기값 5분)
+		Time = 300;
+		GetWorldTimerManager().SetTimer(MissionTickHandler, this, &AAstronautCharacter::MissionTick, 1.0f, true, 1.0f);
 	}
+
+	// Multiplay 여부 체크
+	ENetMode NetworkingMode = GetWorld()->GetNetMode();
+	bool bInMultiplay = false;
+	if (NetworkingMode == NM_ListenServer)
+	{
+		AAstronautGamemode* Gamemode =
+			Cast<AAstronautGamemode>(UGameplayStatics::GetGameMode(GetWorld()));
+		if (Gamemode->RemotePlayer != nullptr) bInMultiplay = true;
+	}
+	else if (NetworkingMode == NM_Client) bInMultiplay = true;
 
 	// Dialog Controller 활성화
 	ADialogController* Dialog = Cast<ADialogController>(DialogController->GetChildActor());
-	Dialog->SetActivated(true);
+	Dialog->SetActivated(true, SelectedMission, bInMultiplay);
 }
 
 void AAstronautCharacter::DoMainMission()
@@ -303,6 +351,9 @@ void AAstronautCharacter::StartEVA()
 
 	Movement->StopMovementImmediately();
 	Movement->ClearAccumulatedForces();
+
+	bMovable = false;
+	OpenInfoWidget(FName("Hook"));
 }
 
 void AAstronautCharacter::ReturnIVA()
@@ -330,7 +381,7 @@ void AAstronautCharacter::ReturnIVA()
 void AAstronautCharacter::OnGrip(AActor* HandActor, bool bIsLeft)
 {
 	// Sphere Tracing을 이용해 잡을 수 있는 스태틱 메시가 있는지 확인
-	if (SelectedMission == EAstronautMissionType::CSM)
+	if (bMovable && SelectedMission == EAstronautMissionType::CSM)
 	{
 		FVector TraceStartLocation = HandActor->GetActorLocation();
 		FVector TraceEndLocation =
@@ -419,7 +470,7 @@ void AAstronautCharacter::OnGrip(AActor* HandActor, bool bIsLeft)
 
 void AAstronautCharacter::ReleaseGrip(AActor* HandActor, bool bIsLeft)
 {
-	if (SelectedMission == EAstronautMissionType::CSM)
+	if (bMovable && SelectedMission == EAstronautMissionType::CSM)
 	{
 		// 선내 이동의 경우, Grip Point에서 밀어낸 위치에 비례해 반작용 힘을 받음
 		if (MoveType == EAstronautCSMMoveType::IVA)
@@ -457,6 +508,7 @@ void AAstronautCharacter::ReleaseGrip(AActor* HandActor, bool bIsLeft)
 				{
 					Movement->AddForce(FVector(0.0f, -1.0f, 0.3f) * EVAExternalForceMagnitude);
 					PullingForceDecrementCounter = 0;
+					OpenInfoWidget(FName("Rewind"));
 				}
 			}
 			else if (!bIsLeft && bIsGrabbingR)
@@ -466,6 +518,7 @@ void AAstronautCharacter::ReleaseGrip(AActor* HandActor, bool bIsLeft)
 				{
 					Movement->AddForce(FVector(0.0f, -1.0f, 0.3f) * EVAExternalForceMagnitude);
 					PullingForceDecrementCounter = 0;
+					OpenInfoWidget(FName("Rewind"));
 				}
 			}
 		}
@@ -642,7 +695,7 @@ void AAstronautCharacter::OnRPCCheckReadyState_Implementation(bool bStartMission
 	else
 	{
 		AMissionSelectionPanel* SelectionPanel = 
-			Cast<AMissionSelectionPanel>(Arbiter->MissionSelectionControllable->GetActor());
+			Cast<AMissionSelectionPanel>(Arbiter->MissionSelectionControllable->GetActor_Implementation());
 
 		SelectionPanel->LockMission(MissionToLock);
 	}

@@ -60,7 +60,8 @@ public:
 	class AAstronautCharacter* LocalPlayer;
 
 	// 임무 선택이 완료된 경우 true로 설정
-	bool bInMission;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		bool bInMission;
 
 /* 멀티플레이 관련 필드 */
 public:

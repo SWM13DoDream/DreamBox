@@ -48,6 +48,11 @@ void AAstronautGamemode::PostLogin(APlayerController* NewPlayer)
 	{
 		RemotePlayer = Cast<AAstronautCharacter>(NewPlayer->GetPawn());
 		RemotePlayer->OnRPCStartContent();
+
+		if (!bInMission)
+		{
+			LocalPlayer->CloseWaitingPanel();
+		}
 	}
 }
 
