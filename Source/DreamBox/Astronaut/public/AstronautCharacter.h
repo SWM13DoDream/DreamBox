@@ -76,6 +76,10 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "PreMission")
 		void PlayInitialSequence();
 
+	// 플레이어 대기 중일 때 다른 플레이어 접속 시 대기 해제
+	UFUNCTION(BlueprintCallable)
+		void CloseWaitingPanel();
+
 	// 미션 선택 위젯 패널 열기 (Arbiter 사용)
 	UFUNCTION(BlueprintCallable)
 		void OpenSelectMissionPanel();
@@ -312,4 +316,7 @@ public:
 	// 위 MakeRPCSelectMission으로부터 호출. 게임 모드에 접근할 수 없음에 주의
 	UFUNCTION(Client, Reliable)
 		void OnRPCCheckReadyState(bool bStartMission, int32 MissionToLock);
+
+private:
+	bool bIsWaitingPlayer;
 };

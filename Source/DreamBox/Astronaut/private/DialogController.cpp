@@ -3,6 +3,7 @@
 #include "../public/DialogController.h"
 #include "../public/DialogWidget.h"
 #include "../public/AstronautCharacter.h"
+#include "../public/AstronautGamemode.h"
 #include "Components/WidgetComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -16,6 +17,9 @@ ADialogController::ADialogController()
 	WidgetComponent->SetupAttachment(RootComponent);
 
 	DialogState = 0;
+	bMultiplayDialogFlag = false;
+	bDialogLock = false;
+	bDoneMessageRegistered = false;
 }
 
 // Called when the game starts or when spawned
@@ -34,15 +38,26 @@ void ADialogController::BeginPlay()
 	}
 }
 
-void ADialogController::SetActivated(bool bValue)
+void ADialogController::SetActivated(bool bValue, int32 SelectedMission, bool bMultiplay)
 {
+	Mission = SelectedMission;
+	bInMultiplay = bMultiplay;
+
 	if (bValue)
 	{
 		// 타이머에 UpdateState 연동
 		GetWorldTimerManager().SetTimer(UpdateStateHandler, this, &ADialogController::UpdateState, 1.0f, true, 1.0f);
 
-		// 미션 시작 시점에 다이얼로그 출력
-		LEMDialogIntro();
+		if (Mission == EAstronautMissionType::LEM)
+		{
+			// 미션 시작 시점에 다이얼로그 출력
+			LEMDialogIntro();
+		}
+		else if (Mission == EAstronautMissionType::CSM)
+		{
+			// 미션 시작 시점에 다이얼로그 출력
+			CSMDialogIntro();
+		}
 	}
 	else
 	{
@@ -54,19 +69,53 @@ void ADialogController::SetActivated(bool bValue)
 void ADialogController::UpdateState()
 {
 	int32 Time = LocalPlayer->Time;
-	if (DialogState == 0 && Time < 150)
+	if (Mission == EAstronautMissionType::LEM)
 	{
-		DialogState = 1;
-		LEMDialogMid();
+		if (DialogState == 0 && Time < 150)
+		{
+			DialogState = 1;
+			LEMDialogMid();
+		}
+		else if (DialogState == 1 && Time < 30)
+		{
+			DialogState = 2;
+			LEMDialogApprox();
+		}
+		else if (DialogState == 2 && Time > 150)
+		{
+			DialogState = 0;
+		}
+
+		if (!bMultiplayDialogFlag && bInMultiplay && Time < 240)
+		{
+			bMultiplayDialogFlag = true;
+			LEMMultiplayIntro();
+		}
 	}
-	else if (DialogState == 1 && Time < 30)
+	else if (Mission == EAstronautMissionType::CSM)
 	{
-		DialogState = 2;
-		LEMDialogApprox();
+		if (DialogState == 0 && Time < 100) {
+			DialogState = 1;
+			CSMDialogMid();
+		}
+		else if (DialogState == 1 && Time > 100)
+		{
+			DialogState = 0;
+		}
 	}
-	else if (DialogState == 2 && Time > 150)
+}
+
+void ADialogController::AnnounceMissionDoneFromOther()
+{
+	if (Mission == EAstronautMissionType::LEM)
 	{
-		DialogState = 0;
+		if (bDialogLock) bDoneMessageRegistered = true;
+		else LEMDoneMessageFromCSM();
+	}
+	else if (Mission == EAstronautMissionType::CSM)
+	{
+		if (bDialogLock) bDoneMessageRegistered = true;
+		else CSMDoneMessageFromLEM();
 	}
 }
 
