@@ -2,6 +2,7 @@
 
 
 #include "../public/VRCharacter.h"
+<<<<<<< HEAD
 #include "TimerManager.h"
 #include "Components/WidgetInteractionComponent.h"
 
@@ -11,13 +12,21 @@
 				 직업별 캐릭터를 본 클래스를 상속
  - Date        : 2022/09/02 LJH
 */
+=======
+>>>>>>> 37667fc1c8371a3dc5717464c7a857d6d5968402
 
 // Sets default values
 AVRCharacter::AVRCharacter()
 {
+<<<<<<< HEAD
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	this->Tags = { "Player" }; 
+=======
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	PrimaryActorTick.bCanEverTick = true;
+	this->Tags = { "Player" };
+>>>>>>> 37667fc1c8371a3dc5717464c7a857d6d5968402
 
 	VROrigin = CreateDefaultSubobject<USceneComponent>(TEXT("VR_ORIGIN"));
 	VROrigin->SetupAttachment(RootComponent);
@@ -38,8 +47,15 @@ AVRCharacter::AVRCharacter()
 	HeadCollision->SetupAttachment(GenericHMD);
 
 	WidgetInteraction = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("WIDGET_INTERACTION"));
+<<<<<<< HEAD
 	WidgetInteraction->SetupAttachment(FollowingCamera);
 	WidgetInteraction->ComponentTags = { "Widget" };
+=======
+	WidgetInteraction->ComponentTags.Add(FName("Widget"));
+	WidgetInteraction->SetupAttachment(FollowingCamera);
+
+	GetCharacterMovement()->MaxWalkSpeed = 400.0f;
+>>>>>>> 37667fc1c8371a3dc5717464c7a857d6d5968402
 
 	bUseControllerRotationYaw = false; //SnapRotate를 위해 컨트롤 Yaw 로테이션 사용을 끔 (오버라이드 방지)
 }
@@ -48,7 +64,11 @@ AVRCharacter::AVRCharacter()
 void AVRCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+<<<<<<< HEAD
 	
+=======
+
+>>>>>>> 37667fc1c8371a3dc5717464c7a857d6d5968402
 }
 
 // Called every frame
@@ -79,6 +99,10 @@ void AVRCharacter::MoveForward(float Value)
 void AVRCharacter::MoveRight(float Value)
 {
 	//현재 Controller의 Y 방향으로 Value 만큼 이동
+<<<<<<< HEAD
+=======
+	//GEngine->AddOnScreenDebugMessage(1, 2.0f, FColor::Yellow, "MoveRight");
+>>>>>>> 37667fc1c8371a3dc5717464c7a857d6d5968402
 	FVector Direction = FRotationMatrix(FollowingCamera->GetComponentRotation()).GetScaledAxis(EAxis::Y);
 	AddMovementInput(Direction, Value);
 }
@@ -87,6 +111,7 @@ void AVRCharacter::SnapTurn(float Value)
 {
 	//연속적인 Turn을 방지 (1회만 실시 && 확실하지 않은 입력 시) 
 	if (bSnapTurnIsFinished || FMath::Abs(Value) <= 0.5f) return;
+<<<<<<< HEAD
 
 	float Direction = (Value < 0.0f ? -1.0f : 1.0f); //좌 & 우측 구분
 	AddActorWorldRotation({ 0.0f, 45.0f * Direction, 0.0f }, true, nullptr); //로테이션을 45도 돌림
@@ -94,11 +119,22 @@ void AVRCharacter::SnapTurn(float Value)
 	GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
 		ResetSnapTurn();
 	}), 0.15f, false); //각 입력의 0.15초 뒤에 새로운 입력이 가능 (연속 입력 방지)
+=======
+	float Direction = (Value < 0.0f ? -1.0f : 1.0f); //좌 &우측 구분
+	AddActorWorldRotation({ 0.0f, 45.0f * Direction, 0.0f }, true, nullptr);
+	GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
+		ResetSnapTurn();
+		}), 0.25f, false); //각 입력의 0.25초 뒤에 새로운 입력이 가능 (연속 입력 방지)
+>>>>>>> 37667fc1c8371a3dc5717464c7a857d6d5968402
 
 	bSnapTurnIsFinished = true;
 }
 
 void AVRCharacter::ResetSnapTurn()
 {
+<<<<<<< HEAD
 	bSnapTurnIsFinished = false; //다시 SnapTurn을 할 수 있도록 설정
+=======
+	bSnapTurnIsFinished = false;
+>>>>>>> 37667fc1c8371a3dc5717464c7a857d6d5968402
 }

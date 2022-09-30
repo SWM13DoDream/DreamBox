@@ -5,7 +5,11 @@
 			"app_key": "application.generated.ue.dreambox-18319896.ue4editor.exe",
 			"launch_type": "url",
 			"url": "steam://launch/",
+<<<<<<< HEAD
 			"action_manifest_path": "C:/Projects/dreambox-firefighter-develop/Config/SteamVRBindings/steamvr_manifest.json",
+=======
+			"action_manifest_path": "C:/Users/user/Desktop/DreamBox/Config/SteamVRBindings/steamvr_manifest.json",
+>>>>>>> 37667fc1c8371a3dc5717464c7a857d6d5968402
 			"strings":
 			{
 				"en_us":
