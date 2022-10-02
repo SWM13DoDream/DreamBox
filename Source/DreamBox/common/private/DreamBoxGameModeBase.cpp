@@ -26,6 +26,7 @@ void ADreamBoxGameModeBase::PostLogin(APlayerController* NewPlayerController)
 
 	PlayerControllerList.Add(NewPlayerController);
 	PlayerCharacterList.Add(Cast<AVRCharacter>(NewPlayerController->GetCharacter()));
+	NewPlayerController->DisableInput(NewPlayerController);
 }
 
 void ADreamBoxGameModeBase::PostLoadingEvent()
@@ -37,6 +38,8 @@ void ADreamBoxGameModeBase::PostLoadingEvent()
 			&& ContentStartInfoList.IsValidIndex(playerIdx))
 		{
 			playerRef->OnRPCStartContent(playerIdx, ContentStartInfoList[playerIdx]);
+			playerRef->EnableInput(PlayerControllerList[playerIdx]);
+			playerRef->GetCharacterMovement()->Activate(true);
 		}
 	}
 }

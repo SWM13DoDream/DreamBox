@@ -16,9 +16,6 @@ AFirefighterCharacter::AFirefighterCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	FireHose = CreateDefaultSubobject<UChildActorComponent>(TEXT("FIRE_HOSE"));
-	FireHose->SetupAttachment(FollowingCamera);
-
 	FlashLight = CreateDefaultSubobject<USpotLightComponent>(TEXT("FLASHLIGHT"));
 	FlashLight->SetupAttachment(FollowingCamera);
 	FlashLight->Intensity = 10000.0f;
@@ -48,7 +45,6 @@ void AFirefighterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	SetCanJump(false);
-	
 	
 	MissionManagerRef = Cast<AMissionManager>(MissionManager->GetChildActor());
 	ScriptManagerRef = Cast<AScriptManager>(ScriptManager->GetChildActor());
@@ -82,9 +78,10 @@ void AFirefighterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	
-	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AFirefighterCharacter::Fire);
-	PlayerInputComponent->BindAction("Fire", IE_Released, this, &AFirefighterCharacter::StopFire);
-
+	PlayerInputComponent->BindAction("Fire_L", IE_Pressed, this, &AFirefighterCharacter::TryFireL);
+	PlayerInputComponent->BindAction("Fire_R", IE_Pressed, this, &AFirefighterCharacter::TryFireR);
+	PlayerInputComponent->BindAction("Fire_L", IE_Released, this, &AFirefighterCharacter::StopFire);
+	PlayerInputComponent->BindAction("Fire_R", IE_Released, this, &AFirefighterCharacter::StopFire);
 	PlayerInputComponent->BindAction("Interaction", IE_Pressed, this, &AFirefighterCharacter::TryInteraction);
 }
 
@@ -99,6 +96,7 @@ void AFirefighterCharacter::TryInteraction()
 		PlayCrossFadeAnim(); //PlayerID는 0
 		GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&](){
 			CarryInjuredCharacter(); //FadeIn 중간에 캐릭터를 업음
+			GetCharacterMovement()->Activate();
 		}), 0.75f, false); 
 		break;
 	
@@ -111,6 +109,7 @@ void AFirefighterCharacter::TryInteraction()
 		PlayCrossFadeAnim();
 		GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
 			InvestigateCauseOfFire(); //FadeIn 중간에 캐릭터를 업음
+			GetCharacterMovement()->Activate();
 		}), 0.75f, false);
 		break;
 	//그 외
@@ -119,16 +118,32 @@ void AFirefighterCharacter::TryInteraction()
 	}
 }
 
+void AFirefighterCharacter::TryFireL()
+{
+	if (HoseGrabState == EFirefighterHoseGrabState::E_LEFT)
+	{
+		Fire();
+	}
+}
+
+void AFirefighterCharacter::TryFireR()
+{
+	if (HoseGrabState == EFirefighterHoseGrabState::E_RIGHT)
+	{
+		Fire();
+	}
+}
+
 void AFirefighterCharacter::Fire()
 {
-	if (!IsValid(FireHose->GetChildActor())) return; //FireHose 유효성 검사 
-	Cast<AFireHose>(FireHose->GetChildActor())->ActivateEmitter(); //소유한 호스의 나이아가라 이미터를 활성화
+	if (!IsValid(FireHoseRef)) return; //FireHose 유효성 검사
+	FireHoseRef->ActivateEmitter(); //소유한 호스의 나이아가라 이미터를 활성화
 }
 
 void AFirefighterCharacter::StopFire()
 {
-	if (!IsValid(FireHose->GetChildActor())) return; //FireHose 유효성 검사 
-	Cast<AFireHose>(FireHose->GetChildActor())->DeactivateEmitter();  //소유한 호스의 나이아가라 이미터를 비활성화
+	if (!IsValid(FireHoseRef)) return; //FireHose 유효성 검사
+	FireHoseRef->DeactivateEmitter(); //소유한 호스의 나이아가라 이미터를 비활성화
 }
 
 void AFirefighterCharacter::InvestigateCauseOfFire()
@@ -169,9 +184,22 @@ void AFirefighterCharacter::ResetInteractionState()
 	SetIsReadyToInteraction(false); //상호작용할 준비가 되어있지 않음을 체크
 }
 
+void AFirefighterCharacter::SetHoseGrabState(EFirefighterHoseGrabState NewState)
+{
+	HoseGrabState = NewState;
+}
+
+void AFirefighterCharacter::SetFireHoseRef(AFireHose* NewFireHose)
+{
+	if (IsValid(NewFireHose))
+	{
+		FireHoseRef = NewFireHose;
+	}
+}
+
 void AFirefighterCharacter::SetCharacterVisibility(bool NewState) const
 {
-	FireHose->SetVisibility(NewState);
+	//FireHose->SetVisibility(NewState);
 	MissionManager->SetVisibility(NewState);
 }
 
@@ -202,6 +230,6 @@ void AFirefighterCharacter::PreLoadingEnd()
 	{
 		GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
 			GetLevelScriptRef()->PostLoadingEvent.Broadcast();
-		}), 2.25f, false);
+		}), 0.75f, false);
 	}
 }

@@ -38,6 +38,14 @@ public:
 	UFUNCTION()
 		void TryInteraction();
 
+	//Grab State L 상태를 체크하고 물을 발사 시도
+	UFUNCTION()
+		void TryFireL();
+
+	//Grab State R 상태를 체크하고 물을 발사 시도
+	UFUNCTION()
+		void TryFireR();
+
 	//상호작용 : 물을 발사
 	UFUNCTION()
 		void Fire();
@@ -86,6 +94,17 @@ public:
 	UFUNCTION()
 		void SetIsCarrying(bool NewState) { bIsCarrying = NewState; }
 
+	//호스를 잡고 있는 상태(왼손, 오른손, None)를 지정
+	UFUNCTION(BlueprintCallable)
+		void SetHoseGrabState(EFirefighterHoseGrabState NewState);
+
+	//호스를 잡고 있는지의 상태를 반환
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+		EFirefighterHoseGrabState GetCurrentState() { return HoseGrabState; }
+
+	UFUNCTION(BlueprintCallable)
+		void SetFireHoseRef(AFireHose* NewFireHose);
+
 	//Interaction이 가능한지 여부 반환
 	UFUNCTION(BlueprintCallable)
 		bool GetIsReadyToInteraction() const { return bIsReadyToInteraction; }
@@ -119,10 +138,6 @@ public:
 		virtual void PreLoadingEnd() override;
 
 public:
-	//캐릭터가 소유한 소방 호스 관창
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		UChildActorComponent* FireHose; 
-
 	//구조되고있는 캐릭터가 부착될 컴포넌트
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		USpringArmComponent* RescueSocket;
@@ -157,9 +172,16 @@ private:
 	UPROPERTY()
 		class AScriptManager* ScriptManagerRef;
 
+	//캐릭터가 소유한 소방 호스 관창
+	UPROPERTY()
+		AFireHose* FireHoseRef;
+
 	//현재 가능한 InteractionType
 	UPROPERTY()
 		EFirefighterInteractionType InteractionType;
+
+	UPROPERTY()
+		EFirefighterHoseGrabState HoseGrabState; 
 
 	//현재 업고 있는지?
 	UPROPERTY()

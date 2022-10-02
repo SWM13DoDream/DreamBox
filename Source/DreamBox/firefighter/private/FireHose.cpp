@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "../public/FireHose.h"
+#include "../public/FirefighterCharacter.h"
 #include "Components/ChildActorComponent.h"
 #include "Components/AudioComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -18,14 +19,17 @@ AFireHose::AFireHose()
 	DefaultSceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("DEFAULT_SCENE_ROOT"));
 	DefaultSceneRoot->SetupAttachment(RootComponent);
 
+	FireHoseMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("FIRE_HOSE"));
+	FireHoseMesh->SetupAttachment(DefaultSceneRoot);
+
 	WaterEmitter = CreateDefaultSubobject<UNiagaraComponent>(TEXT("FIRE_EMITTER"));
-	WaterEmitter->SetupAttachment(DefaultSceneRoot);
+	WaterEmitter->SetupAttachment(FireHoseMesh);
 	WaterEmitter->SetNiagaraVariableObject("User.BP_Callback", this);
 	WaterEmitter->SetRelativeLocation({ 0.0f, 0.0f, 0.0f});
 	WaterEmitter->Deactivate();
 
 	FirehoseSound = CreateDefaultSubobject<UAudioComponent>(TEXT("FIRE_HOSE_SOUND"));
-	FirehoseSound->SetupAttachment(RootComponent);
+	FirehoseSound->SetupAttachment(FireHoseMesh);
 	FirehoseSound->bAutoActivate = false;
 	FirehoseSound->SetRelativeLocation(FVector(0.0f));
 }

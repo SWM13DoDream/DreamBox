@@ -58,6 +58,7 @@ void AVRCharacter::BeginPlay()
 
 	PlayerControllerID = UGameplayStatics::GetPlayerControllerID(Cast<APlayerController>(Controller));
 	SetCanJump(true);
+	
 }
 
 
@@ -103,8 +104,8 @@ void AVRCharacter::MakeRPCInitPlayerTransform_Implementation(FTransform InitialT
 
 void AVRCharacter::OnRPCInitPlayerTransform_Implementation(FTransform InitialTransform)
 {
-	SetActorLocation(InitialTransform.GetLocation(), false);
-	SetActorRotation(InitialTransform.GetRotation());
+	SetActorLocation(InitialTransform.GetLocation(), false, nullptr, ETeleportType::TeleportPhysics);
+	SetActorRotation(InitialTransform.GetRotation(), ETeleportType::TeleportPhysics);
 }
 
 void AVRCharacter::InitLevelSequence()
