@@ -51,13 +51,37 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Controllables")
 		TArray<TScriptInterface<class IAstronautControllableInterface>> SubStaticMeshControllables;
 
-	// 월드 뷰포트 상의 Destination Guide 액터 오브젝트 레퍼런스 (메인 미션)
+	// 월드 뷰포트 상의 Destination Guide 액터 오브젝트 레퍼런스 (LEM 메인 미션)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Controllables")
 		TScriptInterface<class IAstronautControllableInterface> MainGuideControllable;
 
-	// 월드 뷰포트 상의 Destination Guide 액터 오브젝트 레퍼런스 배열 (서브 미션)
+	// 월드 뷰포트 상의 Destination Guide 액터 오브젝트 레퍼런스 배열 (LEM 서브 미션)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Controllables")
 		TArray<TScriptInterface<class IAstronautControllableInterface>> SubGuideControllables;
+
+	// 월드 뷰포트 상의 Destination Guide 액터 오브젝트 레퍼런스 배열 (CSM 선외 작업 전)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Controllables")
+		TArray<TScriptInterface<class IAstronautControllableInterface>> BeforeEVAGuideControllables;
+
+	// 월드 뷰포트 상의 Destination Guide 액터 오브젝트 레퍼런스 배열 (CSM 선외 작업 후)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Controllables")
+		TArray<TScriptInterface<class IAstronautControllableInterface>> AfterEVAGuideControllables;
+
+	// 월드 뷰포트 상의 EVA Destination Guide 액터 오브젝트 레퍼런스 (미션 수행 전)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Controllables")
+		TArray<TScriptInterface<class IAstronautControllableInterface>> InEVADefaultControllables;
+
+	// 월드 뷰포트 상의 EVA Destination Guide 액터 오브젝트 레퍼런스 (미션 수행 후)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Controllables")
+		TArray<TScriptInterface<class IAstronautControllableInterface>> InEVAEditControllables;
+
+	// 월드 뷰포트 상의 왼손 GrabUserDisplay 액터 오브젝트 레퍼런스
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Controllables")
+		TScriptInterface<class IAstronautControllableInterface> LeftGrabDisplayControllable;
+
+	// 월드 뷰포트 상의 오른손 GrabUserDisplay 액터 오브젝트 레퍼런스
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Controllables")
+		TScriptInterface<class IAstronautControllableInterface> RightGrabDisplayControllable;
 
 public:
 	// 미션 위젯 표시 TEXT 상수값. 역시 뷰포트에서 기본값 설정
