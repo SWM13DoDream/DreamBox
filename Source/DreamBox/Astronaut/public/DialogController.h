@@ -49,6 +49,14 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		bool bDoneMessageRegistered;
 
+	// 우주비행사 멀티플레이 여부
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		bool bInMultiplay;
+
+	// 우주비행사 멀티플레이 관련 다이얼로그 표시 변수
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		bool bMultiplayDialogFlag;
+
 public:
 	// 다이얼로그 컨트롤러 액터의 활성화 상태 설정
 	UFUNCTION(BlueprintCallable)
@@ -75,7 +83,7 @@ public:
 		void CSMDialogMid();
 
 	// 우주비행사 멀티플레이 LEM 시작 다이얼로그 이벤트. BP에서 구현
-	UFUNCTION(BlueprintImplementableEvent, Category = "Event")
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "Event")
 		void LEMMultiplayIntro();
 
 	// 우주비행사 멀티플레이 LEM 통신 다이얼로그 이벤트. BP에서 구현
@@ -101,10 +109,4 @@ private:
 
 	// FSM Concept로 관리되는 다이얼로그 상태 관리 변수
 	int32 DialogState;
-
-	// 우주비행사 멀티플레이 여부
-	bool bInMultiplay;
-
-	// 우주비행사 멀티플레이 관련 다이얼로그 표시 변수
-	bool bMultiplayDialogFlag;
 };

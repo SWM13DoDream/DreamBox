@@ -3,6 +3,7 @@
 #include "../public/InteractionTrigger.h"
 #include "../public/InteractionWidget.h"
 #include "../public/AstronautCharacter.h"
+#include "../public/AstronautGamemode.h"
 #include "Components/WidgetComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -47,7 +48,7 @@ void AInteractionTrigger::SetInteractionContent(FInteractionStruct Content)
 
 void AInteractionTrigger::OnTriggerEnter(class AActor* OtherActor)
 {
-	if (bIsInteractable && IsValidPlayer(OtherActor))
+	if (IsValidPlayer(OtherActor))
 	{
 		if (bHasVariableMode)
 		{
@@ -58,6 +59,7 @@ void AInteractionTrigger::OnTriggerEnter(class AActor* OtherActor)
 					FString NewMode = "FinishMission";
 					InteractionMode = FName(*NewMode);
 					InitializeMode();
+					if (!bIsInteractable) bIsInteractable = true;
 				}
 				else
 				{
@@ -67,8 +69,22 @@ void AInteractionTrigger::OnTriggerEnter(class AActor* OtherActor)
 				}
 			}
 		}
-		Widget->Animate(true);
-		bIsAvailable = true;
+
+		if (bIsInteractable)
+		{
+			FString InteractionKey = InteractionMode.ToString();
+			if (InteractionKey.Equals(TEXT("FinishCSM")))
+			{
+				if (!LocalPlayer->bIsMissionDone) return;
+			}
+			else if (InteractionKey.Equals(TEXT("EnterGateway")))
+			{
+				if (!LocalPlayer->bIsMissionDone) return;
+			}
+
+			Widget->Animate(true);
+			bIsAvailable = true;
+		}
 	}
 }
 
@@ -140,17 +156,82 @@ void AInteractionTrigger::OnInteract()
 		}
 		else if (InteractionKey.Equals(TEXT("ExitGateway")))
 		{
+			Unset();
 			LocalPlayer->PlayCrossFade();
-
 			GetWorld()->GetTimerManager().SetTimer(DelayHandler, FTimerDelegate::CreateLambda([&]()
 			{
-				AAstronautCharacter* Player =
-					Cast<AAstronautCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-				Player->StartEVA();
+				LocalPlayer->StartEVA();
 
 				// 핸들러 초기화
 				GetWorld()->GetTimerManager().ClearTimer(DelayHandler);
 			}), 1.0f, false);
+		}
+		else if (InteractionKey.Equals(TEXT("Adjust")))
+		{
+			LocalPlayer->DoMainMission();
+			Widget->Animate(false);
+			Unset();
+
+			LocalPlayer->PlayCrossFade();
+
+			GetWorld()->GetTimerManager().SetTimer(DelayHandler, FTimerDelegate::CreateLambda([&]()
+			{
+				LocalPlayer->ReturnIVA();
+
+				// 핸들러 초기화
+				GetWorld()->GetTimerManager().ClearTimer(DelayHandler);
+			}), 1.0f, false);
+		}
+		else if (InteractionKey.Equals(TEXT("EnterGateway")))
+		{
+			Unset();
+			LocalPlayer->PlayCrossFade();
+
+			GetWorld()->GetTimerManager().SetTimer(DelayHandler, FTimerDelegate::CreateLambda([&]()
+			{
+				LocalPlayer->ReturnIVA();
+
+				// 핸들러 초기화
+				GetWorld()->GetTimerManager().ClearTimer(DelayHandler);
+			}), 1.0f, false);
+		}
+		else if (InteractionKey.Equals(TEXT("TimeNotMatch")))
+		{
+			// Multiplay 여부 체크
+			ENetMode NetworkingMode = GetWorld()->GetNetMode();
+			bool bInMultiplay = false;
+			if (NetworkingMode == NM_ListenServer)
+			{
+				AAstronautGamemode* Gamemode =
+					Cast<AAstronautGamemode>(UGameplayStatics::GetGameMode(GetWorld()));
+				if (Gamemode->RemotePlayer != nullptr) bInMultiplay = true;
+			}
+			else if (NetworkingMode == NM_Client) bInMultiplay = true;
+
+			if (bInMultiplay)
+			{
+				Unset();
+				Widget->Animate(false);
+				LocalPlayer->MakeRPCMissionDone();
+			}
+		}
+		else if (InteractionKey.Equals(TEXT("FinishCSM")))
+		{
+			Unset();
+			Widget->Animate(false);
+
+			// Multiplay 여부 체크
+			ENetMode NetworkingMode = GetWorld()->GetNetMode();
+			bool bInMultiplay = false;
+			if (NetworkingMode == NM_ListenServer)
+			{
+				AAstronautGamemode* Gamemode =
+					Cast<AAstronautGamemode>(UGameplayStatics::GetGameMode(GetWorld()));
+				if (Gamemode->RemotePlayer != nullptr) bInMultiplay = true;
+			}
+			else if (NetworkingMode == NM_Client) bInMultiplay = true;
+
+			if (bInMultiplay) LocalPlayer->MakeRPCMissionDone();
 		}
 	}
 }

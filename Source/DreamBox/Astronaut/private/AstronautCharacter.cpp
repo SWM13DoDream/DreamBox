@@ -7,6 +7,7 @@
 #include "../public/AstronautGamemode.h"
 #include "../public/GamemodeArbiter.h"
 #include "../public/MissionSelectionPanel.h"
+#include "../public/GrabUserDisplay.h"
 #include "../../../../../Plugins/Runtime/CableComponent/Source/CableComponent/Classes/CableComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Components/WidgetInteractionComponent.h"
@@ -265,6 +266,12 @@ void AAstronautCharacter::InitializeMission()
 		// 1초에 한 번씩 호출되는 타이머를 세팅. (초기값 5분)
 		Time = 300;
 		GetWorldTimerManager().SetTimer(MissionTickHandler, this, &AAstronautCharacter::MissionTick, 1.0f, true, 1.0f);
+
+		// Grip Effect 부착
+		AGrabUserDisplay* Left = Cast<AGrabUserDisplay>(Arbiter->LeftGrabDisplayControllable->GetActor_Implementation());
+		AGrabUserDisplay* Right = Cast<AGrabUserDisplay>(Arbiter->RightGrabDisplayControllable->GetActor_Implementation());
+
+		AttachGripEffect(Left, Right);
 	}
 
 	// Multiplay 여부 체크
@@ -278,6 +285,12 @@ void AAstronautCharacter::InitializeMission()
 	}
 	else if (NetworkingMode == NM_Client) bInMultiplay = true;
 
+	if (bInMultiplay && SelectedMission == EAstronautMissionType::LEM)
+	{
+		// 사령선 임무가 종료되기 전까지 시간 정지
+		Time = -1;
+	}
+
 	// Dialog Controller 활성화
 	ADialogController* Dialog = Cast<ADialogController>(DialogController->GetChildActor());
 	Dialog->SetActivated(true, SelectedMission, bInMultiplay);
@@ -286,14 +299,29 @@ void AAstronautCharacter::InitializeMission()
 void AAstronautCharacter::DoMainMission()
 {
 	bIsMissionDone = true;
-	MainMissionText = Arbiter->MAIN_MISSION_DONE;
 
-	Arbiter->MainStaticMeshControllable->SetStatus_Implementation(true);
-	Arbiter->MainInteractionControllable->SetStatus_Implementation(false);
-	Arbiter->MainGuideControllable->SetStatus_Implementation(false);
+	if (SelectedMission == EAstronautMissionType::LEM)
+	{
+		MainMissionText = Arbiter->MAIN_MISSION_DONE;
 
-	// 미션 위젯 디스플레이 업데이트
-	MissionController->UpdateMainMissionDisplay();
+		Arbiter->MainStaticMeshControllable->SetStatus_Implementation(true);
+		Arbiter->MainInteractionControllable->SetStatus_Implementation(false);
+		Arbiter->MainGuideControllable->SetStatus_Implementation(false);
+
+		// 미션 위젯 디스플레이 업데이트
+		MissionController->UpdateMainMissionDisplay();
+	}
+	else if (SelectedMission == EAstronautMissionType::CSM)
+	{
+		for (TScriptInterface<IAstronautControllableInterface> Element : Arbiter->InEVADefaultControllables)
+		{
+			Element->SetStatus_Implementation(false);
+		}
+		for (TScriptInterface<IAstronautControllableInterface> Element : Arbiter->InEVAEditControllables)
+		{
+			Element->SetStatus_Implementation(true);
+		}
+	}
 }
 
 void AAstronautCharacter::DoSubMission(int32 Index)
@@ -330,7 +358,7 @@ void AAstronautCharacter::MoveLEM(bool bIsEntering)
 
 bool AAstronautCharacter::IsAboardable()
 {
-	return Time <= 20 || Time >= (300 - 20);
+	return (Time <= 20 && Time >= 0) || Time >= (300 - 20);
 }
 
 void AAstronautCharacter::StartEVA()
@@ -354,6 +382,11 @@ void AAstronautCharacter::StartEVA()
 
 	bMovable = false;
 	OpenInfoWidget(FName("Hook"));
+
+	for (TScriptInterface<IAstronautControllableInterface> Element : Arbiter->BeforeEVAGuideControllables)
+	{
+		Element->SetStatus_Implementation(false);
+	}
 }
 
 void AAstronautCharacter::ReturnIVA()
@@ -376,6 +409,11 @@ void AAstronautCharacter::ReturnIVA()
 
 	Movement->StopMovementImmediately();
 	Movement->ClearAccumulatedForces();
+
+	for (TScriptInterface<IAstronautControllableInterface> Element : Arbiter->AfterEVAGuideControllables)
+	{
+		Element->SetStatus_Implementation(true);
+	}
 }
 
 void AAstronautCharacter::OnGrip(AActor* HandActor, bool bIsLeft)
@@ -402,6 +440,17 @@ void AAstronautCharacter::OnGrip(AActor* HandActor, bool bIsLeft)
 
 			if (bIsSphereTraceSucceed)
 			{
+				if (bIsLeft)
+				{
+					AGrabUserDisplay* Display = Cast<AGrabUserDisplay>(Arbiter->LeftGrabDisplayControllable->GetActor_Implementation());
+					Display->ActivateDisplay(true);
+				}
+				else
+				{
+					AGrabUserDisplay* Display = Cast<AGrabUserDisplay>(Arbiter->RightGrabDisplayControllable->GetActor_Implementation());
+					Display->ActivateDisplay(true);
+				}
+
 				Movement->StopMovementImmediately();
 				Movement->ClearAccumulatedForces();
 				FVector PullingForce = (TraceStartLocation - GetActorLocation()) * IVAPullingForceMultiplier;
@@ -434,35 +483,57 @@ void AAstronautCharacter::OnGrip(AActor* HandActor, bool bIsLeft)
 
 			if (bIsSphereTraceSucceed)
 			{
-				for (const FHitResult Target : HitResults)
+				// 접촉 지점 중 가장 멀리 있는 것을 선택
+				FHitResult Target;
+				float MaxDistance = 0.0f;
+				for (const FHitResult HitPoint : HitResults)
 				{
-					TArray<FName> Classifier = Target.Actor->Tags;
+					TArray<FName> Classifier = HitPoint.Actor->Tags;
 					if (Classifier.Num() > 0 && Classifier[0].ToString().Equals("HookPoint"))
 					{
-						Movement->StopMovementImmediately();
-						Movement->ClearAccumulatedForces();
-						FVector PullingForce = (TraceStartLocation - GetActorLocation()) * EVAPullingForceMultiplier;
-
-						Movement->AddForce(PullingForce);
-						RecentPullingForce = PullingForce;
-
-						PullingForceDecrementCounter = EVAPullingForceDecrementInterval;
-
-						if (bIsLeft)
+						float dist = UKismetMathLibrary::Vector_Distance(HitPoint.ImpactPoint, TraceStartLocation);
+						if (dist > MaxDistance)
 						{
-							bIsGrabbingL = true;
-							RecentGrabbingPointL = TraceStartLocation - GetActorLocation();
+							MaxDistance = dist;
+							Target = HitPoint;
 						}
-						else
-						{
-							bIsGrabbingR = true;
-							RecentGrabbingPointR = TraceStartLocation - GetActorLocation();
-						}
-
-						break;
 					}
 				}
-				
+
+				if (MaxDistance > 0)
+				{
+					if (bIsLeft)
+					{
+						AGrabUserDisplay* Display = Cast<AGrabUserDisplay>(Arbiter->LeftGrabDisplayControllable->GetActor_Implementation());
+						Display->ActivateDisplay(false);
+					}
+					else
+					{
+						AGrabUserDisplay* Display = Cast<AGrabUserDisplay>(Arbiter->RightGrabDisplayControllable->GetActor_Implementation());
+						Display->ActivateDisplay(false);
+					}
+
+					TraceStartLocation = (TraceStartLocation + Target.ImpactPoint) * 0.5f + FVector(0.0f, 0.0f, 30.0f);
+					Movement->StopMovementImmediately();
+					Movement->ClearAccumulatedForces();
+					FVector PullingForce = (TraceStartLocation - GetActorLocation()) * EVAPullingForceMultiplier;
+
+					Movement->AddForce(PullingForce);
+					RecentPullingForce = PullingForce;
+
+					PullingForceDecrementCounter = EVAPullingForceDecrementInterval;
+
+					if (bIsLeft)
+					{
+						bIsGrabbingL = true;
+						RecentGrabbingPointL = TraceStartLocation - GetActorLocation();
+					}
+					else
+					{
+						bIsGrabbingR = true;
+						RecentGrabbingPointR = TraceStartLocation - GetActorLocation();
+					}
+				}
 			}
 		}
 	}
@@ -477,6 +548,8 @@ void AAstronautCharacter::ReleaseGrip(AActor* HandActor, bool bIsLeft)
 		{
 			if (bIsLeft && bIsGrabbingL)
 			{
+				Arbiter->LeftGrabDisplayControllable->SetStatus_Implementation(false);
+
 				FVector RelativeHandLocation = HandActor->GetActorLocation() - GetActorLocation();
 				bIsGrabbingL = false;
 				if (!bIsGrabbingR)
@@ -488,6 +561,8 @@ void AAstronautCharacter::ReleaseGrip(AActor* HandActor, bool bIsLeft)
 			}
 			else if (!bIsLeft && bIsGrabbingR)
 			{
+				Arbiter->RightGrabDisplayControllable->SetStatus_Implementation(false);
+
 				FVector RelativeHandLocation = HandActor->GetActorLocation() - GetActorLocation();
 				bIsGrabbingR = false;
 				if (!bIsGrabbingL)
@@ -503,6 +578,8 @@ void AAstronautCharacter::ReleaseGrip(AActor* HandActor, bool bIsLeft)
 		{
 			if (bIsLeft && bIsGrabbingL)
 			{
+				Arbiter->LeftGrabDisplayControllable->SetStatus_Implementation(false);
+
 				bIsGrabbingL = false;
 				if (!bIsGrabbingR)
 				{
@@ -513,6 +590,8 @@ void AAstronautCharacter::ReleaseGrip(AActor* HandActor, bool bIsLeft)
 			}
 			else if (!bIsLeft && bIsGrabbingR)
 			{
+				Arbiter->RightGrabDisplayControllable->SetStatus_Implementation(false);
+
 				bIsGrabbingR = false;
 				if (!bIsGrabbingL)
 				{
@@ -567,10 +646,13 @@ void AAstronautCharacter::ControlHook()
 
 void AAstronautCharacter::MissionTick()
 {
-	Time -= 1;
-	if (Time < 0) Time = 300;
+	if (Time >= 0)
+	{
+		Time -= 1;
+		if (Time < 0) Time = 300;
 
-	if (TimerController != nullptr) TimerController->UpdateDisplay();
+		if (TimerController != nullptr) TimerController->UpdateDisplay();
+	}
 }
 
 void AAstronautCharacter::ForceChecker()
@@ -666,7 +748,7 @@ void AAstronautCharacter::MakeRPCSelectMission_Implementation(int32 Mission)
 			if (Gamemode->HostMission != EAstronautMissionType::NONE)
 			{
 				Gamemode->ClientMission = Mission;
-				Gamemode->RemotePlayer->OnRPCCheckReadyState(true, Mission);
+				Gamemode->LocalPlayer->OnRPCCheckReadyState(true, Mission);
 				OnRPCCheckReadyState(true, Mission);
 			}
 			// 호스트 플레이어가 아직 미션을 선택하지 않은 경우 미션 Lock
@@ -699,4 +781,27 @@ void AAstronautCharacter::OnRPCCheckReadyState_Implementation(bool bStartMission
 
 		SelectionPanel->LockMission(MissionToLock);
 	}
+}
+
+void AAstronautCharacter::MakeRPCMissionDone_Implementation()
+{
+	AAstronautGamemode* Gamemode =
+		Cast<AAstronautGamemode>(UGameplayStatics::GetGameMode(GetWorld()));
+
+	// 서버 플레이어 캐릭터
+	if (IsLocallyControlled()) Gamemode->RemotePlayer->OnRPCMissionDone();
+	// 클라이언트 플레이어
+	else Gamemode->LocalPlayer->OnRPCMissionDone();
+}
+
+void AAstronautCharacter::OnRPCMissionDone_Implementation()
+{
+	if (SelectedMission == EAstronautMissionType::LEM)
+	{
+		// 시간을 3분으로 세팅
+		Time = 180;
+	}
+
+	ADialogController* DialogActor = Cast<ADialogController>(DialogController->GetChildActor());
+	DialogActor->AnnounceMissionDoneFromOther();
 }

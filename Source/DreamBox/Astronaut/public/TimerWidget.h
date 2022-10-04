@@ -30,6 +30,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Constant)
 		FText TITLE_NOT_DONEABLE;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Constant)
+		FText TITLE_NOT_DEPARTED;
 	
 public:
 	// 타이머 내용 컴포넌트

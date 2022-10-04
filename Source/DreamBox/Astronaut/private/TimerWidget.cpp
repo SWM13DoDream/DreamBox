@@ -35,32 +35,40 @@ void UTimerWidget::UpdateDisplay()
 {
 	int32 Time = LocalPlayer->Time;
 
-	// TitleText 내용 변경
-	if (LocalPlayer->IsAboardable() && LocalPlayer->bIsMissionDone)
+	if (Time >= 0)
 	{
-		TitleText->SetText(TITLE_DONEABLE);
+		// TitleText 내용 변경
+		if (LocalPlayer->IsAboardable() && LocalPlayer->bIsMissionDone)
+		{
+			TitleText->SetText(TITLE_DONEABLE);
+		}
+		else
+		{
+			TitleText->SetText(TITLE_NOT_DONEABLE);
+		}
+
+		// ContentText 내용 변경
+		FString SecString;
+		SecString = SecString.Append("0").Append(FString::FromInt(Time % 60)).Right(2);
+
+		FFormatNamedArguments Args;
+		Args.Add(TEXT("Min"), Time / 60);
+		Args.Add(TEXT("Sec"), FText::FromString(SecString));
+		ContentText->SetText(FText::Format(LOCTEXT("Time", "{Min}:{Sec}"), Args));
+
+		// 렌더 로테이션 변경 호출
+		ChangeTimerRotation((300 - Time) * 1.2f);
+
+		// bWasAboardable 상태 업데이트
+		if (bWasAboardable != LocalPlayer->IsAboardable())
+		{
+			bWasAboardable = LocalPlayer->IsAboardable();
+			ChangeTimeColor(bWasAboardable);
+		}
 	}
 	else
 	{
-		TitleText->SetText(TITLE_NOT_DONEABLE);
-	}
-
-	// ContentText 내용 변경
-	FString SecString;
-	SecString = SecString.Append("0").Append(FString::FromInt(Time % 60)).Right(2);
-	
-	FFormatNamedArguments Args;
-	Args.Add(TEXT("Min"), Time / 60);
-	Args.Add(TEXT("Sec"), FText::FromString(SecString));
-	ContentText->SetText(FText::Format(LOCTEXT("Time", "{Min}:{Sec}"), Args));
-
-	// 렌더 로테이션 변경 호출
-	ChangeTimerRotation((300 - Time) * 1.2f);
-
-	// bWasAboardable 상태 업데이트
-	if (bWasAboardable != LocalPlayer->IsAboardable())
-	{
-		bWasAboardable = LocalPlayer->IsAboardable();
-		ChangeTimeColor(bWasAboardable);
+		TitleText->SetText(TITLE_NOT_DEPARTED);
+		ContentText->SetText(FText::FromString("--:--"));
 	}
 }

@@ -96,6 +96,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void InitializeMission();
 
+	// Grip Effect를 손에 부착. 파생 BP에서 구현
+	UFUNCTION(BlueprintImplementableEvent, Category = "PreMission")
+		void AttachGripEffect(AGrabUserDisplay* Left, AGrabUserDisplay* Right);
+
 	// 정보 위젯 열기. FName 파라미터에 따라 다른 로직을 사용함
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "Event")
 		void OpenInfoWidget(const FName& Key);
@@ -275,12 +279,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EVA")
 		float EVACableMaxLength;
 
+	// 왼손 및 오른손 최근 홀딩 지점 (AstronautCharacter에 대한 손 오브젝트의 Relative Location으로 정의)
+	FVector RecentGrabbingPointL, RecentGrabbingPointR;
+
 private:
 	// 왼손 및 오른손 홀딩 여부
 	bool bIsGrabbingL, bIsGrabbingR;
-	
-	// 왼손 및 오른손 최근 홀딩 지점 (AstronautCharacter에 대한 손 오브젝트의 Relative Location으로 정의)
-	FVector RecentGrabbingPointL, RecentGrabbingPointR;
 
 	// 최근 pulling force 정보 (점진적 속도 감소에 필요)
 	FVector RecentPullingForce;
@@ -316,6 +320,13 @@ public:
 	// 위 MakeRPCSelectMission으로부터 호출. 게임 모드에 접근할 수 없음에 주의
 	UFUNCTION(Client, Reliable)
 		void OnRPCCheckReadyState(bool bStartMission, int32 MissionToLock);
+
+	// 미션이 끝났음을 다른 플레이어에게 통지
+	UFUNCTION(Server, Reliable)
+		void MakeRPCMissionDone();
+
+	UFUNCTION(Client, Reliable)
+		void OnRPCMissionDone();
 
 private:
 	bool bIsWaitingPlayer;

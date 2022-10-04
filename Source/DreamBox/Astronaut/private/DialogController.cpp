@@ -71,7 +71,7 @@ void ADialogController::UpdateState()
 	int32 Time = LocalPlayer->Time;
 	if (Mission == EAstronautMissionType::LEM)
 	{
-		if (DialogState == 0 && Time < 150)
+		if (DialogState == 0 && Time < 150 && Time > 0)
 		{
 			DialogState = 1;
 			LEMDialogMid();
@@ -84,12 +84,6 @@ void ADialogController::UpdateState()
 		else if (DialogState == 2 && Time > 150)
 		{
 			DialogState = 0;
-		}
-
-		if (!bMultiplayDialogFlag && bInMultiplay && Time < 240)
-		{
-			bMultiplayDialogFlag = true;
-			LEMMultiplayIntro();
 		}
 	}
 	else if (Mission == EAstronautMissionType::CSM)
