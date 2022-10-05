@@ -135,7 +135,7 @@ public:
 		void ShowScriptWithString(int32 PlayerID, FString Script);
 
 	UFUNCTION()
-		virtual void PreLoadingEnd() override;
+		void PreLoadingEnd();
 
 public:
 	//구조되고있는 캐릭터가 부착될 컴포넌트

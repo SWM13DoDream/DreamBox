@@ -10,8 +10,16 @@
 /*
  - Name        : AVRCharacter
  - Descirption : 메인 Playable VR 캐릭터 Base
- - Date        : 2022/09/29 LJH
+ - Date        : 2022/10/04 LJH
 */
+
+UENUM(BlueprintType)
+enum class EPlayerLevelSequenceType : uint8
+{
+	E_CrossFade	= 0		UMETA(DisplayName = "CrossFade"),
+	E_FadeIn			UMETA(DisplayName = "FadeIn"),
+	E_FadeOut			UMETA(DisplayName = "FadeOut")
+};
 
 UCLASS()
 class DREAMBOX_API AVRCharacter : public ACharacter
@@ -30,10 +38,13 @@ public:
 ///============================================
 /// Replication, RPC 관련 함수
 ///============================================
-public:
+public:	
 	UFUNCTION(Client, Reliable)
-		virtual void OnRPCStartContent(int32 PlayerID, FContentStartInfo StartInfo);
-
+		void OnRPCSetupContent(int32 PlayerID, FContentStartInfo StartInfo);
+	
+	UFUNCTION(Client, Reliable)
+		virtual void OnRPCStartContent(int32 PlayerID);
+	
 	UFUNCTION(Server, Reliable)
 		virtual void MakeRPCInitPlayerTransform(FTransform InitialTransform);
 
@@ -67,14 +78,15 @@ public:
 ///============================================
 /// Level Sequence / Level Streaming 관련 함수
 ///============================================
-public:
-	virtual void PreLoadingEnd();
-	
+public:	
+	UFUNCTION(Client, Reliable)
+		void PlayLevelInitSequence();
+
 	//크로스 페이드를 실제로 출력하는 로직, 각 자식 게임모드 클래스에서 바인딩 해야함
 	//PlayerID 미사용 파라미터 제거 예정
 	UFUNCTION(BlueprintCallable)
-		void PlayCrossFadeAnim();
-	
+		float PlayLevelSequence(EPlayerLevelSequenceType TargetSequenceType);
+
 	UFUNCTION()
 		virtual void InitLevelSequence();
 
@@ -88,6 +100,10 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 		class APersistentLevelBase* GetLevelScriptRef() { return LevelScriptRef; }
+
+	//현재 아이피 주소를 반환
+	UFUNCTION(BlueprintCallable)
+		FString GetCurrentIpAddress();
 
 protected:
 	// Called when the game starts or when spawned
@@ -125,9 +141,13 @@ public:
 /// 비컴포넌트 멤버
 ///============================================
 public:
-	//크로스 페이드 효과 
+	//레벨 시퀀스 배열 (0 : CrossFade, 1 : FadeIn, 2 : FadeOut)
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Sequence")
-		class ULevelSequence* CrossFadeSequence;
+		TArray<class ULevelSequence*> LevelSequenceList;
+
+	//레벨 시퀀스 길이 배열 (MUST BE ADDED)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Sequence")
+		TArray<float> LevelSequenceLengthList; 
 
 	//C++ 딜레이 사용 위한 타이머 핸들 
 	UPROPERTY()
@@ -150,7 +170,7 @@ private:
 
 	//시퀀스 플레이어 (FadeIn & Out)
 	UPROPERTY()
-		class ULevelSequencePlayer* CrossFadePlayer;
+		TArray<class ULevelSequencePlayer*> LevelSequencePlayerList;
 
 	UPROPERTY()
 		class ADreamBoxGameModeBase* GamemodeRef;

@@ -54,7 +54,4 @@ public:
 private:
 	UPROPERTY()
 		class APersistentLevelBase* LevelScriptRef;
-
-	UPROPERTY()
-		struct FTimerHandle WaitHandle;
 };

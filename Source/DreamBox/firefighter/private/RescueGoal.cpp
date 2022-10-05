@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "../public/RescueGoal.h"
+#include "../../common/public/VRCharacter.h"
 #include "../public/FirefighterCharacter.h"
 #include "../public/FirefighterGamemode.h"
 #include "../public/InjuredCharacter.h"
@@ -60,7 +61,7 @@ void ARescueGoal::TriggerBeginOverlap(UPrimitiveComponent* HitComp, AActor* Othe
 
 	if (IsValid(FirefighterCharacterRef))
 	{
-		FirefighterCharacterRef->PlayCrossFadeAnim();
+		FirefighterCharacterRef->PlayLevelSequence(EPlayerLevelSequenceType::E_CrossFade);
 	}
 
 	if (IsValid(GamemodeRef))

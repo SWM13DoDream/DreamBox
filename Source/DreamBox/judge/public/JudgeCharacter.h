@@ -31,7 +31,7 @@ protected:
 
 public:	
 	UFUNCTION()
-		virtual void PreLoadingEnd() override;
+		void PreLoadingEnd();
 	
 	UFUNCTION()
 		void PostLoadingEvent();

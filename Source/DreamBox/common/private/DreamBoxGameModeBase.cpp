@@ -10,39 +10,77 @@ void ADreamBoxGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (GetWorld())
-	{
-		LevelScriptRef = Cast<APersistentLevelBase>(GetWorld()->GetLevelScriptActor());
-		if (IsValid(LevelScriptRef))
-		{
-			LevelScriptRef->PostLoadingEvent.AddDynamic(this, &ADreamBoxGameModeBase::PostLoadingEvent);
-		}
-	}
+	bUseSeamlessTravel = true;
 }
 
 void ADreamBoxGameModeBase::PostLogin(APlayerController* NewPlayerController)
 {
 	Super::PostLogin(NewPlayerController);
 
-	PlayerControllerList.Add(NewPlayerController);
-	PlayerCharacterList.Add(Cast<AVRCharacter>(NewPlayerController->GetCharacter()));
-	NewPlayerController->DisableInput(NewPlayerController);
+	if (IsValid(NewPlayerController))
+	{
+		int32 newPlayerIdx = PlayerControllerList.Num();
+		PlayerControllerList.Add(NewPlayerController);
+		PlayerCharacterList.Add(Cast<AVRCharacter>(NewPlayerController->GetCharacter()));
+		PlayerCharacterList[newPlayerIdx]->GetCharacterMovement()->Deactivate();
+		PlayerLoadStateList.Add(false);
+		if (CurrentLoadState == EPersistentLoadStateType::E_PostLoad)
+		{
+			PreLoadingEndEvent();
+			PostLoadingEvent();
+		}
+	}
+}
+
+void ADreamBoxGameModeBase::PreLoadingEndEvent()
+{
+	for (int32 playerIdx = 0; playerIdx < GetPlayerControllerCount(); playerIdx++)
+	{
+		AVRCharacter* playerRef = GetPlayerCharacterList()[playerIdx];
+		if (IsValid(playerRef) && !PlayerLoadStateList[playerIdx]
+			&& ContentStartInfoList.IsValidIndex(playerIdx))
+		{
+			playerRef->OnRPCSetupContent(playerIdx, GetPlayerStartInfo(playerIdx));
+			playerRef->PlayLevelInitSequence();
+		}
+	}
 }
 
 void ADreamBoxGameModeBase::PostLoadingEvent()
 {
-	for (int32 playerIdx = 0; playerIdx < PlayerCharacterList.Num(); playerIdx++)
+	for (int32 playerIdx = 0; playerIdx < GetPlayerControllerCount(); playerIdx++)
 	{
-		AVRCharacter* playerRef = PlayerCharacterList[playerIdx];
-		if (IsValid(playerRef)
+		AVRCharacter* playerRef = GetPlayerCharacterList()[playerIdx];
+		if (IsValid(playerRef) && !PlayerLoadStateList[playerIdx]
 			&& ContentStartInfoList.IsValidIndex(playerIdx))
 		{
-			playerRef->OnRPCStartContent(playerIdx, ContentStartInfoList[playerIdx]);
-			playerRef->EnableInput(PlayerControllerList[playerIdx]);
+			playerRef->OnRPCStartContent(playerIdx);
 			playerRef->GetCharacterMovement()->Activate(true);
+			PlayerLoadStateList[playerIdx] = true;
 		}
 	}
 }
+
+void ADreamBoxGameModeBase::InitLevelScriptRef(APersistentLevelBase* NewScriptRef)
+{
+	if (IsValid(NewScriptRef))
+	{
+		DebugMessage(100.0f);
+		LevelScriptRef = NewScriptRef;
+		LevelScriptRef->PreLoadingEndDelegate.AddDynamic(this, &ADreamBoxGameModeBase::PreLoadingEndEvent);
+		LevelScriptRef->PostLoadingDelegate.AddDynamic(this, &ADreamBoxGameModeBase::PostLoadingEvent);
+	}
+}
+
+FContentStartInfo ADreamBoxGameModeBase::GetPlayerStartInfo(int32 PlayerID)
+{
+	if (ContentStartInfoList.IsValidIndex(PlayerID))
+	{
+		return ContentStartInfoList[PlayerID];
+	}
+	return FContentStartInfo();
+}
+
 
 /*
 

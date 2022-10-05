@@ -31,41 +31,15 @@ void ALobbyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 void ALobbyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	if (IsValid(GetLevelScriptRef()))
-	{
-		GetLevelScriptRef()->PreLoadingEnd.AddDynamic(this, &ALobbyCharacter::PreLoadingEnd);
-	}
-}
-
-void ALobbyCharacter::PreLoadingEnd()
-{
-	PlayLevelInitSequence();
-
-	if (IsValid(GetLevelScriptRef()))
-	{
-		GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
-			GetLevelScriptRef()->PostLoadingEvent.Broadcast();
-		}), 2.25f, false);
-	}
 }
 
 void ALobbyCharacter::InitLevelSequence()
 {
 	Super::InitLevelSequence();
 
-	ALevelSequenceActor* OutActor = nullptr;
-	if (IsValid(LobbyBeginAnimSequence))
-	{
-		LobbyBeginAnimSequencePlayer = ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), LobbyBeginAnimSequence, FMovieSceneSequencePlaybackSettings(), OutActor);
-	}
 }
 
-void ALobbyCharacter::PlayLobbyAppearAnim()
+void ALobbyCharacter::OnRPCStartContent(int32 PlayerID)
 {
-	if (IsValid(LobbyBeginAnimSequencePlayer))
-	{
-		LobbyBeginAnimSequencePlayer->Play();
-	}
+	//PlayLevelInitSequence();
 }
-

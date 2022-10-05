@@ -62,6 +62,8 @@ class DREAMBOX_API AJudgeGameMode : public ADreamBoxGameModeBase
 public:
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 
+	virtual void PreLoadingEndEvent() override;
+
 	virtual void BeginPlay() override;
 
 	// 로딩 직후의 BeginPlay

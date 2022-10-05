@@ -6,6 +6,7 @@
 #include "TimerManager.h"
 #include "LevelSequenceActor.h"
 #include "LevelSequencePlayer.h"
+#include "SocketSubsystem.h"
 #include "Components/WidgetInteractionComponent.h"
 
 /*
@@ -52,13 +53,13 @@ void AVRCharacter::BeginPlay()
 {
 	Super::BeginPlay();	
 
+	PlayerControllerID = UGameplayStatics::GetPlayerControllerID(Cast<APlayerController>(Controller));
+
 	InitLevelScriptRef();
 	InitGameModeRef();
 	InitLevelSequence();
-
-	PlayerControllerID = UGameplayStatics::GetPlayerControllerID(Cast<APlayerController>(Controller));
-	SetCanJump(true);
 	
+	SetCanJump(true);
 }
 
 
@@ -84,9 +85,9 @@ void AVRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction("Interaction", IE_Released, this, &ACharacter::StopJumping);
 }
 
-
-void AVRCharacter::OnRPCStartContent_Implementation(int32 PlayerID, FContentStartInfo StartInfo)
+void AVRCharacter::OnRPCSetupContent_Implementation(int32 PlayerID, FContentStartInfo StartInfo)
 {
+	UE_LOG(LogTemp, Warning, TEXT("SIBAL"));
 	if (HasAuthority())
 	{
 		OnRPCInitPlayerTransform(FTransform(StartInfo.StartRotation, StartInfo.StartLocation, FVector(1.0f)));
@@ -95,6 +96,11 @@ void AVRCharacter::OnRPCStartContent_Implementation(int32 PlayerID, FContentStar
 	{
 		MakeRPCInitPlayerTransform(FTransform(StartInfo.StartRotation, StartInfo.StartLocation, FVector(1.0f)));
 	}
+}
+
+void AVRCharacter::OnRPCStartContent_Implementation(int32 PlayerID)
+{
+	UE_LOG(LogTemp, Warnings, TEXT("OnRPCStartContent"));
 }
 
 void AVRCharacter::MakeRPCInitPlayerTransform_Implementation(FTransform InitialTransform)
@@ -111,9 +117,14 @@ void AVRCharacter::OnRPCInitPlayerTransform_Implementation(FTransform InitialTra
 void AVRCharacter::InitLevelSequence()
 {
 	ALevelSequenceActor* OutActor = nullptr;
-	if (IsValid(CrossFadeSequence))
+
+	for (ULevelSequence* levelSequenceRef : LevelSequenceList)
 	{
-		CrossFadePlayer = ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), CrossFadeSequence, FMovieSceneSequencePlaybackSettings(), OutActor);
+		if (IsValid(levelSequenceRef))
+		{
+			LevelSequencePlayerList.Add(ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), levelSequenceRef
+				, FMovieSceneSequencePlaybackSettings(), OutActor));
+		}
 	}
 }
 
@@ -151,15 +162,31 @@ void AVRCharacter::ResetSnapTurnControllerInput()
 	bSnapTurnIsFinished = false; //다시 SnapTurn을 할 수 있도록 설정
 }
 
-void AVRCharacter::PlayCrossFadeAnim()
+void AVRCharacter::PlayLevelInitSequence_Implementation()
 {
-	if (!IsValid(CrossFadePlayer)) return;
-	CrossFadePlayer->Play();
+	PlayLevelSequence(EPlayerLevelSequenceType::E_FadeIn);
+}
 
-	GetCharacterMovement()->Deactivate();
-	GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
-		GetCharacterMovement()->Activate();
-	}), 1.25f, false);
+float AVRCharacter::PlayLevelSequence(EPlayerLevelSequenceType TargetSequenceType)
+{
+	if (LevelSequencePlayerList.IsValidIndex((int32)(TargetSequenceType)))
+	{
+		if (IsValid(LevelSequencePlayerList[(int32)(TargetSequenceType)]))
+		{
+			LevelSequencePlayerList[(int32)(TargetSequenceType)]->Play();
+
+			if (LevelSequenceLengthList.IsValidIndex((int32)(TargetSequenceType)))
+			{
+				GetCharacterMovement()->Deactivate();
+				GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
+					GetCharacterMovement()->Activate();
+				}), LevelSequenceLengthList[(int32)(TargetSequenceType)], false);
+
+				return LevelSequenceLengthList[(int32)(TargetSequenceType)];
+			}
+		}
+	}	
+	return 0.0f;
 }
 
 void AVRCharacter::SetCanJump(bool NewState)
@@ -183,8 +210,15 @@ void AVRCharacter::InitLevelScriptRef()
 	}
 }
 
-void AVRCharacter::PreLoadingEnd()
-{
-	LevelScriptRef->UnloadTransitionLevel();
-}
 
+FString AVRCharacter::GetCurrentIpAddress()
+{
+	FString IpAddr("NONE");
+	bool canBind = false;
+	TSharedRef<class FInternetAddr> LocalIp = ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->GetLocalHostAddr(*GLog, canBind);
+	if (LocalIp->IsValid())
+	{
+		IpAddr = LocalIp->ToString(false);
+	}
+	return IpAddr;
+}

@@ -29,10 +29,9 @@ void ATransitionManager::BeginPlay()
 		LevelScriptRef = Cast<APersistentLevelBase>(GetWorld()->GetLevelScriptActor());
 		if (IsValid(LevelScriptRef))
 		{
-			LevelScriptRef->PreLoadingEnd.AddDynamic(this, &ATransitionManager::PlayLogoDisappearAnim);
+			LevelScriptRef->PreLoadingEndDelegate.AddDynamic(this, &ATransitionManager::PlayLogoDisappearAnim);
 		}
 	}
-	StartLoadTargetMap();
 }
 
 bool ATransitionManager::GetLogoAnimationIsSet(bool bIsBeginAnim)
@@ -59,10 +58,6 @@ void ATransitionManager::StartLoadTargetMap()
 		{
 			PlayLogoAnimation(true);
 		}
-
-		GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
-			LevelScriptRef->LoadTargetLevel();
-		}), 1.25f, false);
 	}
 }
 

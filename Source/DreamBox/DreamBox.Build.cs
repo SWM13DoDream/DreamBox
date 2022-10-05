@@ -8,7 +8,9 @@ public class DreamBox : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UMG", "Slate", "SlateCore", "Niagara", "LevelSequence", "MovieScene" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UMG"
+															, "Slate", "SlateCore", "Niagara", "LevelSequence"
+															, "MovieScene", "Sockets" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 

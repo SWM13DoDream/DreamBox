@@ -30,7 +30,7 @@ void ANpcCharacter::BeginPlay()
 		LevelScriptRef = Cast<APersistentLevelBase>(GetWorld()->GetLevelScriptActor());
 		if (IsValid(LevelScriptRef))
 		{
-			LevelScriptRef->PostLoadingEvent.AddDynamic(this, &ANpcCharacter::PostLoadingEvent);
+			LevelScriptRef->PostLoadingDelegate.AddDynamic(this, &ANpcCharacter::PostLoadingEvent);
 		}
 	}
 }

@@ -19,7 +19,7 @@ void AFirefighterGamemode::BeginPlay()
 		PlayerCharacterRef->SetCharacterVisibility(false);
 		if (IsValid(GetLevelScriptRef()))
 		{
-			GetLevelScriptRef()->PostLoadingEvent.AddDynamic(this, &AFirefighterGamemode::PostLoadingEvent);
+			GetLevelScriptRef()->PostLoadingDelegate.AddDynamic(this, &AFirefighterGamemode::PostLoadingEvent);
 		}
 	}
 }

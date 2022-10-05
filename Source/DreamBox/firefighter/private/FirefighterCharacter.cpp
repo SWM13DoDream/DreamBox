@@ -54,7 +54,7 @@ void AFirefighterCharacter::BeginPlay()
 		FirefighterGamemodeRef = GetWorld()->GetAuthGameMode<AFirefighterGamemode>();
 		if (IsValid(GetLevelScriptRef()))
 		{
-			GetLevelScriptRef()->PreLoadingEnd.AddDynamic(this, &AFirefighterCharacter::PreLoadingEnd);
+			GetLevelScriptRef()->PreLoadingEndDelegate.AddDynamic(this, &AFirefighterCharacter::PreLoadingEnd);
 		}
 		if (IsValid(FirefighterGamemodeRef))
 		{
@@ -93,7 +93,7 @@ void AFirefighterCharacter::TryInteraction()
 	{
 	//구조 대상자를 업는 상호작용
 	case EFirefighterInteractionType::E_CARRY :
-		PlayCrossFadeAnim(); //PlayerID는 0
+		PlayLevelSequence(EPlayerLevelSequenceType::E_CrossFade); //PlayerID는 0
 		GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&](){
 			CarryInjuredCharacter(); //FadeIn 중간에 캐릭터를 업음
 			GetCharacterMovement()->Activate();
@@ -106,7 +106,7 @@ void AFirefighterCharacter::TryInteraction()
 
 	//화재 원인 액터를 조사하는 상호작용
 	case EFirefighterInteractionType::E_INVESTIGATE :
-		PlayCrossFadeAnim();
+		PlayLevelSequence(EPlayerLevelSequenceType::E_CrossFade);
 		GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
 			InvestigateCauseOfFire(); //FadeIn 중간에 캐릭터를 업음
 			GetCharacterMovement()->Activate();
@@ -224,12 +224,12 @@ void AFirefighterCharacter::ShowScriptWithString(int32 PlayerID, FString Script)
 
 void AFirefighterCharacter::PreLoadingEnd()
 {
-	PlayCrossFadeAnim();
+	PlayLevelSequence(EPlayerLevelSequenceType::E_CrossFade);
 
 	if (IsValid(GetLevelScriptRef()))
 	{
 		GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
-			GetLevelScriptRef()->PostLoadingEvent.Broadcast();
+			GetLevelScriptRef()->PostLoadingDelegate.Broadcast();
 		}), 0.75f, false);
 	}
 }

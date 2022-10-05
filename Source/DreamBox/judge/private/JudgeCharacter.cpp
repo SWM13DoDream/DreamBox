@@ -27,8 +27,8 @@ void AJudgeCharacter::BeginPlay()
 
 	if (IsValid(GetLevelScriptRef()))
 	{
-		GetLevelScriptRef()->PreLoadingEnd.AddDynamic(this, &AJudgeCharacter::PreLoadingEnd);
-		GetLevelScriptRef()->PostLoadingEvent.AddDynamic(this, &AJudgeCharacter::PostLoadingEvent);
+		GetLevelScriptRef()->PreLoadingEndDelegate.AddDynamic(this, &AJudgeCharacter::PreLoadingEnd);
+		GetLevelScriptRef()->PostLoadingDelegate.AddDynamic(this, &AJudgeCharacter::PostLoadingEvent);
 	}
 }
 
@@ -47,12 +47,12 @@ void AJudgeCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 void AJudgeCharacter::PreLoadingEnd()
 {
-	PlayCrossFadeAnim();
+	PlayLevelSequence(EPlayerLevelSequenceType::E_CrossFade);
 
 	if (IsValid(GetLevelScriptRef()))
 	{
 		GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
-			GetLevelScriptRef()->PostLoadingEvent.Broadcast();
+			GetLevelScriptRef()->PostLoadingDelegate.Broadcast();
 		}), 0.75f, false);
 	}
 }

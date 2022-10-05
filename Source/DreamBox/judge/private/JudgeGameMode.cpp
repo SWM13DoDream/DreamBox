@@ -12,6 +12,12 @@ void AJudgeGameMode::PostLogin(APlayerController* NewPlayer)
 	Super::PostLogin(NewPlayer);
 }
 
+void AJudgeGameMode::PreLoadingEndEvent()
+{
+	Super::PreLoadingEndEvent();
+	InitializeGame();
+}
+
 void AJudgeGameMode::BeginPlay()
 {
 	Super::BeginPlay();
@@ -28,7 +34,6 @@ void AJudgeGameMode::BeginPlay()
 void AJudgeGameMode::PostLoadingEvent()
 {
 	Super::PostLoadingEvent();
-	InitializeGame(); 
 }
 
 void AJudgeGameMode::AddArray(FScriptDT& ScriptDT)

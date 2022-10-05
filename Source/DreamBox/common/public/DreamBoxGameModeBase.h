@@ -9,8 +9,17 @@
 /* 
  - Name        : ADreamBoxGamemode
  - Descirption : 메인 게임모드 베이스, 레벨 스트리밍 관련 로직이 들어있음
- - Date        : 2022/09/29 LJH
+ - Date        : 2022/10/04 LJH
  */
+
+
+UENUM(BlueprintType)
+enum class EPersistentLoadStateType : uint8
+{
+	E_PreLoad = 0		UMETA(DisplayName = "PreLoad"),
+	E_InLoad			UMETA(DisplayName = "InLoad"),
+	E_PostLoad			UMETA(DisplayName = "PostLoad")
+};
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDeleDynamicNoParam);
 
@@ -22,20 +31,44 @@ class DREAMBOX_API ADreamBoxGameModeBase : public AGameModeBase
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
+	
 	virtual void PostLogin(APlayerController* NewPlayerController);
+	
+	UFUNCTION(BlueprintCallable)
+	virtual void PreLoadingEndEvent();
+
+	UFUNCTION(BlueprintCallable)
+	//로딩이 끝난 이후의 BeginPlay 이벤트
+	virtual void PostLoadingEvent();
 
 public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 		int32 GetPlayerControllerCount() { return PlayerControllerList.Num(); }
-
-public:
-	//로딩이 끝난 이후의 BeginPlay 이벤트
-	UFUNCTION()
-		virtual void PostLoadingEvent();
-
+	
+	//Level Script 레퍼런스를 반환
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 		class APersistentLevelBase* GetLevelScriptRef() { return LevelScriptRef; }
+
+	UFUNCTION()
+		void InitLevelScriptRef(class APersistentLevelBase* NewScriptRef);
+
+	UFUNCTION(BlueprintCallable)
+		void SetCurrentLoadState(EPersistentLoadStateType NewState) { CurrentLoadState = NewState; }
+
+	UFUNCTION(BlueprintCallable)
+		EPersistentLoadStateType GetCurrentLoadState() { return CurrentLoadState; }
+
+	UFUNCTION()
+		TArray<APlayerController*> GetPlayerControllerList() { return PlayerControllerList; }
+
+	UFUNCTION()
+		TArray<class AVRCharacter*> GetPlayerCharacterList() { return PlayerCharacterList; }
+
+	UFUNCTION()
+		FContentStartInfo GetPlayerStartInfo(int32 PlayerID);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void DebugMessage(float num);
 
 public:
 	//게임 시작 Info, idx에 따라 플레이어를 구분
@@ -51,6 +84,14 @@ private:
 	UPROPERTY()
 		TArray<class AVRCharacter*> PlayerCharacterList; 
 
+	//플레이어의 로드 정보를 나타내는 배열
+	UPROPERTY()
+		TArray<bool> PlayerLoadStateList;
+
 	UPROPERTY()
 		class APersistentLevelBase* LevelScriptRef;
+
+	//Multipleyr(Host) 전용 Property : 현재 로드 상태 (Client와의 Sync 위함)
+	UPROPERTY()
+		EPersistentLoadStateType CurrentLoadState = EPersistentLoadStateType::E_PreLoad;
 };

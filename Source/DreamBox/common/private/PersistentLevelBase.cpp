@@ -15,6 +15,8 @@ void APersistentLevelBase::BeginPlay()
 		if (IsValid(GamemodeRef))
 		{
 			SetupLevelOptions();
+			GamemodeRef->InitLevelScriptRef(this);
+			LoadTargetLevel();
 		}
 	}
 }
@@ -32,7 +34,8 @@ void APersistentLevelBase::SetupLevelOptions()
 	}
 }
 
+
 void APersistentLevelBase::BroadcastPostLoadingEvent()
 {
-	PostLoadingEvent.Broadcast();
+	PostLoadingDelegate.Broadcast();
 }

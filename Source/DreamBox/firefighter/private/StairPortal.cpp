@@ -64,7 +64,7 @@ void AStairPortal::OnComponentBeginOverlap(UPrimitiveComponent* HitComp, AActor*
 
 	if (IsValid(PlayerCharacterRef))
 	{
-		PlayerCharacterRef->PlayCrossFadeAnim();
+		PlayerCharacterRef->PlayLevelSequence(EPlayerLevelSequenceType::E_CrossFade);
 
 		GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
 			int32 TargetIdx = MissionDestination == -1 ? DefaultDestination : MissionDestination;
