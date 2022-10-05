@@ -28,15 +28,15 @@ public:
 
 	//기본 이동 함수 : 앞뒤 이동
 	UFUNCTION()
-		void MoveForward(float Value);
+		virtual void MoveForward(float Value);
 
 	//기본 이동 함수 : 양옆 이동
 	UFUNCTION()
-		void MoveRight(float Value);
+		virtual void MoveRight(float Value);
 
 	//기본 회전 함수 : 45도 만큼 카메라 전환
 	UFUNCTION()
-		void SnapTurn(float Value);
+		virtual void SnapTurn(float Value);
 
 	//SnapTurn이 연속으로 입력되는 것을 방지하는 함수
 	UFUNCTION()
