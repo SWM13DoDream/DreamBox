@@ -1,8 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "../public/InteractionTrigger.h"
-#include "../public/AstronautGamemode.h"
 #include "../public/InteractionWidget.h"
+#include "../public/AstronautCharacter.h"
+#include "../public/AstronautGamemode.h"
 #include "Components/WidgetComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -29,7 +30,13 @@ void AInteractionTrigger::BeginPlay()
 
 	// 미리 캐스팅된 주요 제어 변수를 저장
 	Widget = Cast<UInteractionWidget>(WidgetComponent->GetWidget());
-	Gamemode = Cast<AAstronautGamemode>(UGameplayStatics::GetGameMode(GetWorld()));
+	ACharacter* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+	if (Player->IsLocallyControlled()) LocalPlayer = Cast<AAstronautCharacter>(Player);
+	else
+	{
+		Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 1);
+		LocalPlayer = Cast<AAstronautCharacter>(Player);
+	}
 
 	InitializeMode();
 }
@@ -41,17 +48,18 @@ void AInteractionTrigger::SetInteractionContent(FInteractionStruct Content)
 
 void AInteractionTrigger::OnTriggerEnter(class AActor* OtherActor)
 {
-	if (bIsInteractable && IsValidPlayer(OtherActor))
+	if (IsValidPlayer(OtherActor))
 	{
 		if (bHasVariableMode)
 		{
-			if (Gamemode->bIsMissionDone)
+			if (LocalPlayer->bIsMissionDone)
 			{
-				if (Gamemode->IsAboardable())
+				if (LocalPlayer->IsAboardable())
 				{
 					FString NewMode = "FinishMission";
 					InteractionMode = FName(*NewMode);
 					InitializeMode();
+					if (!bIsInteractable) bIsInteractable = true;
 				}
 				else
 				{
@@ -61,8 +69,22 @@ void AInteractionTrigger::OnTriggerEnter(class AActor* OtherActor)
 				}
 			}
 		}
-		Widget->Animate(true);
-		bIsAvailable = true;
+
+		if (bIsInteractable)
+		{
+			FString InteractionKey = InteractionMode.ToString();
+			if (InteractionKey.Equals(TEXT("FinishCSM")))
+			{
+				if (!LocalPlayer->bIsMissionDone) return;
+			}
+			else if (InteractionKey.Equals(TEXT("EnterGateway")))
+			{
+				if (!LocalPlayer->bIsMissionDone) return;
+			}
+
+			Widget->Animate(true);
+			bIsAvailable = true;
+		}
 	}
 }
 
@@ -82,11 +104,11 @@ void AInteractionTrigger::OnInteract()
 		FString InteractionKey = InteractionMode.ToString();
 		if (InteractionKey.Equals(TEXT("ExitVehicle")))
 		{
-			Gamemode->PlayCrossFade();
+			LocalPlayer->PlayCrossFade();
 
 			GetWorld()->GetTimerManager().SetTimer(DelayHandler, FTimerDelegate::CreateLambda([&]()
 			{
-				Gamemode->MoveLEM(false);
+				LocalPlayer->MoveLEM(false);
 
 				// 핸들러 초기화
 				GetWorld()->GetTimerManager().ClearTimer(DelayHandler);
@@ -94,11 +116,11 @@ void AInteractionTrigger::OnInteract()
 		}
 		else if (InteractionKey.Equals(TEXT("EnterVehicle")))
 		{
-			Gamemode->PlayCrossFade();
+			LocalPlayer->PlayCrossFade();
 
 			GetWorld()->GetTimerManager().SetTimer(DelayHandler, FTimerDelegate::CreateLambda([&]()
 			{
-				Gamemode->MoveLEM(true);
+				LocalPlayer->MoveLEM(true);
 
 				// 핸들러 초기화
 				GetWorld()->GetTimerManager().ClearTimer(DelayHandler);
@@ -106,31 +128,110 @@ void AInteractionTrigger::OnInteract()
 		}
 		else if (InteractionKey.Equals(TEXT("Install")))
 		{
-			Gamemode->DoMainMission();
+			LocalPlayer->DoMainMission();
 		}
 		else if (InteractionKey.Equals(TEXT("MissionPlant")))
 		{
-			Gamemode->DoSubMission(0);
+			LocalPlayer->DoSubMission(0);
 		}
 		else if (InteractionKey.Equals(TEXT("MissionCrew")))
 		{
-			Gamemode->DoSubMission(1);
+			LocalPlayer->DoSubMission(1);
 		}
 		else if (InteractionKey.Equals(TEXT("MissionLaboratory")))
 		{
-			Gamemode->DoSubMission(2);
+			LocalPlayer->DoSubMission(2);
 		}
 		else if (InteractionKey.Equals(TEXT("MissionSilo")))
 		{
-			Gamemode->DoSubMission(3);
+			LocalPlayer->DoSubMission(3);
 		}
 		else if (InteractionKey.Equals(TEXT("MissionRock")))
 		{
-			Gamemode->DoSubMission(4);
+			LocalPlayer->DoSubMission(4);
 		}
 		else if (InteractionKey.Equals(TEXT("MissionRobot")))
 		{
-			Gamemode->DoSubMission(5);
+			LocalPlayer->DoSubMission(5);
+		}
+		else if (InteractionKey.Equals(TEXT("ExitGateway")))
+		{
+			Unset();
+			LocalPlayer->PlayCrossFade();
+			GetWorld()->GetTimerManager().SetTimer(DelayHandler, FTimerDelegate::CreateLambda([&]()
+			{
+				LocalPlayer->StartEVA();
+
+				// 핸들러 초기화
+				GetWorld()->GetTimerManager().ClearTimer(DelayHandler);
+			}), 1.0f, false);
+		}
+		else if (InteractionKey.Equals(TEXT("Adjust")))
+		{
+			LocalPlayer->DoMainMission();
+			Widget->Animate(false);
+			Unset();
+
+			LocalPlayer->PlayCrossFade();
+
+			GetWorld()->GetTimerManager().SetTimer(DelayHandler, FTimerDelegate::CreateLambda([&]()
+			{
+				LocalPlayer->ReturnIVA();
+
+				// 핸들러 초기화
+				GetWorld()->GetTimerManager().ClearTimer(DelayHandler);
+			}), 1.0f, false);
+		}
+		else if (InteractionKey.Equals(TEXT("EnterGateway")))
+		{
+			Unset();
+			LocalPlayer->PlayCrossFade();
+
+			GetWorld()->GetTimerManager().SetTimer(DelayHandler, FTimerDelegate::CreateLambda([&]()
+			{
+				LocalPlayer->ReturnIVA();
+
+				// 핸들러 초기화
+				GetWorld()->GetTimerManager().ClearTimer(DelayHandler);
+			}), 1.0f, false);
+		}
+		else if (InteractionKey.Equals(TEXT("TimeNotMatch")))
+		{
+			// Multiplay 여부 체크
+			ENetMode NetworkingMode = GetWorld()->GetNetMode();
+			bool bInMultiplay = false;
+			if (NetworkingMode == NM_ListenServer)
+			{
+				AAstronautGamemode* Gamemode =
+					Cast<AAstronautGamemode>(UGameplayStatics::GetGameMode(GetWorld()));
+				if (Gamemode->RemotePlayer != nullptr) bInMultiplay = true;
+			}
+			else if (NetworkingMode == NM_Client) bInMultiplay = true;
+
+			if (bInMultiplay)
+			{
+				Unset();
+				Widget->Animate(false);
+				LocalPlayer->MakeRPCMissionDone();
+			}
+		}
+		else if (InteractionKey.Equals(TEXT("FinishCSM")))
+		{
+			Unset();
+			Widget->Animate(false);
+
+			// Multiplay 여부 체크
+			ENetMode NetworkingMode = GetWorld()->GetNetMode();
+			bool bInMultiplay = false;
+			if (NetworkingMode == NM_ListenServer)
+			{
+				AAstronautGamemode* Gamemode =
+					Cast<AAstronautGamemode>(UGameplayStatics::GetGameMode(GetWorld()));
+				if (Gamemode->RemotePlayer != nullptr) bInMultiplay = true;
+			}
+			else if (NetworkingMode == NM_Client) bInMultiplay = true;
+
+			if (bInMultiplay) LocalPlayer->MakeRPCMissionDone();
 		}
 	}
 }
@@ -149,7 +250,7 @@ bool AInteractionTrigger::IsValidPlayer(class AActor* TargetActor)
 
 void AInteractionTrigger::SetStatus_Implementation(bool Value)
 {
-	// Value = true인 경우 무결성 보장 (게임 시작 시, Widget->Animate 호출하지 않음)
-	Unset();
-	if (!Value) Widget->Animate(false);
+ 	// Value = true인 경우 무결성 보장 (게임 시작 시, Widget->Animate 호출하지 않음)
+ 	Unset();
+ 	if (!Value) Widget->Animate(false);
 }

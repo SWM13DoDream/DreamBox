@@ -10,9 +10,9 @@ public class DreamBox : ModuleRules
 	
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UMG"
 															, "Slate", "SlateCore", "Niagara", "LevelSequence"
-															, "MovieScene", "Sockets" });
+															, "MovieScene", "Sockets", "HeadMountedDisplay" });
 
-		PrivateDependencyModuleNames.AddRange(new string[] {  });
+		PrivateDependencyModuleNames.AddRange(new string[] { "CableComponent" });
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

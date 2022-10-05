@@ -31,9 +31,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UTextBlock* SubContentText;
 
-	// AstronautGamemode 타입으로 미리 캐스팅되는 Gamemode 변수
+	// AstronautCharacter 타입으로 미리 캐스팅되는 로컬 플레이어 레퍼런스
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Control")
-		class AAstronautGamemode* Gamemode;
+		class AAstronautCharacter* LocalPlayer;
 
 public:
 	// Gamemode에서 메인 미션 상태 변경 시 디스플레이 업데이트. Unicode를 사용하므로 파생 BP에서 구현
