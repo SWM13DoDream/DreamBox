@@ -2,14 +2,18 @@
 
 
 #include "../public/VRCharacter.h"
+#include "../public/PersistentLevelBase.h"
 #include "TimerManager.h"
+#include "LevelSequenceActor.h"
+#include "LevelSequencePlayer.h"
+#include "SocketSubsystem.h"
 #include "Components/WidgetInteractionComponent.h"
 
 /*
  - Name        : AVRCharacter
  - Description : VRImmersiveHands 에셋 기반의 Base 캐릭터 클래스
 				 직업별 캐릭터를 본 클래스를 상속
- - Date        : 2022/09/02 LJH
+ - Date        : 2022/09/28 LJH
 */
 
 // Sets default values
@@ -47,14 +51,23 @@ AVRCharacter::AVRCharacter()
 // Called when the game starts or when spawned
 void AVRCharacter::BeginPlay()
 {
-	Super::BeginPlay();
+	Super::BeginPlay();	
+
+	PlayerControllerID = UGameplayStatics::GetPlayerControllerID(Cast<APlayerController>(Controller));
+
+	InitLevelScriptRef();
+	InitGameModeRef();
+	InitLevelSequence();
 	
+	SetCanJump(true);
 }
+
 
 // Called every frame
 void AVRCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
 
 }
 
@@ -67,6 +80,52 @@ void AVRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAxis("SnapTurn", this, &AVRCharacter::SnapTurn);
 	PlayerInputComponent->BindAxis("MoveForward", this, &AVRCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AVRCharacter::MoveRight);
+
+	PlayerInputComponent->BindAction("Interaction", IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction("Interaction", IE_Released, this, &ACharacter::StopJumping);
+}
+
+void AVRCharacter::OnRPCSetupContent_Implementation(int32 PlayerID, FContentStartInfo StartInfo)
+{
+	UE_LOG(LogTemp, Warning, TEXT("SIBAL"));
+	if (HasAuthority())
+	{
+		OnRPCInitPlayerTransform(FTransform(StartInfo.StartRotation, StartInfo.StartLocation, FVector(1.0f)));
+	}
+	else
+	{
+		MakeRPCInitPlayerTransform(FTransform(StartInfo.StartRotation, StartInfo.StartLocation, FVector(1.0f)));
+	}
+}
+
+void AVRCharacter::OnRPCStartContent_Implementation(int32 PlayerID)
+{
+	UE_LOG(LogTemp, Warnings, TEXT("OnRPCStartContent"));
+}
+
+void AVRCharacter::MakeRPCInitPlayerTransform_Implementation(FTransform InitialTransform)
+{
+	OnRPCInitPlayerTransform(InitialTransform);
+}
+
+void AVRCharacter::OnRPCInitPlayerTransform_Implementation(FTransform InitialTransform)
+{
+	SetActorLocation(InitialTransform.GetLocation(), false, nullptr, ETeleportType::TeleportPhysics);
+	SetActorRotation(InitialTransform.GetRotation(), ETeleportType::TeleportPhysics);
+}
+
+void AVRCharacter::InitLevelSequence()
+{
+	ALevelSequenceActor* OutActor = nullptr;
+
+	for (ULevelSequence* levelSequenceRef : LevelSequenceList)
+	{
+		if (IsValid(levelSequenceRef))
+		{
+			LevelSequencePlayerList.Add(ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), levelSequenceRef
+				, FMovieSceneSequencePlaybackSettings(), OutActor));
+		}
+	}
 }
 
 void AVRCharacter::MoveForward(float Value)
@@ -92,13 +151,74 @@ void AVRCharacter::SnapTurn(float Value)
 	AddActorWorldRotation({ 0.0f, 45.0f * Direction, 0.0f }, true, nullptr); //로테이션을 45도 돌림
 
 	GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
-		ResetSnapTurn();
+		ResetSnapTurnControllerInput();
 	}), 0.15f, false); //각 입력의 0.15초 뒤에 새로운 입력이 가능 (연속 입력 방지)
 
 	bSnapTurnIsFinished = true;
 }
 
-void AVRCharacter::ResetSnapTurn()
+void AVRCharacter::ResetSnapTurnControllerInput()
 {
 	bSnapTurnIsFinished = false; //다시 SnapTurn을 할 수 있도록 설정
+}
+
+void AVRCharacter::PlayLevelInitSequence_Implementation()
+{
+	PlayLevelSequence(EPlayerLevelSequenceType::E_FadeIn);
+}
+
+float AVRCharacter::PlayLevelSequence(EPlayerLevelSequenceType TargetSequenceType)
+{
+	if (LevelSequencePlayerList.IsValidIndex((int32)(TargetSequenceType)))
+	{
+		if (IsValid(LevelSequencePlayerList[(int32)(TargetSequenceType)]))
+		{
+			LevelSequencePlayerList[(int32)(TargetSequenceType)]->Play();
+
+			if (LevelSequenceLengthList.IsValidIndex((int32)(TargetSequenceType)))
+			{
+				GetCharacterMovement()->Deactivate();
+				GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
+					GetCharacterMovement()->Activate();
+				}), LevelSequenceLengthList[(int32)(TargetSequenceType)], false);
+
+				return LevelSequenceLengthList[(int32)(TargetSequenceType)];
+			}
+		}
+	}	
+	return 0.0f;
+}
+
+void AVRCharacter::SetCanJump(bool NewState)
+{
+	GetCharacterMovement()->SetJumpAllowed(NewState);
+}
+
+void AVRCharacter::InitGameModeRef()
+{
+	if (GetWorld())
+	{
+		GamemodeRef = GetWorld()->GetAuthGameMode<ADreamBoxGameModeBase>();
+	}
+}
+
+void AVRCharacter::InitLevelScriptRef()
+{
+	if (GetWorld())
+	{
+		LevelScriptRef = Cast<APersistentLevelBase>(GetWorld()->GetLevelScriptActor());
+	}
+}
+
+
+FString AVRCharacter::GetCurrentIpAddress()
+{
+	FString IpAddr("NONE");
+	bool canBind = false;
+	TSharedRef<class FInternetAddr> LocalIp = ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->GetLocalHostAddr(*GLog, canBind);
+	if (LocalIp->IsValid())
+	{
+		IpAddr = LocalIp->ToString(false);
+	}
+	return IpAddr;
 }

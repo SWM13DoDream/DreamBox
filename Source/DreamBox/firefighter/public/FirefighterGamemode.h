@@ -3,22 +3,23 @@
 #pragma once
 
 #include "../../common/public/DreamBox.h"
+#include "../../common/public/DreamBoxGameModeBase.h"
 #include "FireFighterGamemode.generated.h"
 
 /*
  - Name        : AFirefighterGamemode
  - Descirption : Firefighter 직업군의 메인 게임모드 (미션 업데이트 및 트랜지션 위젯 이벤트 포함)
- - Date        : 2022/09/03 LJH
+ - Date        : 2022/09/26 LJH
 */
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FDeleDynamicThreeInt, int32, PlayerID, int32, MissionID, int32, Variable);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FDeleDynamicTwoInt, int32, PlayerID, int32, ScriptID);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FDeleDynamicIntString, int32, PlayerID, FString, Script);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDeleDynamicOneParam, int32, PlayerID);
+//DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDeleDynamicOneParam, int32, PlayerID);
 
 
 UCLASS()
-class DREAMBOX_API AFirefighterGamemode : public AGameModeBase
+class DREAMBOX_API AFirefighterGamemode : public ADreamBoxGameModeBase
 {
 	GENERATED_BODY()
 public:
@@ -34,13 +35,12 @@ public:
 	UPROPERTY(BlueprintAssignable, VisibleAnywhere, BlueprintCallable)
 		FDeleDynamicIntString ShowScriptWithString;
 
-	//CrossFade 애니메이션을 출력
-	UPROPERTY(BlueprintAssignable, VisibleAnywhere, BlueprintCallable)
-		FDeleDynamicOneParam CrossFadeAnimationEvent; 
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	// 로딩 직후의 BeginPlay
+	virtual void PostLoadingEvent() override;
 
 public:
 	//완료한 미션을 셋에 추가
@@ -51,23 +51,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 		bool GetMissionIsComplete(int32 MissionID);
 
-	//레벨 시퀀스를 초기화
-	UFUNCTION()
-		void InitLevelSequence();
-
+	
 	//게임 시작과 동시에 출력할 스크립트를 띄움
 	UFUNCTION()
 		void ShowInitialScript();
 
-	//크로스 페이드를 실제로 출력하는 로직
-	UFUNCTION(BlueprintCallable)
-		void PlayCrossFadeAnim(int32 PlayerID);
-
 public:
-	//크로스 페이드 효과 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Sequence")
-		class ULevelSequence* CrossFade;
-
 	//디버그 전용 : 초기 스크립트를 띄울지?
 	UPROPERTY(EditAnywhere, Category = "Gameplay")
 		bool bShowInitScript = true;
@@ -80,13 +69,9 @@ private:
 	UPROPERTY()
 		TSet<int32> CompleteMissionSet; 
 
-	//시퀀스 플레이어
-	UPROPERTY()
-		class ULevelSequencePlayer* CrossFadePlayer;
-
 	//플레이어 캐릭터 레퍼런스
 	UPROPERTY()
-		ACharacter* PlayerCharacterRef;
+		class AFirefighterCharacter* PlayerCharacterRef;
 
 	//Delay 사용을 위한 타이머 핸들
 	UPROPERTY()

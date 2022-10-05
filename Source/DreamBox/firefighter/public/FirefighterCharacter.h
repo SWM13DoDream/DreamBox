@@ -3,14 +3,13 @@
 #pragma once
 
 #include "../../common/public/DreamBox.h"
-#include "../../common/public/VRCharacter.h"
 #include "FirefighterInteractionType.h"
 #include "FirefighterCharacter.generated.h"
 
 /*
  - Name        : AFirefighterCharacter
  - Descirption : Firefighter 직업의 메인 Playable 캐릭터
- - Date        : 2022/09/06 LJH
+ - Date        : 2022/09/29 LJH
 */
 
 UCLASS()
@@ -27,10 +26,25 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent);
 
-	/*-------- Interaction -----------------*/
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
+/// ======================================
+/// 상호작용 관련 함수
+/// ======================================
+public:
 	//상호작용을 시도 : bIsReadyToInteraction과 InteractionType 기반으로 결정
 	UFUNCTION()
 		void TryInteraction();
+
+	//Grab State L 상태를 체크하고 물을 발사 시도
+	UFUNCTION()
+		void TryFireL();
+
+	//Grab State R 상태를 체크하고 물을 발사 시도
+	UFUNCTION()
+		void TryFireR();
 
 	//상호작용 : 물을 발사
 	UFUNCTION()
@@ -51,9 +65,15 @@ public:
 	//상호작용 : 업고 있는 캐릭터를 내려놓음
 	UFUNCTION(BlueprintCallable)
 		void PutInjuredCharacter();
+	
+	//Interaction 관련 멤버 초기화
+	UFUNCTION()
+		void ResetInteractionState();
 
-public: //멤버변수 Read Write
-
+/// ======================================
+///  Read, Write 
+/// ======================================
+public:
 	//상호작용 할 화재원인액터의 레퍼런스 지정
 	UFUNCTION(BlueprintCallable)
 		void SetCauseOfFireRef(ACauseOfFire* NewCauseOfFire) { CauseOfFireRef = NewCauseOfFire; }
@@ -74,9 +94,16 @@ public: //멤버변수 Read Write
 	UFUNCTION()
 		void SetIsCarrying(bool NewState) { bIsCarrying = NewState; }
 
-	//Interaction 관련 멤버 초기화
-	UFUNCTION()
-		void ResetInteractionState(); 
+	//호스를 잡고 있는 상태(왼손, 오른손, None)를 지정
+	UFUNCTION(BlueprintCallable)
+		void SetHoseGrabState(EFirefighterHoseGrabState NewState);
+
+	//호스를 잡고 있는지의 상태를 반환
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+		EFirefighterHoseGrabState GetCurrentState() { return HoseGrabState; }
+
+	UFUNCTION(BlueprintCallable)
+		void SetFireHoseRef(AFireHose* NewFireHose);
 
 	//Interaction이 가능한지 여부 반환
 	UFUNCTION(BlueprintCallable)
@@ -90,7 +117,14 @@ public: //멤버변수 Read Write
 	UFUNCTION(BlueprintCallable)
 		AInjuredCharacter* GetInjuredCharacterRef() const { return InjuredCharacterRef;  }
 
-public: //Delegate 관련, 플레이어를 거치는 이유? - 멀티플레이 및 관전 기능 감안
+	//캐릭터의 Visibility를 설정
+	UFUNCTION()
+		void SetCharacterVisibility(bool NewState) const;
+
+/// =================================
+/// 미션 이벤트 / 로딩 이벤트 관련
+/// =================================
+public: 
 	UFUNCTION()
 		void UpdateMissionList(int32 PlayerID, int32 MissionID, int32 Variable);
 
@@ -100,15 +134,10 @@ public: //Delegate 관련, 플레이어를 거치는 이유? - 멀티플레이 및 관전 기능 감안
 	UFUNCTION()
 		void ShowScriptWithString(int32 PlayerID, FString Script);
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	UFUNCTION()
+		void PreLoadingEnd();
 
 public:
-	//캐릭터가 소유한 소방 호스 관창
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		UChildActorComponent* FireHose; 
-
 	//구조되고있는 캐릭터가 부착될 컴포넌트
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		USpringArmComponent* RescueSocket;
@@ -124,13 +153,12 @@ public:
 		UChildActorComponent* MissionManager;
 
 private:
-	//게임모드 레퍼런스
-	UPROPERTY()
-		class AFirefighterGamemode* GamemodeRef;
-
 	//업을 캐릭터의 레퍼런스 (InValid 할 경우 불가능)
 	UPROPERTY()
 		class AInjuredCharacter* InjuredCharacterRef;
+
+	UPROPERTY()
+		class AFirefighterGamemode* FirefighterGamemodeRef;
 
 	//화재 원인 액터 레퍼런스 
 	UPROPERTY()
@@ -144,9 +172,16 @@ private:
 	UPROPERTY()
 		class AScriptManager* ScriptManagerRef;
 
+	//캐릭터가 소유한 소방 호스 관창
+	UPROPERTY()
+		AFireHose* FireHoseRef;
+
 	//현재 가능한 InteractionType
 	UPROPERTY()
 		EFirefighterInteractionType InteractionType;
+
+	UPROPERTY()
+		EFirefighterHoseGrabState HoseGrabState; 
 
 	//현재 업고 있는지?
 	UPROPERTY()

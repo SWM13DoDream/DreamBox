@@ -2,6 +2,7 @@
 
 
 #include "../public/StairPortal.h"
+#include "../../common/public/VRCharacter.h"
 #include "../public/FirefighterGamemode.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -59,16 +60,20 @@ void AStairPortal::OnComponentBeginOverlap(UPrimitiveComponent* HitComp, AActor*
 {
 	if (!IsValid(OtherActor) || !OtherActor->ActorHasTag("Player")) return;
 
-	GamemodeRef->CrossFadeAnimationEvent.Broadcast(0);
+	PlayerCharacterRef = Cast<AVRCharacter>(OtherActor);
 
-	PlayerCharacterRef = Cast<ACharacter>(OtherActor);
-	GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
-		int32 TargetIdx = MissionDestination == -1 ? DefaultDestination : MissionDestination;
-		if (TargetIdx >= TeleportPointArray.Num()) return;
-		FVector TargetLocation = TeleportPointArray[TargetIdx]->GetActorLocation();
-		PlayerCharacterRef->SetActorLocation(TargetLocation + FVector(0.0f, 100.0f, 0.0f));
+	if (IsValid(PlayerCharacterRef))
+	{
+		PlayerCharacterRef->PlayLevelSequence(EPlayerLevelSequenceType::E_CrossFade);
 
-		FRotator TargetRotation = UKismetMathLibrary::NormalizedDeltaRotator(GetActorRotation(), PlayerCharacterRef->GetActorRotation());
-		PlayerCharacterRef->AddActorWorldRotation(TargetRotation, false, nullptr, ETeleportType::TeleportPhysics);
-	}), 0.75f, false);
+		GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
+			int32 TargetIdx = MissionDestination == -1 ? DefaultDestination : MissionDestination;
+			if (TargetIdx >= TeleportPointArray.Num()) return;
+			FVector TargetLocation = TeleportPointArray[TargetIdx]->GetActorLocation();
+			PlayerCharacterRef->SetActorLocation(TargetLocation + FVector(0.0f, 100.0f, 0.0f));
+
+			FRotator TargetRotation = UKismetMathLibrary::NormalizedDeltaRotator(GetActorRotation(), PlayerCharacterRef->GetActorRotation());
+			PlayerCharacterRef->AddActorWorldRotation(TargetRotation, false, nullptr, ETeleportType::TeleportPhysics);
+			}), 0.75f, false);
+	}
 }

@@ -7,13 +7,11 @@
 /*
 - Name			: AJudgeCharacter
 - Description	: 판사 캐릭터 WidgetIntercation을 통해 다른 Widget 들과 Interaction
-- Date			: 2022-08-12
-- Version		: 1.0.1 Ver
+- Date			: 2022-09-29 LJH
 */
 
-
 UCLASS()
-class DREAMBOX_API AJudgeCharacter : public ACharacter
+class DREAMBOX_API AJudgeCharacter : public AVRCharacter
 {
 	GENERATED_BODY()
 
@@ -21,20 +19,26 @@ public:
 	// Sets default values for this character's properties
 	AJudgeCharacter();
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-public:
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
 
-private:
-	void MoveForward(float NewAxisValue);
-	void MoveRight(float NewAxisValue);
+public:	
+	UFUNCTION()
+		void PreLoadingEnd();
+	
+	UFUNCTION()
+		void PostLoadingEvent();
+
+public:
+	//스크립트 위젯 컴포넌트
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class UWidgetComponent* ScriptWidget;
+	
 };

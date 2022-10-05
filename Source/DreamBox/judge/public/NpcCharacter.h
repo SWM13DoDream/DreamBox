@@ -3,13 +3,19 @@
 /*
 - Name			: ANpcCharacter
 - Description	: 검사 / 변호사 / 피고인을 위한 Character
-- Date			: 2022-07-11
+- Date			: 2022-09-24 LJH
 */
 
 #pragma once
 
 #include "../../common/public/DreamBox.h"
 #include "NpcCharacter.generated.h"
+
+/*
+ - Name        : ANPCCharacter
+ - Descirption : NPC 캐릭터
+ - Date        : 2022/09/29 LJH
+ */
 
 UCLASS()
 class DREAMBOX_API ANpcCharacter : public ACharacter
@@ -30,6 +36,9 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	UFUNCTION()
+		void PostLoadingEvent();
 
 	// DataTable를 통해 Script와 Delay를 각각 배열에 집어넣는 함수
 	UFUNCTION()
@@ -66,4 +75,11 @@ public:
 		TArray<FString> FourthScript;
 	UPROPERTY(BlueprintReadWrite, Category = "Delay")
 		TArray<float> FourthDelay;
+
+private:
+	UPROPERTY()
+		class AJudgeGameMode* GamemodeRef;
+
+	UPROPERTY()
+		class APersistentLevelBase* LevelScriptRef;
 };

@@ -3,6 +3,8 @@
 
 #include "../public/NpcCharacter.h"
 #include "../public/SScriptStruct.h"
+#include "../../common/public/PersistentLevelBase.h"
+#include "../public/JudgeGameMode.h"
 #include "Engine/DataTable.h"
 #include "Components/WidgetComponent.h"
 
@@ -22,6 +24,19 @@ void ANpcCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	if (GetWorld())
+	{
+		GamemodeRef = Cast<AJudgeGameMode>(GetWorld()->GetAuthGameMode());
+		LevelScriptRef = Cast<APersistentLevelBase>(GetWorld()->GetLevelScriptActor());
+		if (IsValid(LevelScriptRef))
+		{
+			LevelScriptRef->PostLoadingDelegate.AddDynamic(this, &ANpcCharacter::PostLoadingEvent);
+		}
+	}
+}
+
+void ANpcCharacter::PostLoadingEvent()
+{
 	AddArray(FirstScriptDT, FirstScript, FirstDelay);
 	AddArray(SecondScriptDT, SecondScript, SecondDelay);
 	AddArray(ThirdScriptDT, ThirdScript, ThirdDelay);

@@ -9,7 +9,7 @@
 /*
  - Name        : AFireHose
  - Description : 물을 뿜는 소방호스 액터
- - Date        : 2022/09/02 LJH
+ - Date        : 2022/10/01 LJH
 */
 
 UCLASS(Category="Firefighter")
@@ -43,7 +43,7 @@ protected:
 
 public: /*Component와 BP 접근 변수*/
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gameplay")
-		float FireHoseDamage;
+		float FireHoseDamage = 0.0003;
 
 	UPROPERTY(VisibleDefaultsOnly)
 		USceneComponent* DefaultSceneRoot;
@@ -52,9 +52,9 @@ public: /*Component와 BP 접근 변수*/
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gameplay")
 		class UNiagaraComponent* WaterEmitter;
 
-	//Hose의 메인 StaticMesh
-	UPROPERTY(EditAnywhere, Category = "Gameplay")
-		UChildActorComponent* HoseMesh;
+	//소방호스 메인 스태틱 메시
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Gameplay")
+		UStaticMeshComponent* FireHoseMesh;
 
 	//Firehose의 사운드 이펙트
 	UPROPERTY(EditAnywhere, Category = "Sound")

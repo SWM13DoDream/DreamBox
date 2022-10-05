@@ -20,3 +20,11 @@ enum class EFirefighterInteractionType : uint8
 	E_PICK			UMETA(DisplayName = "Pick"),
 	E_INVESTIGATE	UMETA(DisplayName = "Investigate")
 };
+
+UENUM(BlueprintType)
+enum class EFirefighterHoseGrabState : uint8
+{
+	E_NONE = 0		UMETA(DisplayName = "None"),
+	E_LEFT			UMETA(DisplayName = "Left"),
+	E_RIGHT			UMETA(DisplayName = "Right")
+};

@@ -10,6 +10,17 @@
 void AJudgeGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
+}
+
+void AJudgeGameMode::PreLoadingEndEvent()
+{
+	Super::PreLoadingEndEvent();
+	InitializeGame();
+}
+
+void AJudgeGameMode::BeginPlay()
+{
+	Super::BeginPlay();
 
 	AddArray(Enter);
 	AddArray(Guide);
@@ -20,9 +31,9 @@ void AJudgeGameMode::PostLogin(APlayerController* NewPlayer)
 	AddArray(ActualJudgement);
 }
 
-void AJudgeGameMode::BeginPlay()
+void AJudgeGameMode::PostLoadingEvent()
 {
-	Super::BeginPlay();
+	Super::PostLoadingEvent();
 }
 
 void AJudgeGameMode::AddArray(FScriptDT& ScriptDT)

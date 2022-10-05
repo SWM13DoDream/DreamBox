@@ -2,8 +2,9 @@
 
 
 #include "../public/FirefighterGamemode.h"
-#include "Kismet/GameplayStatics.h"
 #include "../public/FirefighterCharacter.h"
+#include "../../common/public/PersistentLevelBase.h"
+#include "Kismet/GameplayStatics.h"
 #include "LevelSequenceActor.h"
 #include "LevelSequencePlayer.h"
 
@@ -11,17 +12,27 @@ void AFirefighterGamemode::BeginPlay()
 {
 	Super::BeginPlay();
 
-	InitLevelSequence();
-	ShowInitialScript();
-	
-	//플레이어 캐릭터 레퍼런스 초기화
+	//플레이어 캐릭터 레퍼런스 초기화 및 이벤트 바인딩
 	if (GetWorld())
 	{
-		PlayerCharacterRef = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
-		CrossFadeAnimationEvent.AddDynamic(this, &AFirefighterGamemode::PlayCrossFadeAnim);
+		PlayerCharacterRef = Cast<AFirefighterCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+		PlayerCharacterRef->SetCharacterVisibility(false);
+		if (IsValid(GetLevelScriptRef()))
+		{
+			GetLevelScriptRef()->PostLoadingDelegate.AddDynamic(this, &AFirefighterGamemode::PostLoadingEvent);
+		}
 	}
 }
 
+void AFirefighterGamemode::PostLoadingEvent()
+{
+	Super::PostLoadingEvent();
+
+	PlayerCharacterRef->SetCharacterVisibility(true);
+	PlayerCharacterRef->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+	PlayerCharacterRef->SetActorLocation(FVector(52.0f, -372.f, 100.0f));
+	ShowInitialScript();
+}
 
 void AFirefighterGamemode::AddToCompleteSet(int32 MissionID)
 {
@@ -34,30 +45,10 @@ bool AFirefighterGamemode::GetMissionIsComplete(int32 MissionID)
 	return CompleteMissionSet.Contains(MissionID);
 }
 
-void AFirefighterGamemode::InitLevelSequence()
-{
-	ALevelSequenceActor* OutActor = nullptr;
-	CrossFadePlayer = ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), CrossFade, FMovieSceneSequencePlaybackSettings(), OutActor);
-}
-
 void AFirefighterGamemode::ShowInitialScript()
 {
 	if (!bShowInitScript) return;
 	GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
 		ShowScriptWithID.Broadcast(0, InitialScriptID);
 	}), 0.5f, false);
-}
-
-void AFirefighterGamemode::PlayCrossFadeAnim(int32 PlayerID)
-{
-	if (!IsValid(CrossFadePlayer)) return;
-	CrossFadePlayer->Play();
-	
-	if (IsValid(PlayerCharacterRef))
-	{
-		PlayerCharacterRef->GetCharacterMovement()->Deactivate();
-		GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
-			PlayerCharacterRef->GetCharacterMovement()->Activate();
-		}), 1.25f, false);
-	}
 }

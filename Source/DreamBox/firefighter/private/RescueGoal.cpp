@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "../public/RescueGoal.h"
+#include "../../common/public/VRCharacter.h"
 #include "../public/FirefighterCharacter.h"
 #include "../public/FirefighterGamemode.h"
 #include "../public/InjuredCharacter.h"
@@ -58,8 +59,16 @@ void ARescueGoal::TriggerBeginOverlap(UPrimitiveComponent* HitComp, AActor* Othe
 	AInjuredCharacter* injuredCharacter = FirefighterCharacterRef->GetInjuredCharacterRef(); //레퍼런스 지정
 	if (!IsValid(injuredCharacter)) return; //구조대상 캐릭터가 유효하지 않거나 미션ID가 다르다면 반환
 
-	GamemodeRef->CrossFadeAnimationEvent.Broadcast(0);  //CrossFade 호출
-	GamemodeRef->UpdateMissionList.Broadcast(0, injuredCharacter->GetMissionID(), 1); //미션 업데이트
+	if (IsValid(FirefighterCharacterRef))
+	{
+		FirefighterCharacterRef->PlayLevelSequence(EPlayerLevelSequenceType::E_CrossFade);
+	}
+
+	if (IsValid(GamemodeRef))
+	{
+		GamemodeRef->UpdateMissionList.Broadcast(0, injuredCharacter->GetMissionID(), 1); //미션 업데이트
+	}
+
 	GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&](){ 
 		FirefighterCharacterRef->PutInjuredCharacter(); //CrossFade 도중에 캐릭터를 내려둠
 		CurrentRescueCount += 1; //구조한 인원 수를 카운팅
