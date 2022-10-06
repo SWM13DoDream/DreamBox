@@ -68,6 +68,8 @@ void AAstronautCharacter::BeginPlay()
 	Movement = this->GetCharacterMovement();
 	bMovable = false;
 	bIsWaitingPlayer = false;
+
+	InitLevelSequence();
 }
 
 // Called to bind functionality to input
@@ -696,7 +698,7 @@ float AAstronautCharacter::GetCableLength()
 // 멀티플레이 관련 함수 구현부입니다. //
 // =============================== //
 
-void AAstronautCharacter::OnRPCStartContent_Implementation()
+void AAstronautCharacter::OnRPCStartContent_Implementation(int32 PlayerID)
 {
 	PlayInitialSequence();
 }

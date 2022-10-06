@@ -87,7 +87,6 @@ void AVRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 void AVRCharacter::OnRPCSetupContent_Implementation(int32 PlayerID, FContentStartInfo StartInfo)
 {
-	UE_LOG(LogTemp, Warning, TEXT("SIBAL"));
 	if (HasAuthority())
 	{
 		OnRPCInitPlayerTransform(FTransform(StartInfo.StartRotation, StartInfo.StartLocation, FVector(1.0f)));
@@ -98,9 +97,8 @@ void AVRCharacter::OnRPCSetupContent_Implementation(int32 PlayerID, FContentStar
 	}
 }
 
-void AVRCharacter::OnRPCStartContent_Implementation(int32 PlayerID)
+void AVRCharacter::OnRPCStartContent(int32 PlayerID)
 {
-	UE_LOG(LogTemp, Warnings, TEXT("OnRPCStartContent"));
 }
 
 void AVRCharacter::MakeRPCInitPlayerTransform_Implementation(FTransform InitialTransform)
@@ -116,6 +114,8 @@ void AVRCharacter::OnRPCInitPlayerTransform_Implementation(FTransform InitialTra
 
 void AVRCharacter::InitLevelSequence()
 {
+	if (LevelSequencePlayerList.Num() == 3) return;
+
 	ALevelSequenceActor* OutActor = nullptr;
 
 	for (ULevelSequence* levelSequenceRef : LevelSequenceList)
@@ -164,6 +164,7 @@ void AVRCharacter::ResetSnapTurnControllerInput()
 
 void AVRCharacter::PlayLevelInitSequence_Implementation()
 {
+	InitLevelSequence();
 	PlayLevelSequence(EPlayerLevelSequenceType::E_FadeIn);
 }
 

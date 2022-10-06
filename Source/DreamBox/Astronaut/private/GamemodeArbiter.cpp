@@ -2,6 +2,7 @@
 
 #include "../public/GamemodeArbiter.h"
 #include "../public/AstronautCharacter.h"
+#include "../public/AstronautGamemode.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -18,6 +19,7 @@ void AGamemodeArbiter::BeginPlay()
 	Super::BeginPlay();
 
 	AAstronautCharacter* LocalPlayer;
+
 	ACharacter* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 	if (Player->IsLocallyControlled())
 	{
@@ -28,6 +30,11 @@ void AGamemodeArbiter::BeginPlay()
 		Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 1);
 		LocalPlayer = Cast<AAstronautCharacter>(Player);
 	}
-
 	LocalPlayer->RegisterArbiter(this);
+}
+
+void AGamemodeArbiter::PostLoadingEvent()
+{
+	
+	
 }

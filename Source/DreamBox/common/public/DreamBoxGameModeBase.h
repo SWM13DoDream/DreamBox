@@ -75,6 +75,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Gameplay")
 		TArray<FContentStartInfo> ContentStartInfoList;
 
+protected:
+	//플레이어의 로드 정보를 나타내는 배열
+	UPROPERTY()
+		TArray<bool> PlayerLoadStateList;
+
 private:
 	//플레이어 Controller을 저장하는 배열, idx에 따라 플레이어를 구분
 	UPROPERTY()
@@ -84,9 +89,6 @@ private:
 	UPROPERTY()
 		TArray<class AVRCharacter*> PlayerCharacterList; 
 
-	//플레이어의 로드 정보를 나타내는 배열
-	UPROPERTY()
-		TArray<bool> PlayerLoadStateList;
 
 	UPROPERTY()
 		class APersistentLevelBase* LevelScriptRef;

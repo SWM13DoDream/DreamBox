@@ -76,6 +76,7 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "PreMission")
 		void PlayInitialSequence();
 
+
 	// 플레이어 대기 중일 때 다른 플레이어 접속 시 대기 해제
 	UFUNCTION(BlueprintCallable)
 		void CloseWaitingPanel();
@@ -309,7 +310,7 @@ private:
 public:
 	// 컨텐츠 시작 함수. 게임 모드로부터 호출
 	UFUNCTION(Client, Reliable)
-		void OnRPCStartContent();
+		virtual void OnRPCStartContent(int32 PlayerID) override;
 
 	// 미션을 선택하여 게임 모드에 등록, 다른 클라이언트에 대해 OnRPCCheckReadyState 호출
 	// 만약 다른 클라이언트가 아직 선택하지 않은 상태면 미션 Lock 처리

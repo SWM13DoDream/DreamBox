@@ -30,7 +30,6 @@ void AFirefighterGamemode::PostLoadingEvent()
 
 	PlayerCharacterRef->SetCharacterVisibility(true);
 	PlayerCharacterRef->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
-	PlayerCharacterRef->SetActorLocation(FVector(52.0f, -372.f, 100.0f));
 	ShowInitialScript();
 }
 

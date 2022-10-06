@@ -65,7 +65,6 @@ void ADreamBoxGameModeBase::InitLevelScriptRef(APersistentLevelBase* NewScriptRe
 {
 	if (IsValid(NewScriptRef))
 	{
-		DebugMessage(100.0f);
 		LevelScriptRef = NewScriptRef;
 		LevelScriptRef->PreLoadingEndDelegate.AddDynamic(this, &ADreamBoxGameModeBase::PreLoadingEndEvent);
 		LevelScriptRef->PostLoadingDelegate.AddDynamic(this, &ADreamBoxGameModeBase::PostLoadingEvent);

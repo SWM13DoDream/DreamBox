@@ -42,7 +42,7 @@ public:
 	UFUNCTION(Client, Reliable)
 		void OnRPCSetupContent(int32 PlayerID, FContentStartInfo StartInfo);
 	
-	UFUNCTION(Client, Reliable)
+	//UFUNCTION(Client, Reliable)
 		virtual void OnRPCStartContent(int32 PlayerID);
 	
 	UFUNCTION(Server, Reliable)

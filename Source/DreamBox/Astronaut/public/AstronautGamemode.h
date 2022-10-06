@@ -3,7 +3,7 @@
 #pragma once
 
 #include "../../common/public/DreamBox.h"
-#include "GameFramework/GameModeBase.h"
+#include "../../common/public/DreamBoxGameModeBase.h"
 #include "AstronautGamemode.generated.h"
 
 /*
@@ -44,7 +44,7 @@ namespace EAstronautCSMMoveType
 }
 
 UCLASS()
-class DREAMBOX_API AAstronautGamemode : public AGameModeBase
+class DREAMBOX_API AAstronautGamemode : public ADreamBoxGameModeBase
 {
 	GENERATED_BODY()
 
@@ -54,6 +54,10 @@ protected:
 
 	// 유저가 레벨에 참가한 경우 플레이어에게 컨텐츠 시작 RPC 전송 (멀티플레이어와 무관)
 	virtual void PostLogin(APlayerController* NewPlayer) override;
+
+	virtual void PreLoadingEndEvent() override;
+	
+	virtual void PostLoadingEvent() override;
 
 public:
 	// 플레이어 캐릭터 레퍼런스
@@ -88,4 +92,5 @@ public:
 	// 로컬 IP 주소를 가져오는 로직
 	UFUNCTION(BlueprintCallable)
 		FString GetIPAddr();
+
 };

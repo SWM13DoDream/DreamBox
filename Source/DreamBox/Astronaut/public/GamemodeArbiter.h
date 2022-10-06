@@ -26,6 +26,9 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UFUNCTION()
+		void PostLoadingEvent();
+
 public:
 	// 월드 뷰포트 상의 MissionSelectionPanel 액터 오브젝트 레퍼런스
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Controllables")

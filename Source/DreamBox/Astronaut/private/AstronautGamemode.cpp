@@ -2,6 +2,7 @@
 
 #include "../public/AstronautGamemode.h"
 #include "../public/AstronautCharacter.h"
+#include "../public/GamemodeArbiter.h"
 #include "SocketSubsystem.h"
 
 void AAstronautGamemode::BeginPlay() 
@@ -41,19 +42,29 @@ void AAstronautGamemode::PostLogin(APlayerController* NewPlayer)
 	if (LocalPlayer == nullptr)
 	{
 		LocalPlayer = Cast<AAstronautCharacter>(NewPlayer->GetPawn());
-		LocalPlayer->OnRPCStartContent();
+		//LocalPlayer->OnRPCStartContent(0);
 	}
 	// 리모트 플레이어
 	else if (RemotePlayer == nullptr)
 	{
 		RemotePlayer = Cast<AAstronautCharacter>(NewPlayer->GetPawn());
-		RemotePlayer->OnRPCStartContent();
+		//RemotePlayer->OnRPCStartContent(1);
 
 		if (!bInMission)
 		{
 			LocalPlayer->CloseWaitingPanel();
 		}
 	}
+}
+
+void AAstronautGamemode::PreLoadingEndEvent()
+{
+	Super::PreLoadingEndEvent();
+}
+
+void AAstronautGamemode::PostLoadingEvent()
+{
+	Super::PostLoadingEvent();
 }
 
 void AAstronautGamemode::Logout(AController* Exiting)
