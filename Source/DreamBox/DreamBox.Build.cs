@@ -10,7 +10,7 @@ public class DreamBox : ModuleRules
 	
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UMG"
 															, "Slate", "SlateCore", "Niagara", "LevelSequence"
-															, "MovieScene", "Sockets", "HeadMountedDisplay" });
+															, "MovieScene", "Sockets", "HeadMountedDisplay", "Http", "Json" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] { "CableComponent" });
 

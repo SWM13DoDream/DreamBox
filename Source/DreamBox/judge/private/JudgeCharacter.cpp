@@ -60,5 +60,6 @@ void AJudgeCharacter::PreLoadingEnd()
 void AJudgeCharacter::PostLoadingEvent()
 {
 	ScriptWidget->SetVisibility(true);
-	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+	//GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+	GetCharacterMovement()->Deactivate();
 }

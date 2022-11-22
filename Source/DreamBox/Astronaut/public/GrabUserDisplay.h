@@ -67,4 +67,8 @@ public:
 
 	// 인터페이스에서 상속받은 함수 구현
 	virtual AActor* GetActor_Implementation() override;
+
+private:
+	// Spheric Grab Effect는 그랩 직후 한번만 표시됨
+	bool bEffectFlag;
 };

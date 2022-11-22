@@ -80,7 +80,7 @@ protected:
 	UPROPERTY()
 		TArray<bool> PlayerLoadStateList;
 
-private:
+protected:
 	//플레이어 Controller을 저장하는 배열, idx에 따라 플레이어를 구분
 	UPROPERTY()
 		TArray<APlayerController*> PlayerControllerList; //0 is Host

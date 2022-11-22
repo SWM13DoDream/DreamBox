@@ -157,6 +157,7 @@ void AInteractionTrigger::OnInteract()
 		else if (InteractionKey.Equals(TEXT("ExitGateway")))
 		{
 			Unset();
+			Widget->Animate(false);
 			LocalPlayer->PlayCrossFade();
 			GetWorld()->GetTimerManager().SetTimer(DelayHandler, FTimerDelegate::CreateLambda([&]()
 			{

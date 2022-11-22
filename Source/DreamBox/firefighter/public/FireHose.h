@@ -31,6 +31,14 @@ public:
 	UFUNCTION()
 		void DeactivateEmitter();
 
+	//스크립트 이벤트가 호출이 되면,  FireHose를 비활성화
+	UFUNCTION()
+		void ScriptEventWithID(int32 PlayerID, int32 MissionID);
+
+	UFUNCTION()
+		void ScriptEventWithString(int32 PlayerID, FString Script);
+
+	//불에게 데미지를 입힘
 	UFUNCTION(BlueprintCallable)
 		void ApplyDamageToFire(FVector Location);
 

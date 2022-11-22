@@ -40,6 +40,8 @@ void AGrabUserDisplay::Initialize(AActor* Player, AActor* Hand, bool bIsLeft)
 
 void AGrabUserDisplay::ActivateDisplay(bool bEnableArrow)
 {
+	bEffectFlag = true;
+
 	SphereMesh->SetRelativeScale3D(FVector(0.0f, 0.0f, 0.0f));
 	SetActorHiddenInGame(false);
 	ForceArrow->SetHiddenInGame(!bEnableArrow);
@@ -49,9 +51,19 @@ void AGrabUserDisplay::ActivateDisplay(bool bEnableArrow)
 
 void AGrabUserDisplay::DisplayTick()
 {
-	float SphereSize = SphereMesh->GetRelativeScale3D().X;
-	SphereSize = (SphereSize >= 1.0f) ? 0.0f : SphereSize + 0.01f;
-	SphereMesh->SetRelativeScale3D(FVector(SphereSize, SphereSize, SphereSize));
+	if (bEffectFlag)
+	{
+		float SphereSize = SphereMesh->GetRelativeScale3D().X;
+		SphereSize = SphereSize + 0.01f;
+
+		if (SphereSize > 1.0f)
+		{
+			SphereSize = 0.0f;
+			bEffectFlag = false;
+		}
+
+		SphereMesh->SetRelativeScale3D(FVector(SphereSize, SphereSize, SphereSize));
+	}
 
 	if (!ForceArrow->bHiddenInGame)
 	{

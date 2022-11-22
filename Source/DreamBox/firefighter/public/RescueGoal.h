@@ -31,6 +31,9 @@ public:
 	UFUNCTION()
 		void TryActivateActor(int32 PlayerId, int32 MissionId, int32 Variable);
 
+	UFUNCTION(BlueprintImplementableEvent)
+		void UpdateRescueMission(class AFirefighterCharacter* PlayerCharacterRef, class AInjuredCharacter* InjuredCharacterRef);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -54,21 +57,13 @@ public:
 
 public:
 	//구출해야할 인원 수
-	UPROPERTY(EditAnywhere, Category = "Mission")
-		int32 TargetRescueCount = 3; 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mission")
+		int32 TargetRescueCount = 4; 
 
 	UPROPERTY(EditAnywhere, Category = "Mission")
 		TArray<int32> RescueMissionIdList;
 
 private:
-	//현재까지 구출한 인원 수
-	UPROPERTY()
-		int32 CurrentRescueCount = 0;
-
-	//게임모드 레퍼런스
-	UPROPERTY()
-		class AFirefighterGamemode* GamemodeRef;
-
 	//플레이어 캐릭터 레퍼런스
 	UPROPERTY()
 		class AFirefighterCharacter* FirefighterCharacterRef;
@@ -77,7 +72,16 @@ private:
 	UPROPERTY()
 		struct FTimerHandle WaitHandle;
 
+protected:
+	//게임모드 레퍼런스
+	UPROPERTY(BlueprintReadOnly)
+		class AFirefighterGamemode* GamemodeRef;
+
+	//현재까지 구출한 인원 수
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		int32 CurrentRescueCount = 0;
+
 	//미션 이벤트에 의해 활성화가 되었는지?
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		bool bIsActivated;
 };

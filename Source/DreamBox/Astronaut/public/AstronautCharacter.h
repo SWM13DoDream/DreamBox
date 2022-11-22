@@ -97,6 +97,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void InitializeMission();
 
+	// LEM 시작 시 달 행성 메시 제거하기
+	UFUNCTION(BlueprintImplementableEvent, Category = "PreMission")
+		void HideMoon();
+
 	// Grip Effect를 손에 부착. 파생 BP에서 구현
 	UFUNCTION(BlueprintImplementableEvent, Category = "PreMission")
 		void AttachGripEffect(AGrabUserDisplay* Left, AGrabUserDisplay* Right);

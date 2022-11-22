@@ -2,6 +2,7 @@
 
 #include "../public/FireHose.h"
 #include "../public/FirefighterCharacter.h"
+#include "../public/FirefighterGamemode.h"
 #include "Components/ChildActorComponent.h"
 #include "Components/AudioComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -40,6 +41,14 @@ void AFireHose::BeginPlay()
 	Super::BeginPlay();
 
 	WaterEmitter->SetNiagaraVariableObject("User.BP_Callback", this); //나이아가라 콜백 객체를 지정
+	if (GetWorld())
+	{
+		if (IsValid(GetWorld()->GetAuthGameMode<AFirefighterGamemode>()))
+		{
+			GetWorld()->GetAuthGameMode<AFirefighterGamemode>()->ShowScriptWithID.AddDynamic(this, &AFireHose::ScriptEventWithID);
+			GetWorld()->GetAuthGameMode<AFirefighterGamemode>()->ShowScriptWithString.AddDynamic(this, &AFireHose::ScriptEventWithString);
+		}
+	}
 }
 
 // Called every frame
@@ -59,6 +68,16 @@ void AFireHose::DeactivateEmitter()
 {
 	WaterEmitter->Deactivate(); //물을 끔 : 나이아가라 비활성화 
 	FirehoseSound->Deactivate();
+}
+
+void AFireHose::ScriptEventWithID(int32 PlayerID, int32 ScriptID)
+{
+	DeactivateEmitter();
+}
+
+void AFireHose::ScriptEventWithString(int32 PlayerID, FString Script)
+{
+	DeactivateEmitter();
 }
 
 void AFireHose::ApplyDamageToFire(FVector Location)

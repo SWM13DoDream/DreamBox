@@ -60,7 +60,7 @@ class DREAMBOX_API AJudgeGameMode : public ADreamBoxGameModeBase
 	GENERATED_BODY()
 
 public:
-	virtual void PostLogin(APlayerController* NewPlayer) override;
+	virtual void PostLogin(APlayerController* NewPlayerController) override;
 
 	virtual void PreLoadingEndEvent() override;
 

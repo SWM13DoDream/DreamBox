@@ -62,18 +62,5 @@ void AStairPortal::OnComponentBeginOverlap(UPrimitiveComponent* HitComp, AActor*
 
 	PlayerCharacterRef = Cast<AVRCharacter>(OtherActor);
 
-	if (IsValid(PlayerCharacterRef))
-	{
-		PlayerCharacterRef->PlayLevelSequence(EPlayerLevelSequenceType::E_CrossFade);
-
-		GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
-			int32 TargetIdx = MissionDestination == -1 ? DefaultDestination : MissionDestination;
-			if (TargetIdx >= TeleportPointArray.Num()) return;
-			FVector TargetLocation = TeleportPointArray[TargetIdx]->GetActorLocation();
-			PlayerCharacterRef->SetActorLocation(TargetLocation + FVector(0.0f, 100.0f, 0.0f));
-
-			FRotator TargetRotation = UKismetMathLibrary::NormalizedDeltaRotator(GetActorRotation(), PlayerCharacterRef->GetActorRotation());
-			PlayerCharacterRef->AddActorWorldRotation(TargetRotation, false, nullptr, ETeleportType::TeleportPhysics);
-			}), 0.75f, false);
-	}
+	MoveCharacterToNextLocation(PlayerCharacterRef);
 }

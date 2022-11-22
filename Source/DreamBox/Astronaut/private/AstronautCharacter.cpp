@@ -168,9 +168,18 @@ void AAstronautCharacter::OpenSelectMissionPanel()
 			// 인자값이 SetHiddenInGame을 결정하므로 false로 넘겨 선택 패널 활성화
 			Arbiter->MissionSelectionControllable->SetStatus_Implementation(false);
 		}
+
+		WidgetInteraction->VirtualUserIndex = 1;
+		WidgetInteraction->PointerIndex = 1;
 	}
 	else
 	{
+		if (NetworkingMode == ENetMode::NM_Client)
+		{
+			WidgetInteraction->VirtualUserIndex = 2;
+			WidgetInteraction->PointerIndex = 2;
+		}
+
 		Arbiter->MissionSelectionControllable->SetStatus_Implementation(false);
 	}
 }
@@ -250,6 +259,8 @@ void AAstronautCharacter::InitializeMission()
 			}
 			else Arbiter->SubGuideControllables[i]->SetStatus_Implementation(false);
 		}
+
+		HideMoon();
 	}
 	else if (SelectedMission == EAstronautMissionType::CSM)
 	{
@@ -383,8 +394,8 @@ void AAstronautCharacter::StartEVA()
 	Movement->ClearAccumulatedForces();
 
 	bMovable = false;
-	OpenInfoWidget(FName("Hook"));
-
+	OpenInfoWidget(FName("EVA"));
+	
 	for (TScriptInterface<IAstronautControllableInterface> Element : Arbiter->BeforeEVAGuideControllables)
 	{
 		Element->SetStatus_Implementation(false);
@@ -416,6 +427,8 @@ void AAstronautCharacter::ReturnIVA()
 	{
 		Element->SetStatus_Implementation(true);
 	}
+
+	CloseInfoWidget(FName("Rewind"));
 }
 
 void AAstronautCharacter::OnGrip(AActor* HandActor, bool bIsLeft)
@@ -427,17 +440,18 @@ void AAstronautCharacter::OnGrip(AActor* HandActor, bool bIsLeft)
 		FVector TraceEndLocation =
 			TraceStartLocation + HandActor->GetActorForwardVector();
 		TArray<TEnumAsByte<EObjectTypeQuery>> TargetTypes;
-		TEnumAsByte<EObjectTypeQuery> WorldStatic = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldStatic);
-		TargetTypes.Add(WorldStatic);
 		TArray<AActor*> IgnoreActors;
 
 		if (MoveType == EAstronautCSMMoveType::IVA)
 		{
+			TEnumAsByte<EObjectTypeQuery> WorldStatic = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldStatic);
+			TargetTypes.Add(WorldStatic);
+
 			FHitResult HitResult;
 
 			bool bIsSphereTraceSucceed = UKismetSystemLibrary::SphereTraceSingleForObjects(
 				GetWorld(), TraceStartLocation, TraceEndLocation, IVAGripRadius, TargetTypes,
-				false, IgnoreActors, EDrawDebugTrace::ForDuration, HitResult, true
+				false, IgnoreActors, EDrawDebugTrace::None, HitResult, true
 			);
 
 			if (bIsSphereTraceSucceed)
@@ -476,33 +490,32 @@ void AAstronautCharacter::OnGrip(AActor* HandActor, bool bIsLeft)
 		}
 		else if (MoveType == EAstronautCSMMoveType::EVA)
 		{
+			TEnumAsByte<EObjectTypeQuery> Vehicle = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Vehicle);
+			TargetTypes.Add(Vehicle);
+
 			TArray<FHitResult> HitResults;
 
 			bool bIsSphereTraceSucceed = UKismetSystemLibrary::SphereTraceMultiForObjects(
 				GetWorld(), TraceStartLocation, TraceEndLocation, EVAGripRadius, TargetTypes,
-				false, IgnoreActors, EDrawDebugTrace::ForDuration, HitResults, true
+				false, IgnoreActors, EDrawDebugTrace::None, HitResults, true
 			);
 
 			if (bIsSphereTraceSucceed)
 			{
-				// 접촉 지점 중 가장 멀리 있는 것을 선택
-				FHitResult Target;
-				float MaxDistance = 0.0f;
+				// 접촉 지점 중 손과 가장 가까이 있는 것을 선택
+				AActor* Target = nullptr;
+				float MinDistance = 10000.0f;
 				for (const FHitResult HitPoint : HitResults)
 				{
-					TArray<FName> Classifier = HitPoint.Actor->Tags;
-					if (Classifier.Num() > 0 && Classifier[0].ToString().Equals("HookPoint"))
+					float dist = UKismetMathLibrary::Vector_Distance(HitPoint.ImpactPoint, TraceStartLocation);
+					if (dist < MinDistance)
 					{
-						float dist = UKismetMathLibrary::Vector_Distance(HitPoint.ImpactPoint, TraceStartLocation);
-						if (dist > MaxDistance)
-						{
-							MaxDistance = dist;
-							Target = HitPoint;
-						}
+						MinDistance = dist;
+						Target = HitPoint.Actor.Get();
 					}
 				}
 
-				if (MaxDistance > 0)
+				if (MinDistance < 10000)
 				{
 					if (bIsLeft)
 					{
@@ -515,25 +528,25 @@ void AAstronautCharacter::OnGrip(AActor* HandActor, bool bIsLeft)
 						Display->ActivateDisplay(false);
 					}
 
-					TraceStartLocation = (TraceStartLocation + Target.ImpactPoint) * 0.5f + FVector(0.0f, 0.0f, 30.0f);
 					Movement->StopMovementImmediately();
 					Movement->ClearAccumulatedForces();
-					FVector PullingForce = (TraceStartLocation - GetActorLocation()) * EVAPullingForceMultiplier;
-
-					Movement->AddForce(PullingForce);
-					RecentPullingForce = PullingForce;
-
+					// FVector PullingForce = (Target->GetActorLocation() - GetActorLocation()) * EVAPullingForceMultiplier;
+					// Movement->AddForce(PullingForce);
+					
+					RecentPullingForce = Target->GetActorLocation() - GetActorLocation();
 					PullingForceDecrementCounter = EVAPullingForceDecrementInterval;
+
+					RecentHookPoint = Target->GetActorLocation();
 
 					if (bIsLeft)
 					{
 						bIsGrabbingL = true;
-						RecentGrabbingPointL = TraceStartLocation - GetActorLocation();
+						RecentGrabbingPointL = Target->GetActorLocation() - GetActorLocation();
 					}
 					else
 					{
 						bIsGrabbingR = true;
-						RecentGrabbingPointR = TraceStartLocation - GetActorLocation();
+						RecentGrabbingPointR = Target->GetActorLocation() - GetActorLocation();
 					}
 				}
 			}
@@ -608,37 +621,7 @@ void AAstronautCharacter::ReleaseGrip(AActor* HandActor, bool bIsLeft)
 
 void AAstronautCharacter::ControlHook()
 {
-	FVector TraceStartLocation = HookHand->GetActorLocation();
-	FVector TraceEndLocation =
-		TraceStartLocation + HookHand->GetActorForwardVector();
-	TArray<TEnumAsByte<EObjectTypeQuery>> TargetTypes;
-	TEnumAsByte<EObjectTypeQuery> WorldStatic = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldStatic);
-	TargetTypes.Add(WorldStatic);
-
-	// Default parameters
-	TArray<AActor*> IgnoreActors;
-	TArray<FHitResult> HitResults;
-
-	bool bIsSphereTraceSucceed = UKismetSystemLibrary::SphereTraceMultiForObjects(
-		GetWorld(), TraceStartLocation, TraceEndLocation, EVAGripRadius, TargetTypes,
-		false, IgnoreActors, EDrawDebugTrace::ForDuration, HitResults, true
-	);
-
-	// 안전줄을 연결할 부분을 찾은 경우 그 곳을 새로운 연결점으로 세팅
-	if (bIsSphereTraceSucceed)
-	{
-		for (const FHitResult Target : HitResults)
-		{
-			TArray<FName> Classifier = Target.Actor->Tags;
-			if (Classifier.Num() > 0 && Classifier[0].ToString().Equals("HookPoint"))
-			{
-				RecentHookPoint = Target.ImpactPoint;
-				return;
-			}
-		}
-	}
-
-	// 허공에서 사용한 경우 안전줄의 시작 지점을 향해 힘을 받음
+	// 안전줄의 시작 지점을 향해 힘을 받음
 	Movement->StopMovementImmediately();
 	Movement->ClearAccumulatedForces();
 
@@ -655,17 +638,26 @@ void AAstronautCharacter::MissionTick()
 
 		if (TimerController != nullptr) TimerController->UpdateDisplay();
 	}
+	else if (TimerController != nullptr) TimerController->UpdateDisplay();
 }
 
 void AAstronautCharacter::ForceChecker()
 {
 	if (PullingForceDecrementCounter > 0)
 	{
-		FVector CounterForce = (MoveType == EAstronautCSMMoveType::IVA) ?
-			-RecentPullingForce / IVAPullingForceDecrementInterval
-			: -RecentPullingForce / EVAPullingForceDecrementInterval;
-
-		Movement->AddForce(CounterForce);
+		if (MoveType == EAstronautCSMMoveType::IVA)
+		{
+			FVector CounterForce = -RecentPullingForce / IVAPullingForceDecrementInterval;
+			Movement->AddForce(CounterForce);
+		}
+		else if (MoveType == EAstronautCSMMoveType::EVA)
+		{
+			float EVAPullingForceRadix =
+				EVAPullingForceDecrementInterval * (EVAPullingForceDecrementInterval + 1) / 2.0f;
+			
+			AddActorWorldOffset(RecentPullingForce * PullingForceDecrementCounter / EVAPullingForceRadix);
+			// Movement->AddForce(CounterForce);
+		}
 		PullingForceDecrementCounter -= 1;
 
 		if (PullingForceDecrementCounter == 0)

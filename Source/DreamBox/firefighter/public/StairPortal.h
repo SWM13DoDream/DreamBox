@@ -39,6 +39,9 @@ public:
 		void OnComponentBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor
 			, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+	UFUNCTION(BlueprintImplementableEvent)
+		void MoveCharacterToNextLocation(class AVRCharacter* TargetPlayer);
+
 public:
 	//루트 컴포넌트
 	UPROPERTY()
@@ -49,19 +52,19 @@ public:
 		UBoxComponent* TriggerVolume;
 
 	//워프할 위치를 담음
-	UPROPERTY(EditAnywhere, Category = "Gameplay")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 		TArray<AStairPortal*> TeleportPointArray;
 
 	//기본 워프 타겟 위치
-	UPROPERTY(EditAnywhere, Category = "Gameplay")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 		int32 DefaultDestination; 
 
 	//특정 미션이 진행될 때만 워프할 타겟 위치
-	UPROPERTY(EditAnywhere, Category = "Gameplay")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 		int32 MissionDestination = -1;
 
 	//첫 번째 층 포탈인지?
-	UPROPERTY(EditAnywhere, Category = "Gameplay")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 		bool bIsFirstFloor = false;
 
 	//워프 위치가 "MissionDestination"으로 바뀔 미션ID 

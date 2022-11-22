@@ -7,15 +7,15 @@
 #include "LevelSequenceActor.h"
 #include "LevelSequencePlayer.h"
 
-void AJudgeGameMode::PostLogin(APlayerController* NewPlayer)
+void AJudgeGameMode::PostLogin(APlayerController* NewPlayerController)
 {
-	Super::PostLogin(NewPlayer);
+	Super::PostLogin(NewPlayerController);
 }
 
 void AJudgeGameMode::PreLoadingEndEvent()
 {
 	Super::PreLoadingEndEvent();
-	InitializeGame();
+	//InitializeGame();
 }
 
 void AJudgeGameMode::BeginPlay()
@@ -34,6 +34,7 @@ void AJudgeGameMode::BeginPlay()
 void AJudgeGameMode::PostLoadingEvent()
 {
 	Super::PostLoadingEvent();
+	InitializeGame();
 }
 
 void AJudgeGameMode::AddArray(FScriptDT& ScriptDT)

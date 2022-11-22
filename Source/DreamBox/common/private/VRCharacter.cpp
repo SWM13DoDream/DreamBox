@@ -178,9 +178,10 @@ float AVRCharacter::PlayLevelSequence(EPlayerLevelSequenceType TargetSequenceTyp
 
 			if (LevelSequenceLengthList.IsValidIndex((int32)(TargetSequenceType)))
 			{
-				GetCharacterMovement()->Deactivate();
+				GetCharacterMovement()->StopMovementImmediately();//SetMovementMode(EMovementMode::MOVE_None);
+				
 				GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]() {
-					GetCharacterMovement()->Activate();
+					GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 				}), LevelSequenceLengthList[(int32)(TargetSequenceType)], false);
 
 				return LevelSequenceLengthList[(int32)(TargetSequenceType)];
