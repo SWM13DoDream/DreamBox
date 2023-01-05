@@ -56,4 +56,4 @@
     
 - 체험 패키징 파일 (Windows)
     
-    [dreambox_shipping_1107.zip](https://drive.google.com/file/d/1aHXuMMS2vBknrl6OxAoYFKiu3c7SgpzU/view?usp=drivesdk)
+    ~~[dreambox_shipping_1107.zip]()~~
